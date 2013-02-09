@@ -3,16 +3,16 @@ package patrick_vanes_unrealscript_editor.editors.default_classes;
 import org.eclipse.jface.text.rules.IWordDetector;
 
 
-public class WordDetector implements IWordDetector
+public class KeywordDetector implements IWordDetector
 {
-	protected static WordDetector instance = new WordDetector();
+	protected static KeywordDetector instance = new KeywordDetector();
 	
 	
-	protected WordDetector()
+	protected KeywordDetector()
 	{
 	}
 	
-	public static WordDetector getSharedInstance()
+	public static KeywordDetector getSharedInstance()
 	{
 		return instance;
 	}

@@ -10,7 +10,7 @@ import org.eclipse.jface.text.rules.Token;
 import org.eclipse.jface.text.rules.WhitespaceRule;
 import org.eclipse.jface.text.rules.WordRule;
 import patrick_vanes_unrealscript_editor.editors.default_classes.WhitespaceDetector;
-import patrick_vanes_unrealscript_editor.editors.default_classes.WordDetector;
+import patrick_vanes_unrealscript_editor.editors.default_classes.KeywordDetector;
 import patrick_vanes_unrealscript_editor.editors.settings.TextAttributeConstant;
 import patrick_vanes_unrealscript_editor.editors.settings.WordConstant;
 
@@ -35,7 +35,7 @@ public class LineScanner extends RuleBasedScanner
 		
 		rules.add( new WhitespaceRule(WhitespaceDetector.getSharedInstance()) );
 		
-		WordRule wordRule = new WordRule( WordDetector.getSharedInstance(), other, true );
+		WordRule wordRule = new WordRule( KeywordDetector.getSharedInstance(), other, true );
 		for( int i=0; i<WordConstant.KEYWORDS.length; i++ )
 		{
 			wordRule.addWord( WordConstant.KEYWORDS[i], keyword );

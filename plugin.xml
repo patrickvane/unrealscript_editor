@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.4"?>
+<plugin>
+   
+   <extension
+         point="org.eclipse.ui.editors">
+      <editor
+            name="UnrealScript Editor"
+            extensions="uc"
+            icon="icons/sample.gif"
+            contributorClass="org.eclipse.ui.texteditor.BasicTextEditorActionContributor"
+            class="patrick_vanes_unrealscript_editor.editors.UnrealScriptEditor"
+            id="patrick_vanes_unrealscript_editor.editors.UnrealScriptEditor">
+      </editor>
+   </extension>
+   
+</plugin>

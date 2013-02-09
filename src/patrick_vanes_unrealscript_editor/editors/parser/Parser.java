@@ -70,71 +70,120 @@ public class Parser
 		
 		boolean inString = false;
 		boolean inChar = false;
+		boolean inLineComment = false;
+		boolean inBlockComment = false;
+		boolean inDocs = false;
 		char previousChar = ' ';
 		char character = ' ';
+		char nextChar = ' ';
+		char nextNextChar = ' ';
+		int skip = 0;
 		for( int i=0; i<data.length(); i++ )
 		{
+			if( skip > 0 )
+			{
+				skip--;
+				continue;
+			}
+			
 			previousChar = character;
 			character = data.charAt( i );
+			nextChar = ' ';
+			nextNextChar = ' ';
+			if( i+1 < data.length() )
+				nextChar = data.charAt( i+1 );
+			if( i+2 < data.length() )
+				nextNextChar = data.charAt( i+2 );
+			
 			if( (character == '\n') | (character == '\r') )
 			{
 				lineNumber++;
+				inLineComment = false;
 			}
 			if( !inString && !inChar )
 			{
-				if( WhitespaceDetector.getSharedInstance().isWhitespace(character) )
+				if( !inLineComment && !inBlockComment && !inDocs )
 				{
-					block.newWord();
-					continue;
+					if( WhitespaceDetector.getSharedInstance().isWhitespace(character) )
+					{
+						block.newWord();
+						continue;
+					}
+					if( character == ';' )
+					{
+						block.newLine();
+						continue;
+					}
+					if( character == '{' )
+					{
+						block = new CodeBlock( block, lineNumber );
+						continue;
+					}
+					if( character == '}' )
+					{
+						block.close( lineNumber );
+						block = block.getParent();
+						continue;
+					}
+					if( (character == '/') && (nextChar == '/') )
+					{
+						inLineComment = true;
+						continue;
+					}
+					if( (character == '/') && (nextChar == '*') )
+					{
+						if( nextNextChar == '*' )
+							inDocs = true;
+						else 
+							inBlockComment = true;
+						continue;
+					}
 				}
-				if( character == ';' )
+				if( inDocs || inBlockComment )
 				{
-					block.newLine();
-					continue;
-				}
-				if( character == '{' )
-				{
-					block = new CodeBlock( block, lineNumber );
-					continue;
-				}
-				if( character == '}' )
-				{
-					block.close( lineNumber );
-					block = block.getParent();
-					continue;
+					if( (character == '*') && (nextChar == '/') )
+					{
+						inDocs = false;
+						inBlockComment = false;
+						skip = 1;
+						continue;
+					}
 				}
 			}
-			if( previousChar != '\\' )
+			if( !inLineComment && !inBlockComment && !inDocs )
 			{
-				if( character == '"' )
+				if( previousChar != '\\' )
 				{
-					if( inString )
-						block.addCharacter( character );
-					
-					block.newWord();
-					
-					if( !inString )
-						block.addCharacter( character );
-					
-					inString = !inString;
-					continue;
+					if( character == '"' )
+					{
+						if( inString )
+							block.addCharacter( character );
+						
+						block.newWord();
+						
+						if( !inString )
+							block.addCharacter( character );
+						
+						inString = !inString;
+						continue;
+					}
+					if( character == '\'' )
+					{
+						if( inChar )
+							block.addCharacter( character );
+						
+						block.newWord();
+						
+						if( !inChar )
+							block.addCharacter( character );
+						
+						inChar = !inChar;
+						continue;
+					}
 				}
-				if( character == '\'' )
-				{
-					if( inChar )
-						block.addCharacter( character );
-					
-					block.newWord();
-					
-					if( !inChar )
-						block.addCharacter( character );
-					
-					inChar = !inChar;
-					continue;
-				}
+				block.addCharacter( character );
+				continue;
 			}
-			block.addCharacter( character );
-			continue;
 		}
 		
 		block.close( lineNumber );

@@ -34,7 +34,13 @@ public class _Main
 			"	var test2 = \"test twee\";" +"\n"+
 			"	var test3 = 5000;" +"\n"+
 			"}" +"\n"+
-			"function test2(){ return test3; }" +"\n"
+			"function test2(){ return test3; }" +"\n"+
+			"//test" +"\n"+
+			"/* test" +"\n"+
+			"test2 */" +"\n"+
+			"/* /** */real text" +"\n"+
+			"/** test2 " +"\n"+
+			"//test2 */" +"\n"
 		);
 		
 		readpart( data );

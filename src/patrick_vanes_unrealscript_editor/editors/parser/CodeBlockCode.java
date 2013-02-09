@@ -107,4 +107,23 @@ public class CodeBlockCode implements Code
 	{
 		return parent.getDepth();
 	}
+	
+	public int getBlockNumber()
+	{
+		return parent.getChildNumber( this );
+	}
+	
+	public boolean isFirstInFunction()
+	{
+		CodeBlock block = parent;
+		while( block != null )
+		{
+			if( block.isFunction() )
+			{
+				return (block.getChildNumber(this) == 1);
+			}
+			block = block.getParent();
+		}
+		return false;
+	}
 }

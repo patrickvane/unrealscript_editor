@@ -1,48 +1,48 @@
 package patrick_vanes_unrealscript_editor.editors;
 
 import patrick_vanes_unrealscript_editor.editors.parser.CodeErrorException;
-import patrick_vanes_unrealscript_editor.editors.parser.Parser;
+import patrick_vanes_unrealscript_editor.editors.parser.MyParser;
 
 
 public class _Main
 {
 	public static void main( String[] args )
 	{
-		read();
+		read1();
 	}
 	
 	
-	public static void read()
+	public static void read1()
 	{
 		try
 		{
 			String code = 
 			(
-				"function test ( var test, var test2 )" +"\n"+
-				"{" +"\n"+ 
-				"	var test = 5;\n" +"\n"+
-				"}" +"\n"+
-				"" +"\n"+
-				"function test2()" +"\n"+
-				"{" +"\n"+
-				"	var test2 = \"test twee\";" +"\n"+
-				"	var test3 = 5000;" +"\n"+
-				"	{" +"\n"+
-				"		var test10 = 5;" +"\n"+
-				"	}" +"\n"+
-				"	var test2 = \"test twee\";" +"\n"+
-				"	var test3 = 5000;" +"\n"+
-				"}" +"\n"+
-				"function test2(){ return test3; }" +"\n"+
-				"//test" +"\n"+
-				"/* test" +"\n"+
-				"test2 */" +"\n"+
-				"/* /** */real text" +"\n"+
-				"/** test2 " +"\n"+
-				"//test2 */" +"\n"
+				/*  1 */ "function test ( var test, var test2 )" +"\n"+
+				/*  2 */ "{" +"\n"+ 
+				/*  3 */ "	local test = 5;" +"\n"+
+				/*  4 */ "}" +"\n"+
+				/*  5 */ "" +"\n"+
+				/*  6 */ "function test2()" +"\n"+
+				/*  7 */ "{" +"\n"+
+				/*  8 */ "	local test2 = \"test twee\";" +"\n"+
+				/*  9 */ "	local test3 = 5000;" +"\n"+
+				/* 10 */ "	" +"\n"+
+				/* 11 */ "	" +"\n"+
+				/* 12 */ "	" +"\n"+
+				/* 13 */ "	local test2 = \"test twee\";" +"\n"+
+				/* 14 */ "	local test3 = 5000;" +"\n"+
+				/* 15 */ "}" +"\n"+
+				/* 16 */ "function test2(){ return test3; }" +"\n"+
+				/* 17 */ "//test" +"\n"+
+				/* 18 */ "/* test" +"\n"+
+				/* 19 */ "test2 */" +"\n"+
+				/* 20 */ "/* /** */real text" +"\n"+
+				/* 21 */ "/** test2 " +"\n"+
+				/* 22 */ "//test2 */" +"\n"
 			);
 			
-			Parser.checkForErrors( code );
+			MyParser.checkForErrors( code );
 		}
 		catch( CodeErrorException e )
 		{

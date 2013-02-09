@@ -122,6 +122,7 @@ public class CodeBlock implements Code
 		return line;
 	}
 	
+	/** Is this block a function? */
 	public boolean isFunction()
 	{
 		return function;
@@ -134,6 +135,19 @@ public class CodeBlock implements Code
 	public ArrayList<Code> getChilds()
 	{
 		return childs;
+	}
+	
+	/** Is this block inside a function? (is a parent block of this block a function?) */
+	public boolean isInFunction()
+	{
+		CodeBlock block = parent;
+		while( block != null )
+		{
+			if( block.isFunction() )
+				return true;
+			block = block.getParent();
+		}
+		return false;
 	}
 	
 	@Override
@@ -149,7 +163,7 @@ public class CodeBlock implements Code
 		return depth;
 	}
 	
-	public boolean isParentOf( CodeBlock block )
+	public boolean isParentOf( Code block )
 	{
 		return childs.contains( block );
 	}
@@ -158,13 +172,14 @@ public class CodeBlock implements Code
 		return block.isParentOf( this );
 	}
 	
-	public int getChildNumber( CodeBlock block )
+	/** Starts with 1, returns -1 if it is not a child of this block. */
+	public int getChildNumber( Code block )
 	{
 		for( int i=0; i<childs.size(); i++ )
 		{
 			if( childs.get(i) == block )
 			{
-				return i;
+				return i+1;
 			}
 		}
 		return -1;

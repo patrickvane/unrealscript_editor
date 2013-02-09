@@ -4,7 +4,7 @@ import java.util.ArrayList;
 import patrick_vanes_unrealscript_editor.editors.default_classes.WhitespaceDetector;
 
 
-public class Parser
+public class MyParser
 {
 	public static void checkForErrors( String data ) throws CodeErrorException
 	{
@@ -21,14 +21,36 @@ public class Parser
 		{
 			CodeBlockCode code = (CodeBlockCode) data;
 			
+			
+			boolean isFunction = code.getParent().isFunction();
+			boolean isInFunction = code.getParent().isInFunction();
+			boolean isFirst = code.isFirstInFunction();
+			
+			if( isFunction && isInFunction )
+				throw new CodeErrorException( code.getParent().getFirstLineNumber(), code.getParent().getLastLineNumber(), true, "Function inside a function" );
+			
+			
 			for( int i=0; i<code.getDepth(); i++ )
 			{
 				System.out.print( "\t" );
 			}
 			System.out.println( ">>>>>>>>>>>>>" );
 			
+			boolean nonVariable = false;
 			for( ArrayList<String> line : code.getLines() )
 			{
+				if( isFunction || isInFunction )
+				{
+					if( line.get(0).equals("var") )
+						throw new CodeErrorException( code.getFirstLineNumber(), code.getLastLineNumber(), true, "You can't make a var in a function, make a local instead" );
+					
+					if( (nonVariable || !isFirst) && line.get(0).equals("local") )
+						throw new CodeErrorException( code.getFirstLineNumber(), code.getLastLineNumber(), true, "You can only make locals at the beginning of the function" );
+					
+					if( !line.get(0).equals("local") )
+						nonVariable = true;
+				}
+				
 				for( int i=0; i<code.getDepth(); i++ )
 				{
 					System.out.print( "\t" );
@@ -302,7 +324,6 @@ public class Parser
 		{
 			if( this.closeBracketCharacter != closeBracketCharacter )
 			{
-				lineNumber--;
 				if( this.closeBracketCharacter != ROOT_CHAR )
 					throw new CodeErrorException( lineNumber, lineNumber, true, "Missing: "+this.closeBracketCharacter );
 				else

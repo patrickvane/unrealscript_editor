@@ -1,22 +1,26 @@
 package patrick_vanes_unrealscript_editor.editors.parser;
 
 
-public class CodeError
+public class CodeErrorException extends Exception
 {
+	private static final long	serialVersionUID	= -3066611880047954513L;
+	
 	private int firstLineNumber;
 	private int lastLineNumber;
 	private String message;
 	private boolean error; // or warning
 	
-	protected CodeError( int firstLineNumber, int lastLineNumber, boolean error, String message )
+	
+	protected CodeErrorException( int firstLineNumber, int lastLineNumber, boolean isError, String message )
 	{
 		this.firstLineNumber = firstLineNumber;
 		this.lastLineNumber = lastLineNumber;
-		this.error = error;
+		this.error = isError;
 		this.message = message;
 	}
 	
-	public int getfFirstLineNumber()
+	
+	public int getFirstLineNumber()
 	{
 		return firstLineNumber;
 	}
@@ -24,13 +28,17 @@ public class CodeError
 	{
 		return lastLineNumber;
 	}
+	@Override
 	public String getMessage()
 	{
 		return message;
 	}
-	/** Error or warning? */
 	public boolean isError()
 	{
 		return error;
+	}
+	public boolean isWarning()
+	{
+		return !error;
 	}
 }

@@ -1,94 +1,54 @@
 package patrick_vanes_unrealscript_editor.editors;
 
-import java.util.ArrayList;
-import patrick_vanes_unrealscript_editor.editors.parser.Code;
-import patrick_vanes_unrealscript_editor.editors.parser.CodeBlock;
-import patrick_vanes_unrealscript_editor.editors.parser.CodeBlockCode;
+import patrick_vanes_unrealscript_editor.editors.parser.CodeErrorException;
 import patrick_vanes_unrealscript_editor.editors.parser.Parser;
 
 
 public class _Main
 {
-	public static void main( String[] args ) throws Exception
+	public static void main( String[] args )
 	{
 		read();
 	}
 	
 	
-	public static void read() throws Exception
+	public static void read()
 	{
-		CodeBlock data = Parser.read
-		( 
-			"function test()" +"\n"+
-			"{" +"\n"+ 
-			"	var test = 5;\n" +"\n"+
-			"}" +"\n"+
-			"" +"\n"+
-			"function test2()" +"\n"+
-			"{" +"\n"+
-			"	var test2 = \"test twee\";" +"\n"+
-			"	var test3 = 5000;" +"\n"+
-			"	{" +"\n"+
-			"		var test10 = 5;" +"\n"+
-			"	}" +"\n"+
-			"	var test2 = \"test twee\";" +"\n"+
-			"	var test3 = 5000;" +"\n"+
-			"}" +"\n"+
-			"function test2(){ return test3; }" +"\n"+
-			"//test" +"\n"+
-			"/* test" +"\n"+
-			"test2 */" +"\n"+
-			"/* /** */real text" +"\n"+
-			"/** test2 " +"\n"+
-			"//test2 */" +"\n"
-		);
-		
-		readpart( data );
-	}
-	
-	public static void readpart( Code data ) throws Exception
-	{
-		if( data instanceof CodeBlockCode )
+		try
 		{
-			CodeBlockCode code = (CodeBlockCode) data;
+			String code = 
+			(
+				"function test ( var test, var test2 )" +"\n"+
+				"{" +"\n"+ 
+				"	var test = 5;\n" +"\n"+
+				"}" +"\n"+
+				"" +"\n"+
+				"function test2()" +"\n"+
+				"{" +"\n"+
+				"	var test2 = \"test twee\";" +"\n"+
+				"	var test3 = 5000;" +"\n"+
+				"	{" +"\n"+
+				"		var test10 = 5;" +"\n"+
+				"	}" +"\n"+
+				"	var test2 = \"test twee\";" +"\n"+
+				"	var test3 = 5000;" +"\n"+
+				"}" +"\n"+
+				"function test2(){ return test3; }" +"\n"+
+				"//test" +"\n"+
+				"/* test" +"\n"+
+				"test2 */" +"\n"+
+				"/* /** */real text" +"\n"+
+				"/** test2 " +"\n"+
+				"//test2 */" +"\n"
+			);
 			
-			for( int i=0; i<code.getDepth(); i++ )
-			{
-				System.out.print( "\t" );
-			}
-			System.out.println( ">>>>>>>>>>>>>" );
-			
-			for( ArrayList<String> line : code.getLines() )
-			{
-				for( int i=0; i<code.getDepth(); i++ )
-				{
-					System.out.print( "\t" );
-				}
-				boolean first = true;
-				for( String word : line )
-				{
-					if( !first )
-						System.out.print( "___" );
-					else
-						first = false;
-					System.out.print( word );
-				}
-				System.out.println();
-			}
-			
-			for( int i=0; i<code.getDepth(); i++ )
-			{
-				System.out.print( "\t" );
-			}
-			System.out.println( "<<<<<<<<<<<<<" );
+			Parser.checkForErrors( code );
 		}
-		else if( data instanceof CodeBlock )
+		catch( CodeErrorException e )
 		{
-			CodeBlock block = (CodeBlock) data;
-			for( Code child : block.getChilds() )
-			{
-				readpart( child );
-			}
+			System.out.println( "[Error]" );
+			System.out.println( e.getFirstLineNumber()+" - "+e.getLastLineNumber() );
+			System.out.println( e.getMessage() );
 		}
 	}
 }

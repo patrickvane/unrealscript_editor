@@ -7,11 +7,17 @@ public interface Code
 {
 	public int getFirstLineNumber();
 	public int getLastLineNumber();
+	
+	public boolean isClosed();
 	public void close( int lastLineNumber );
+	
 	public ArrayList<String> getLastLine();
+	
 	public int getDepth();
+	
 	public void addCharacter( char character );
 	public void newWord();
 	public void newLine();
+	
 	public CodeBlock getParent();
 }

@@ -13,6 +13,8 @@ public class CodeBlockCode implements Code
 	protected ArrayList<String> words = new ArrayList<String>();
 	protected StringBuilder characters = new StringBuilder();
 	
+	protected boolean closed = false;
+	
 	
 	protected CodeBlockCode( CodeBlock parent, int firstLineNumber )
 	{
@@ -46,14 +48,26 @@ public class CodeBlockCode implements Code
 		}
 	}
 	
+	
+	@Override
+	public boolean isClosed()
+	{
+		return closed;
+	}
+	
 	@Override
 	public void close( int lastLineNumber )
 	{
-		this.lastLineNumber = lastLineNumber;
-		newLine();
-		
-		characters = null;
-		words = null;
+		if( !closed )
+		{
+			closed = true;
+			
+			this.lastLineNumber = lastLineNumber;
+			newLine();
+			
+			characters = null;
+			words = null;
+		}
 	}
 	
 	

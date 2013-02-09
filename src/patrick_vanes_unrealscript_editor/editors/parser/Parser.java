@@ -6,12 +6,16 @@ import patrick_vanes_unrealscript_editor.editors.default_classes.WhitespaceDetec
 
 public class Parser
 {
-	public static CodeError checkForErrors( String data )
+	public static void checkForErrors( String data ) throws CodeErrorException
 	{
-		return checkBlockForErrors( read(data) );
+		checkBlockForErrors( read(data) );
+	}
+	public static void checkForErrors( CodeBlock data ) throws CodeErrorException
+	{
+		checkBlockForErrors( data );
 	}
 	
-	public static CodeError checkBlockForErrors( Code data )
+	public static CodeErrorException checkBlockForErrors( Code data ) throws CodeErrorException
 	{
 		if( data instanceof CodeBlockCode )
 		{
@@ -52,7 +56,7 @@ public class Parser
 			CodeBlock block = (CodeBlock) data;
 			for( Code child : block.getChilds() )
 			{
-				CodeError error = checkBlockForErrors( child );
+				CodeErrorException error = checkBlockForErrors( child );
 				if( error != null )
 					return error;
 			}
@@ -61,18 +65,21 @@ public class Parser
 	}
 	
 	
-	public static CodeBlock read( String data )
+	
+	
+	public static CodeBlock read( String data ) throws CodeErrorException
 	{
 		CodeBlock root = new CodeBlock( null, 0 );
 		CodeBlock block = root;
 		
-		int lineNumber = 0;
+		int lineNumber = 1;
 		
 		boolean inString = false;
 		boolean inChar = false;
-		boolean inLineComment = false;
-		boolean inBlockComment = false;
+		boolean inCommentLine = false;
+		boolean inCommentBlock = false;
 		boolean inDocs = false;
+		BracketBlock bracketBlock = new BracketBlock();
 		char previousChar = ' ';
 		char character = ' ';
 		char nextChar = ' ';
@@ -98,11 +105,11 @@ public class Parser
 			if( (character == '\n') | (character == '\r') )
 			{
 				lineNumber++;
-				inLineComment = false;
+				inCommentLine = false;
 			}
 			if( !inString && !inChar )
 			{
-				if( !inLineComment && !inBlockComment && !inDocs )
+				if( !inCommentLine && !inCommentBlock && !inDocs )
 				{
 					if( WhitespaceDetector.getSharedInstance().isWhitespace(character) )
 					{
@@ -114,20 +121,87 @@ public class Parser
 						block.newLine();
 						continue;
 					}
+					
 					if( character == '{' )
 					{
+						bracketBlock = new BracketBlock( bracketBlock, '{', '}' );
+						
 						block = new CodeBlock( block, lineNumber );
 						continue;
 					}
 					if( character == '}' )
 					{
+						bracketBlock.close( lineNumber, '{', '}' );
+						bracketBlock = bracketBlock.getParent();
+						
 						block.close( lineNumber );
 						block = block.getParent();
 						continue;
 					}
+					
+					if( character == '(' )
+					{
+						bracketBlock = new BracketBlock( bracketBlock, '(', ')' );
+						
+						block.newWord();
+						block.addCharacter( character );
+						block.newWord();
+						continue;
+					}
+					if( character == ')' )
+					{
+						bracketBlock.close( lineNumber, '(', ')' );
+						bracketBlock = bracketBlock.getParent();
+						
+						block.newWord();
+						block.addCharacter( character );
+						block.newWord();
+						continue;
+					}
+					
+					if( character == '<' )
+					{
+						bracketBlock = new BracketBlock( bracketBlock, '<', '>' );
+						
+						block.newWord();
+						block.addCharacter( character );
+						block.newWord();
+						continue;
+					}
+					if( character == '>' )
+					{
+						bracketBlock.close( lineNumber, '<', '>' );
+						bracketBlock = bracketBlock.getParent();
+						
+						block.newWord();
+						block.addCharacter( character );
+						block.newWord();
+						continue;
+					}
+					
+					if( character == '[' )
+					{
+						bracketBlock = new BracketBlock( bracketBlock, '[', ']' );
+						
+						block.newWord();
+						block.addCharacter( character );
+						block.newWord();
+						continue;
+					}
+					if( character == ']' )
+					{
+						bracketBlock.close( lineNumber, '[', ']' );
+						bracketBlock = bracketBlock.getParent();
+						
+						block.newWord();
+						block.addCharacter( character );
+						block.newWord();
+						continue;
+					}
+					
 					if( (character == '/') && (nextChar == '/') )
 					{
-						inLineComment = true;
+						inCommentLine = true;
 						continue;
 					}
 					if( (character == '/') && (nextChar == '*') )
@@ -135,22 +209,22 @@ public class Parser
 						if( nextNextChar == '*' )
 							inDocs = true;
 						else 
-							inBlockComment = true;
+							inCommentBlock = true;
 						continue;
 					}
 				}
-				if( inDocs || inBlockComment )
+				if( inDocs || inCommentBlock )
 				{
 					if( (character == '*') && (nextChar == '/') )
 					{
 						inDocs = false;
-						inBlockComment = false;
+						inCommentBlock = false;
 						skip = 1;
 						continue;
 					}
 				}
 			}
-			if( !inLineComment && !inBlockComment && !inDocs )
+			if( !inCommentLine && !inCommentBlock && !inDocs )
 			{
 				if( previousChar != '\\' )
 				{
@@ -186,7 +260,60 @@ public class Parser
 			}
 		}
 		
+		bracketBlock.close( lineNumber );
 		block.close( lineNumber );
+		
 		return root;
+	}
+	
+	
+	private static class BracketBlock
+	{
+		private static final char ROOT_CHAR = ' ';
+		
+		private BracketBlock parent;
+		private char closeBracketCharacter;
+		
+		@SuppressWarnings( "unused" )
+		private char openBracketCharacter;
+		
+		
+		public BracketBlock()
+		{
+			this.parent = null;
+			this.openBracketCharacter = ROOT_CHAR;
+			this.closeBracketCharacter = ROOT_CHAR;
+		}
+		
+		public BracketBlock( BracketBlock parent, char openBracketCharacter, char closeBracketCharacter )
+		{
+			this.parent = parent;
+			this.openBracketCharacter = openBracketCharacter;
+			this.closeBracketCharacter = closeBracketCharacter;
+		}
+		
+		
+		public void close( int lineNumber ) throws CodeErrorException
+		{
+			close( lineNumber, ROOT_CHAR, ROOT_CHAR );
+		}
+		
+		public void close( int lineNumber, char openBracketCharacter, char closeBracketCharacter ) throws CodeErrorException
+		{
+			if( this.closeBracketCharacter != closeBracketCharacter )
+			{
+				lineNumber--;
+				if( this.closeBracketCharacter != ROOT_CHAR )
+					throw new CodeErrorException( lineNumber, lineNumber, true, "Missing: "+this.closeBracketCharacter );
+				else
+					throw new CodeErrorException( lineNumber, lineNumber, true, "Missing: "+openBracketCharacter );
+			}
+		}
+		
+		
+		public BracketBlock getParent()
+		{
+			return parent;
+		}
 	}
 }

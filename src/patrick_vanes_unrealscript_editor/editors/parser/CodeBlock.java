@@ -10,6 +10,7 @@ public class CodeBlock implements Code
 	protected boolean function;
 	
 	protected CodeBlockCode currentCode;
+	protected boolean closed = false;
 	
 	
 	protected CodeBlock( CodeBlock parent, int firstLineNumber )
@@ -71,17 +72,28 @@ public class CodeBlock implements Code
 	
 	
 	@Override
+	public boolean isClosed()
+	{
+		return closed;
+	}
+	
+	@Override
 	public void close( int lastLineNumber )
 	{
-		if( currentCode != null )
+		if( !closed )
 		{
-			currentCode.close( lastLineNumber );
-			currentCode = null;
-		}
-		
-		if( parent != null )
-		{
-			parent.closedChild( this );
+			closed = true;
+			
+			if( currentCode != null )
+			{
+				currentCode.close( lastLineNumber );
+				currentCode = null;
+			}
+			
+			if( parent != null )
+			{
+				parent.closedChild( this );
+			}
 		}
 	}
 	

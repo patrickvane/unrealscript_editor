@@ -6,45 +6,58 @@ import java.util.ArrayList;
 public class CodeBlockCode implements Code
 {
 	protected CodeBlock parent;
-	protected int firstLineNumber;
-	protected int lastLineNumber;
+	protected int firstCharacterPosition;
+	protected int lastCharacterPosition;
 	
-	protected ArrayList<ArrayList<String>> lines = new ArrayList<ArrayList<String>>();
-	protected ArrayList<String> words = new ArrayList<String>();
-	protected StringBuilder characters = new StringBuilder();
+	protected ArrayList<ArrayList<CodeWord>> lines = new ArrayList<ArrayList<CodeWord>>();
+	protected ArrayList<CodeWord> words = new ArrayList<CodeWord>();
+	protected CodeWord word;
 	
 	protected boolean closed = false;
 	
 	
-	protected CodeBlockCode( CodeBlock parent, int firstLineNumber )
+	protected CodeBlockCode( CodeBlock parent )
 	{
 		this.parent = parent;
-		this.firstLineNumber = firstLineNumber;
 	}
 	
 	
 	@Override
-	public void addCharacter( char character )
+	public boolean isNewWordOpen()
 	{
-		characters.append( character );
+		return (word != null);
+	}
+	
+	
+	@Override
+	public void addCharacter( int characterPosition, char character )
+	{
+		if( !isNewWordOpen() )
+			newWord( characterPosition );
+		
+		word.addCharacter( character );
+	}
+	protected void newWord( int characterPosition )
+	{
+		word = new CodeWord( characterPosition );
+		words.add( word );
 	}
 	@Override
-	public void newWord()
+	public void closeWord( int characterPosition )
 	{
-		if( characters.length() > 0 )
+		if( word != null )
 		{
-			words.add( characters.toString().toLowerCase() ); // lowercase everything
-			characters = new StringBuilder();
+			word.close( characterPosition );
+			word = null;
 		}
 	}
 	@Override
 	public void newLine()
 	{
-		newWord();
 		if( !words.isEmpty() )
 		{
 			lines.add( words );
-			words = new ArrayList<String>();
+			words = new ArrayList<CodeWord>();
 		}
 	}
 	
@@ -56,31 +69,18 @@ public class CodeBlockCode implements Code
 	}
 	
 	@Override
-	public void close( int lastLineNumber )
+	public void close()
 	{
 		if( !closed )
 		{
 			closed = true;
 			
-			this.lastLineNumber = lastLineNumber;
 			newLine();
 			
-			characters = null;
 			words = null;
 		}
 	}
 	
-	
-	@Override
-	public int getFirstLineNumber()
-	{
-		return firstLineNumber;
-	}
-	@Override
-	public int getLastLineNumber()
-	{
-		return lastLineNumber;
-	}
 	
 	@Override
 	public CodeBlock getParent()
@@ -88,18 +88,18 @@ public class CodeBlockCode implements Code
 		return parent;
 	}
 	
-	public ArrayList<ArrayList<String>> getLines()
+	public ArrayList<ArrayList<CodeWord>> getLines()
 	{
 		return lines;
 	}
 	@Override
-	public ArrayList<String> getLastLine()
+	public ArrayList<CodeWord> getLastLine()
 	{
 		if( words.size() > 0 )
 			return words;
 		if( lines.size() > 0 )
 			return lines.get( lines.size() - 1 );
-		return new ArrayList<String>();
+		return new ArrayList<CodeWord>();
 	}
 	
 	@Override

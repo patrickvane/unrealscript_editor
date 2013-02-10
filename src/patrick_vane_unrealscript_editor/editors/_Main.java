@@ -46,7 +46,7 @@ public class _Main
 		catch( CodeErrorException e )
 		{
 			System.out.println( "[Error]" );
-			System.out.println( e.getFirstLineNumber()+" - "+e.getLastLineNumber() );
+			System.out.println( e.getFirstCharacterPosition()+" - "+e.getLastCharacterPosition() );
 			System.out.println( e.getMessage() );
 		}
 	}

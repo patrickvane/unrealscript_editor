@@ -13,15 +13,22 @@ public class CodeBlock implements Code
 	protected boolean closed = false;
 	
 	
-	protected CodeBlock( CodeBlock parent, int firstLineNumber )
+	protected CodeBlock( CodeBlock parent )
 	{
-		currentCode = new CodeBlockCode( this, firstLineNumber );
+		currentCode = new CodeBlockCode( this );
 		childs.add( currentCode );
 		
 		if( parent == null )
+		{
 			function = false;
+		}
 		else
-			function = parent.getLastLine().contains( "function" );
+		{
+			if( parent.getLastLine().size() > 0 )
+			{
+				function = parent.getLastLine().get( 0 ).getWord().equals( "function" );
+			}
+		}
 		
 		this.parent = parent;
 		if( parent != null )
@@ -30,16 +37,30 @@ public class CodeBlock implements Code
 	
 	
 	@Override
-	public void addCharacter( char character )
+	public boolean isNewWordOpen()
 	{
 		if( currentCode != null )
-			currentCode.addCharacter( character );
+			return currentCode.isNewWordOpen();
+		return false;
 	}
+	
+	
 	@Override
-	public void newWord()
+	public void addCharacter( int characterPosition, char character )
 	{
 		if( currentCode != null )
-			currentCode.newWord();
+			currentCode.addCharacter( characterPosition, character );
+	}
+	//protected void newWord( int characterPosition )
+	//{
+	//	if( currentCode != null )
+	//		currentCode.newWord( characterPosition );
+	//}
+	@Override
+	public void closeWord( int characterPosition )
+	{
+		if( currentCode != null )
+			currentCode.closeWord( characterPosition );
 	}
 	@Override
 	public void newLine()
@@ -53,7 +74,7 @@ public class CodeBlock implements Code
 	{
 		if( currentCode != null )
 		{
-			currentCode.close( child.getFirstLineNumber() );
+			currentCode.close();
 			currentCode = null;
 		}
 		childs.add( child );
@@ -63,10 +84,10 @@ public class CodeBlock implements Code
 	{
 		if( currentCode != null )
 		{
-			currentCode.close( child.getFirstLineNumber() );
+			currentCode.close();
 			currentCode = null;
 		}
-		currentCode = new CodeBlockCode( this, child.getLastLineNumber() );
+		currentCode = new CodeBlockCode( this );
 		childs.add( currentCode );
 	}
 	
@@ -78,7 +99,7 @@ public class CodeBlock implements Code
 	}
 	
 	@Override
-	public void close( int lastLineNumber )
+	public void close()
 	{
 		if( !closed )
 		{
@@ -86,7 +107,7 @@ public class CodeBlock implements Code
 			
 			if( currentCode != null )
 			{
-				currentCode.close( lastLineNumber );
+				currentCode.close();
 				currentCode = null;
 			}
 			
@@ -99,20 +120,9 @@ public class CodeBlock implements Code
 	
 	
 	@Override
-	public int getFirstLineNumber()
+	public ArrayList<CodeWord> getLastLine()
 	{
-		return childs.get( 0 ).getFirstLineNumber();
-	}
-	@Override
-	public int getLastLineNumber()
-	{
-		return childs.get( childs.size()-1 ).getLastLineNumber();
-	}
-	
-	@Override
-	public ArrayList<String> getLastLine()
-	{
-		ArrayList<String> line = new ArrayList<String>();
+		ArrayList<CodeWord> line = new ArrayList<CodeWord>();
 		int i = 1;
 		while( (line.size() <= 0) && (childs.size() >= i) )
 		{

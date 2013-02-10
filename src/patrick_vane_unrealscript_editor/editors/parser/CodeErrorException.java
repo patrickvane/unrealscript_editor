@@ -5,28 +5,28 @@ public class CodeErrorException extends Exception
 {
 	private static final long	serialVersionUID	= -3066611880047954513L;
 	
-	private int firstLineNumber;
-	private int lastLineNumber;
+	private int firstCharacterPosition;
+	private int lastCharacterPosition;
 	private String message;
 	private boolean error; // or warning
 	
 	
-	protected CodeErrorException( int firstLineNumber, int lastLineNumber, boolean isError, String message )
+	protected CodeErrorException( int firstCharacterPosition, int lastCharacterPosition, boolean isError, String message )
 	{
-		this.firstLineNumber = firstLineNumber;
-		this.lastLineNumber = lastLineNumber;
+		this.firstCharacterPosition = firstCharacterPosition;
+		this.lastCharacterPosition = lastCharacterPosition;
 		this.error = isError;
 		this.message = message;
 	}
 	
 	
-	public int getFirstLineNumber()
+	public int getFirstCharacterPosition()
 	{
-		return firstLineNumber;
+		return firstCharacterPosition;
 	}
-	public int getLastLineNumber()
+	public int getLastCharacterPosition()
 	{
-		return lastLineNumber;
+		return lastCharacterPosition;
 	}
 	@Override
 	public String getMessage()

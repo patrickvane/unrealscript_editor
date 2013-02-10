@@ -10,8 +10,20 @@
             icon="icons/sample.gif"
             contributorClass="org.eclipse.ui.texteditor.BasicTextEditorActionContributor"
             class="patrick_vane_unrealscript_editor.editors.UnrealScriptEditor"
-            id="patrick_vanes_unrealscript_editor.editors.UnrealScriptEditor">
+            id="patrick_vane_unrealscript_editor.editors.UnrealScriptEditor">
       </editor>
    </extension>
+   
+   <extension
+	      id="org.eclipse.unrealscript.markers.error"
+	      name="UnrealScript Syntax Problem"
+	      point="org.eclipse.core.resources.markers">
+	   <super
+	         type="org.eclipse.core.resources.problemmarker">
+	   </super>
+	   <persistent
+	         value="false">
+	   </persistent>
+	</extension>
    
 </plugin>

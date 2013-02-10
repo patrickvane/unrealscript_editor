@@ -10,68 +10,50 @@ public class MyParser
 	{
 		checkBlockForErrors( read(data) );
 	}
-	public static void checkForErrors( CodeBlock data ) throws CodeErrorException
+	protected static void checkForErrors( CodeBlock data ) throws CodeErrorException
 	{
 		checkBlockForErrors( data );
 	}
 	
-	public static CodeErrorException checkBlockForErrors( Code data ) throws CodeErrorException
+	protected static CodeErrorException checkBlockForErrors( Code data ) throws CodeErrorException
 	{
 		if( data instanceof CodeBlockCode )
 		{
 			CodeBlockCode code = (CodeBlockCode) data;
 			
-			
 			boolean isFunction = code.getParent().isFunction();
 			boolean isInFunction = code.getParent().isInFunction();
-			boolean isFirst = code.isFirstInFunction();
+			boolean isFirstInFunction = code.isFirstInFunction();
 			
-			if( isFunction && isInFunction )
-				throw new CodeErrorException( code.getParent().getFirstLineNumber(), code.getParent().getLastLineNumber(), true, "Function inside a function" );
-			
-			
-			for( int i=0; i<code.getDepth(); i++ )
+			boolean noLocalsAnymore = false;
+			for( ArrayList<CodeWord> line : code.getLines() )
 			{
-				System.out.print( "\t" );
-			}
-			System.out.println( ">>>>>>>>>>>>>" );
-			
-			boolean nonVariable = false;
-			for( ArrayList<String> line : code.getLines() )
-			{
-				if( isFunction || isInFunction )
+				CodeWord worddata = null;
+				String word = null;
+				if( line.size() > 0 )
 				{
-					if( line.get(0).equals("var") )
-						throw new CodeErrorException( code.getFirstLineNumber(), code.getLastLineNumber(), true, "You can't make a var in a function, make a local instead" );
-					
-					if( (nonVariable || !isFirst) && line.get(0).equals("local") )
-						throw new CodeErrorException( code.getFirstLineNumber(), code.getLastLineNumber(), true, "You can only make locals at the beginning of the function" );
-					
-					if( !line.get(0).equals("local") )
-						nonVariable = true;
+					if( line.get(0) != null )
+					{
+						worddata = line.get( 0 );
+						word = worddata.getWord();
+					}
 				}
 				
-				for( int i=0; i<code.getDepth(); i++ )
+				if( (worddata != null) && (word != null) )
 				{
-					System.out.print( "\t" );
+					if( isFunction || isInFunction )
+					{
+						if( word.equals("var") )
+							throw new CodeErrorException( worddata.getFirstCharacterPosition(), worddata.getLastCharacterPosition(), true, "You can't make a var in a function, make a local instead" );
+						
+						if( (noLocalsAnymore || !isFirstInFunction) && word.equals("local") )
+							throw new CodeErrorException( worddata.getFirstCharacterPosition(), worddata.getLastCharacterPosition(), true, "You can only make locals at the beginning of the function" );
+						
+						if( !word.equals("local") )
+							noLocalsAnymore = true;
+					}
 				}
-				boolean first = true;
-				for( String word : line )
-				{
-					if( !first )
-						System.out.print( "___" );
-					else
-						first = false;
-					System.out.print( word );
-				}
-				System.out.println();
 			}
-			
-			for( int i=0; i<code.getDepth(); i++ )
-			{
-				System.out.print( "\t" );
-			}
-			System.out.println( "<<<<<<<<<<<<<" );
 		}
 		else if( data instanceof CodeBlock )
 		{
@@ -89,12 +71,12 @@ public class MyParser
 	
 	
 	
-	public static CodeBlock read( String data ) throws CodeErrorException
+	protected static CodeBlock read( String data ) throws CodeErrorException
 	{
-		CodeBlock root = new CodeBlock( null, 0 );
+		CodeBlock root = new CodeBlock( null );
 		CodeBlock block = root;
 		
-		int lineNumber = 1;
+		int characterPosition = -1;
 		
 		boolean inString = false;
 		boolean inChar = false;
@@ -109,6 +91,7 @@ public class MyParser
 		int skip = 0;
 		for( int i=0; i<data.length(); i++ )
 		{
+			characterPosition++;
 			if( skip > 0 )
 			{
 				skip--;
@@ -130,7 +113,6 @@ public class MyParser
 					skip = 1;
 				else if( (character == '\r') && (nextChar == '\n') )
 					skip = 1;
-				lineNumber++;
 				inCommentLine = false;
 			}
 			if( !inString && !inChar )
@@ -139,11 +121,12 @@ public class MyParser
 				{
 					if( WhitespaceDetector.getSharedInstance().isWhitespace(character) )
 					{
-						block.newWord();
+						block.closeWord( characterPosition );
 						continue;
 					}
 					if( character == ';' )
 					{
+						block.closeWord( characterPosition );
 						block.newLine();
 						continue;
 					}
@@ -152,15 +135,17 @@ public class MyParser
 					{
 						bracketBlock = new BracketBlock( bracketBlock, '{', '}' );
 						
-						block = new CodeBlock( block, lineNumber );
+						block.closeWord( characterPosition );
+						block = new CodeBlock( block );
 						continue;
 					}
 					if( character == '}' )
 					{
-						bracketBlock.close( lineNumber, '{', '}' );
+						bracketBlock.close( characterPosition, '{', '}' );
 						bracketBlock = bracketBlock.getParent();
 						
-						block.close( lineNumber );
+						block.closeWord( characterPosition );
+						block.close();
 						block = block.getParent();
 						continue;
 					}
@@ -169,19 +154,19 @@ public class MyParser
 					{
 						bracketBlock = new BracketBlock( bracketBlock, '(', ')' );
 						
-						block.newWord();
-						block.addCharacter( character );
-						block.newWord();
+						block.closeWord( characterPosition );
+						block.addCharacter( characterPosition, character );
+						block.closeWord( characterPosition+1 );
 						continue;
 					}
 					if( character == ')' )
 					{
-						bracketBlock.close( lineNumber, '(', ')' );
+						bracketBlock.close( characterPosition, '(', ')' );
 						bracketBlock = bracketBlock.getParent();
 						
-						block.newWord();
-						block.addCharacter( character );
-						block.newWord();
+						block.closeWord( characterPosition );
+						block.addCharacter( characterPosition, character );
+						block.closeWord( characterPosition+1 );
 						continue;
 					}
 					
@@ -189,19 +174,19 @@ public class MyParser
 					{
 						bracketBlock = new BracketBlock( bracketBlock, '<', '>' );
 						
-						block.newWord();
-						block.addCharacter( character );
-						block.newWord();
+						block.closeWord( characterPosition );
+						block.addCharacter( characterPosition, character );
+						block.closeWord( characterPosition+1 );
 						continue;
 					}
 					if( character == '>' )
 					{
-						bracketBlock.close( lineNumber, '<', '>' );
+						bracketBlock.close( characterPosition, '<', '>' );
 						bracketBlock = bracketBlock.getParent();
 						
-						block.newWord();
-						block.addCharacter( character );
-						block.newWord();
+						block.closeWord( characterPosition );
+						block.addCharacter( characterPosition, character );
+						block.closeWord( characterPosition+1 );
 						continue;
 					}
 					
@@ -209,19 +194,19 @@ public class MyParser
 					{
 						bracketBlock = new BracketBlock( bracketBlock, '[', ']' );
 						
-						block.newWord();
-						block.addCharacter( character );
-						block.newWord();
+						block.closeWord( characterPosition );
+						block.addCharacter( characterPosition, character );
+						block.closeWord( characterPosition+1 );
 						continue;
 					}
 					if( character == ']' )
 					{
-						bracketBlock.close( lineNumber, '[', ']' );
+						bracketBlock.close( characterPosition, '[', ']' );
 						bracketBlock = bracketBlock.getParent();
 						
-						block.newWord();
-						block.addCharacter( character );
-						block.newWord();
+						block.closeWord( characterPosition );
+						block.addCharacter( characterPosition, character );
+						block.closeWord( characterPosition+1 );
 						continue;
 					}
 					
@@ -257,37 +242,42 @@ public class MyParser
 					if( character == '"' )
 					{
 						if( inString )
-							block.addCharacter( character );
-						
-						block.newWord();
-						
-						if( !inString )
-							block.addCharacter( character );
-						
+						{
+							block.addCharacter( characterPosition, character );
+							block.closeWord( characterPosition+1 );
+						}
+						else
+						{
+							block.closeWord( characterPosition );
+							block.addCharacter( characterPosition, character );
+						}
 						inString = !inString;
 						continue;
 					}
 					if( character == '\'' )
 					{
 						if( inChar )
-							block.addCharacter( character );
-						
-						block.newWord();
-						
-						if( !inChar )
-							block.addCharacter( character );
-						
+						{
+							block.addCharacter( characterPosition, character );
+							block.closeWord( characterPosition+1 );
+						}
+						else
+						{
+							block.closeWord( characterPosition );
+							block.addCharacter( characterPosition, character );
+						}
 						inChar = !inChar;
 						continue;
 					}
 				}
-				block.addCharacter( character );
+				block.addCharacter( characterPosition, character );
 				continue;
 			}
 		}
 		
-		bracketBlock.close( lineNumber );
-		block.close( lineNumber );
+		bracketBlock.close( characterPosition );
+		block.closeWord( characterPosition );
+		block.close();
 		
 		return root;
 	}
@@ -319,19 +309,21 @@ public class MyParser
 		}
 		
 		
-		public void close( int lineNumber ) throws CodeErrorException
+		public void close( int characterPosition ) throws CodeErrorException
 		{
-			close( lineNumber, ROOT_CHAR, ROOT_CHAR );
+			close( characterPosition, ROOT_CHAR, ROOT_CHAR );
 		}
 		
-		public void close( int lineNumber, char openBracketCharacter, char closeBracketCharacter ) throws CodeErrorException
+		public void close( int characterPosition, char openBracketCharacter, char closeBracketCharacter ) throws CodeErrorException
 		{
 			if( this.closeBracketCharacter != closeBracketCharacter )
 			{
-				if( this.closeBracketCharacter != ROOT_CHAR )
-					throw new CodeErrorException( lineNumber, lineNumber, true, "Missing: "+this.closeBracketCharacter );
+				if( closeBracketCharacter == ROOT_CHAR )
+					throw new CodeErrorException( characterPosition, characterPosition + 1, true, "Missing: "+this.openBracketCharacter );
+				else if( this.closeBracketCharacter == ROOT_CHAR )
+					throw new CodeErrorException( characterPosition, characterPosition + 1, true, "Missing: "+openBracketCharacter );
 				else
-					throw new CodeErrorException( lineNumber, lineNumber, true, "Missing: "+openBracketCharacter );
+					throw new CodeErrorException( characterPosition, characterPosition + 1, true, "Unexpected "+closeBracketCharacter+", was expecting "+this.closeBracketCharacter );
 			}
 		}
 		

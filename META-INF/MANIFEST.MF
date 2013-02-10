@@ -1,7 +1,7 @@
 Manifest-Version: 1.0
 Bundle-ManifestVersion: 2
 Bundle-Name: UnrealScript_Editor
-Bundle-SymbolicName: Patrick_Vanes_UnrealScript_Editor; singleton:=true
+Bundle-SymbolicName: Patrick_Vane_UnrealScript_Editor;singleton:=true
 Bundle-Version: 1.0.0.qualifier
 Bundle-Vendor: Patrick Vane
 Require-Bundle: org.eclipse.core.runtime,

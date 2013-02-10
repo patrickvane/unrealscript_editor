@@ -5,18 +5,18 @@ import java.util.ArrayList;
 
 public interface Code
 {
-	public int getFirstLineNumber();
-	public int getLastLineNumber();
-	
 	public boolean isClosed();
-	public void close( int lastLineNumber );
+	public void close();
 	
-	public ArrayList<String> getLastLine();
+	public boolean isNewWordOpen();
+	
+	public ArrayList<CodeWord> getLastLine();
 	
 	public int getDepth();
 	
-	public void addCharacter( char character );
-	public void newWord();
+	public void addCharacter( int characterPosition, char character );
+	//public void newWord( int characterPosition );
+	public void closeWord( int characterPosition );
 	public void newLine();
 	
 	public CodeBlock getParent();

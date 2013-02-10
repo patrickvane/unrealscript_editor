@@ -1,6 +1,8 @@
 package patrick_vane_unrealscript_editor.editors;
 
+import org.eclipse.jface.text.DefaultTextHover;
 import org.eclipse.jface.text.ITextDoubleClickStrategy;
+import org.eclipse.jface.text.ITextHover;
 import org.eclipse.jface.text.presentation.IPresentationReconciler;
 import org.eclipse.jface.text.presentation.PresentationReconciler;
 import org.eclipse.jface.text.rules.DefaultDamagerRepairer;
@@ -68,5 +70,15 @@ public class Configuration extends SourceViewerConfiguration
 	public IAnnotationHover getAnnotationHover( ISourceViewer sourceViewer )
 	{
 		return new DefaultAnnotationHover();
+	}
+	@Override
+	public ITextHover getTextHover( ISourceViewer sourceViewer, String contentType )
+	{
+		return new DefaultTextHover( sourceViewer );
+	}
+	@Override
+	public ITextHover getTextHover( ISourceViewer sourceViewer, String contentType, int stateMask )
+	{
+		return new DefaultTextHover( sourceViewer );
 	}
 }

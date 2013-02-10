@@ -6,42 +6,41 @@ import patrick_vane_unrealscript_editor.editors.parser.MyParser;
 
 public class _Main
 {
+	public static String code = 
+	(
+		/*  1 */ "class Test extends Actor placeable;\r\n" + 
+		/*  2 */ "\r\n" + 
+		/*  3 */ "\r\n" + 
+		/*  4 */ "defaultproperties\r\n" + 
+		/*  5 */ "{\r\n" + 
+		/*  6 */ "    Begin Object Class=SpriteComponent Name=Sprite\r\n" + 
+		/*  7 */ "        Sprite=Texture2D'EditorResources.S_NavP'\r\n" + 
+		/*  8 */ "        //HiddenGame=true\r\n" + 
+		/*  9 */ "    End Object\r\n" + 
+		/* 10 */ "    components.add( Sprite )\r\n" + 
+		/* 11 */ "}\r\n" + 
+		/* 12 */ "\r\n" + 
+		/* 13 */ "\r\n" + 
+		/* 14 */ "function postBeginPlay()\r\n" + 
+		/* 15 */ "{\r\n" + 
+		/* 16 */ "    `log( \"##########################################################\" );\r\n" + 
+		/* 17 */ "    \r\n" + 
+		/* 18 */ "    setLocation( location + vect(0, 0, 128) );\r\n" + 
+		/* 19 */ "    \r\n" + 
+		/* 20 */ "    `log( \"##########################################################\" );\r\n" + 
+		/* 21 */ "}"
+	);
+	
+	
 	public static void main( String[] args )
 	{
 		read1();
 	}
 	
-	
 	public static void read1()
 	{
 		try
 		{
-			String code = 
-			(
-				/*  1 */ "function test ( var test, var test2 )" +"\n"+
-				/*  2 */ "{" +"\n"+ 
-				/*  3 */ "	local test = 5;" +"\n"+
-				/*  4 */ "}" +"\n"+
-				/*  5 */ "" +"\n"+
-				/*  6 */ "function test2()" +"\n"+
-				/*  7 */ "{" +"\n"+
-				/*  8 */ "	local test2 = \"test twee\";" +"\n"+
-				/*  9 */ "	local test3 = 5000;" +"\n"+
-				/* 10 */ "	" +"\n"+
-				/* 11 */ "	" +"\n"+
-				/* 12 */ "	" +"\n"+
-				/* 13 */ "	local test2 = \"test twee\";" +"\n"+
-				/* 14 */ "	local test3 = 5000;" +"\n"+
-				/* 15 */ "}" +"\n"+
-				/* 16 */ "function test2(){ return test3; }" +"\n"+
-				/* 17 */ "//test" +"\n"+
-				/* 18 */ "/* test" +"\n"+
-				/* 19 */ "test2 */" +"\n"+
-				/* 20 */ "/* /** */real text" +"\n"+
-				/* 21 */ "/** test2 " +"\n"+
-				/* 22 */ "//test2 */" +"\n"
-			);
-			
 			MyParser.checkForErrors( code );
 		}
 		catch( CodeErrorException e )

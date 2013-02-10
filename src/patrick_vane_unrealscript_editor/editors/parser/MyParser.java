@@ -124,8 +124,12 @@ public class MyParser
 			if( i+2 < data.length() )
 				nextNextChar = data.charAt( i+2 );
 			
-			if( (character == '\n') | (character == '\r') )
+			if( (character == '\n') || (character == '\r') )
 			{
+				if( (character == '\n') && (nextChar == '\r') )
+					skip = 1;
+				else if( (character == '\r') && (nextChar == '\n') )
+					skip = 1;
 				lineNumber++;
 				inCommentLine = false;
 			}

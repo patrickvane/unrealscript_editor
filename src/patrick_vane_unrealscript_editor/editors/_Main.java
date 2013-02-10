@@ -1,7 +1,7 @@
 package patrick_vane_unrealscript_editor.editors;
 
 import patrick_vane_unrealscript_editor.editors.parser.CodeException;
-import patrick_vane_unrealscript_editor.editors.parser.MyParser;
+import patrick_vane_unrealscript_editor.editors.parser.UnrealScriptParser;
 
 
 public class _Main
@@ -39,7 +39,7 @@ public class _Main
 	
 	public static void read1()
 	{
-		CodeException[] exceptions = MyParser.findErrors( code );
+		CodeException[] exceptions = UnrealScriptParser.findErrors( code );
 		for( CodeException e : exceptions )
 		{
 			System.out.println( "[Error]" );

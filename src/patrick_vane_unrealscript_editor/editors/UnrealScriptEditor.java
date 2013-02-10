@@ -13,7 +13,7 @@ import org.eclipse.ui.editors.text.TextEditor;
 import patrick_vane_unrealscript_editor.editors.default_classes.ColorManager;
 import patrick_vane_unrealscript_editor.editors.default_classes.DocumentProvider;
 import patrick_vane_unrealscript_editor.editors.parser.CodeException;
-import patrick_vane_unrealscript_editor.editors.parser.MyParser;
+import patrick_vane_unrealscript_editor.editors.parser.UnrealScriptParser;
 
 
 public class UnrealScriptEditor extends TextEditor
@@ -116,7 +116,7 @@ public class UnrealScriptEditor extends TextEditor
 		{
 			if( getSourceViewer().getDocument() != null )
 			{
-				exceptions = MyParser.findErrors( getSourceViewer().getDocument().get() );
+				exceptions = UnrealScriptParser.findErrors( getSourceViewer().getDocument().get() );
 			}
 		}
 		

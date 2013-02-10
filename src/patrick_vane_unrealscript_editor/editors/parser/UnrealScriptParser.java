@@ -5,7 +5,7 @@ import java.util.LinkedList;
 import patrick_vane_unrealscript_editor.editors.default_classes.WhitespaceDetector;
 
 
-public class MyParser
+public class UnrealScriptParser
 {
 	public static CodeException[] findErrors( String data )
 	{

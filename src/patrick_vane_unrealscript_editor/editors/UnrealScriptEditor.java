@@ -76,62 +76,36 @@ public class UnrealScriptEditor extends TextEditor
 	public void addErrorMarker( final int startCharacter, final int endCharacter, final String message )
 	{
 		final IFile file = getFile();
-		getSite().getShell().getDisplay().syncExec
-		(
-			new Runnable()
+		try
+		{
+			if( file != null )
 			{
-				@Override
-				public void run()
-				{
-					try
-					{
-						if( file != null )
-						{
-							IMarker marker = file.createMarker( ERROR_MARKER_ID );
-							marker.setAttribute( IMarker.CHAR_START, startCharacter );
-							marker.setAttribute( IMarker.CHAR_END, endCharacter );
-							marker.setAttribute( IMarker.LOCATION, "UnrealScript File" );
-							marker.setAttribute( IMarker.SEVERITY, IMarker.SEVERITY_ERROR );
-							marker.setAttribute( IMarker.MESSAGE, message );
-						}
-					}
-					catch( Exception e )
-					{
-					}
-				}
+				IMarker marker = file.createMarker( ERROR_MARKER_ID );
+				marker.setAttribute( IMarker.CHAR_START, startCharacter );
+				marker.setAttribute( IMarker.CHAR_END, endCharacter );
+				marker.setAttribute( IMarker.LOCATION, "UnrealScript File" );
+				marker.setAttribute( IMarker.SEVERITY, IMarker.SEVERITY_ERROR );
+				marker.setAttribute( IMarker.MESSAGE, message );
 			}
-		);
+		}
+		catch( CoreException e )
+		{
+		}
 	}
 	public void clearErrorMarkers()
 	{
 		final IFile file = getFile();
-		getSite().getShell().getDisplay().syncExec
-		(
-			new Runnable()
+		if( file != null )
+		{
+			try
 			{
-				@Override
-				public void run()
-				{
-					try
-					{
-						if( file != null )
-						{
-							try
-							{
-								file.deleteMarkers( ERROR_MARKER_ID, true, IResource.DEPTH_INFINITE );
-							}
-							catch( CoreException e )
-							{
-								e.printStackTrace();
-							}
-						}
-					}
-					catch( Exception e )
-					{
-					}
-				}
+				file.deleteMarkers( ERROR_MARKER_ID, true, IResource.DEPTH_INFINITE );
 			}
-		);
+			catch( CoreException e )
+			{
+				e.printStackTrace();
+			}
+		}
 	}
 	
 	
@@ -146,14 +120,25 @@ public class UnrealScriptEditor extends TextEditor
 			}
 		}
 		
-		clearErrorMarkers();
-		if( exceptions != null )
-		{
-			for( CodeException e : exceptions )
+		final CodeException[] EXCEPTIONS = exceptions;
+		getSite().getShell().getDisplay().syncExec
+		(
+			new Runnable()
 			{
-				addErrorMarker( e.getFirstCharacterPosition(), e.getLastCharacterPosition(), e.getMessage() );
+				@Override
+				public void run()
+				{
+					clearErrorMarkers();
+					if( EXCEPTIONS != null )
+					{
+						for( CodeException e : EXCEPTIONS )
+						{
+							addErrorMarker( e.getFirstCharacterPosition(), e.getLastCharacterPosition(), e.getMessage() );
+						}
+					}
+				}
 			}
-		}
+		);
 	}
 	
 	

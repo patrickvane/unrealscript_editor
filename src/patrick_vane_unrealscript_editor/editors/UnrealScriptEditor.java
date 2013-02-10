@@ -43,7 +43,7 @@ public class UnrealScriptEditor extends TextEditor
 				try
 				{
 					Thread.sleep( 2000 );
-					showErrors();
+					updateMarkers();
 				}
 				catch( Exception e )
 				{
@@ -92,7 +92,7 @@ public class UnrealScriptEditor extends TextEditor
 		{
 		}
 	}
-	public void clearErrorMarkers()
+	public void clearMarkers()
 	{
 		final IFile file = getFile();
 		if( file != null )
@@ -109,7 +109,7 @@ public class UnrealScriptEditor extends TextEditor
 	}
 	
 	
-	public void showErrors()
+	public void updateMarkers()
 	{
 		CodeException[] exceptions = null;
 		if( getSourceViewer() != null )
@@ -121,19 +121,22 @@ public class UnrealScriptEditor extends TextEditor
 		}
 		
 		final CodeException[] EXCEPTIONS = exceptions;
-		getSite().getShell().getDisplay().syncExec
-		(
+		getSourceViewer().getTextWidget().getDisplay().syncExec
+		( 
 			new Runnable()
 			{
 				@Override
 				public void run()
 				{
-					clearErrorMarkers();
+					clearMarkers();
 					if( EXCEPTIONS != null )
 					{
 						for( CodeException e : EXCEPTIONS )
 						{
-							addErrorMarker( e.getFirstCharacterPosition(), e.getLastCharacterPosition(), e.getMessage() );
+							if( e.isError() )
+							{
+								addErrorMarker( e.getFirstCharacterPosition(), e.getLastCharacterPosition(), e.getMessage() );
+							}
 						}
 					}
 				}

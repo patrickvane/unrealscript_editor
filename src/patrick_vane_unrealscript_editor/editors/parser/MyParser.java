@@ -137,6 +137,7 @@ public class MyParser
 					{
 						block.closeWord( characterPosition );
 						block.newLine();
+						bracketBlock.newLine( characterPosition );
 						continue;
 					}
 					
@@ -318,6 +319,13 @@ public class MyParser
 		}
 		
 		
+		public void newLine( int characterPosition ) throws CodeException
+		{
+			if( (openBracketCharacter == '(') || (openBracketCharacter == '[') || (openBracketCharacter == '<') )
+				throw new CodeException( characterPosition, characterPosition+1, true, "Unexpected: ;" );
+		}
+		
+		
 		public void close( int characterPosition ) throws CodeException
 		{
 			close( characterPosition, ROOT_CHAR, ROOT_CHAR );
@@ -332,7 +340,7 @@ public class MyParser
 				else if( this.closeBracketCharacter == ROOT_CHAR )
 					throw new CodeException( characterPosition, characterPosition + 1, true, "Missing: "+openBracketCharacter );
 				else
-					throw new CodeException( characterPosition, characterPosition + 1, true, "Unexpected "+closeBracketCharacter+", was expecting "+this.closeBracketCharacter );
+					throw new CodeException( characterPosition, characterPosition + 1, true, "Unexpected: "+closeBracketCharacter+", was expecting: "+this.closeBracketCharacter );
 			}
 		}
 		

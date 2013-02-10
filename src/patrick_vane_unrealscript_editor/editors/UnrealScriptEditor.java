@@ -1,8 +1,8 @@
-package patrick_vanes_unrealscript_editor.editors;
+package patrick_vane_unrealscript_editor.editors;
 
 import org.eclipse.ui.editors.text.TextEditor;
-import patrick_vanes_unrealscript_editor.editors.default_classes.ColorManager;
-import patrick_vanes_unrealscript_editor.editors.default_classes.DocumentProvider;
+import patrick_vane_unrealscript_editor.editors.default_classes.ColorManager;
+import patrick_vane_unrealscript_editor.editors.default_classes.DocumentProvider;
 
 
 public class UnrealScriptEditor extends TextEditor

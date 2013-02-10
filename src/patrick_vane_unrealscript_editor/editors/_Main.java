@@ -1,7 +1,7 @@
-package patrick_vanes_unrealscript_editor.editors;
+package patrick_vane_unrealscript_editor.editors;
 
-import patrick_vanes_unrealscript_editor.editors.parser.CodeErrorException;
-import patrick_vanes_unrealscript_editor.editors.parser.MyParser;
+import patrick_vane_unrealscript_editor.editors.parser.CodeErrorException;
+import patrick_vane_unrealscript_editor.editors.parser.MyParser;
 
 
 public class _Main

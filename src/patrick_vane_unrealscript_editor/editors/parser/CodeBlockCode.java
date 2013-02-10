@@ -1,4 +1,4 @@
-package patrick_vanes_unrealscript_editor.editors.parser;
+package patrick_vane_unrealscript_editor.editors.parser;
 
 import java.util.ArrayList;
 

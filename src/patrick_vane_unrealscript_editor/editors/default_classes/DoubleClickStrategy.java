@@ -1,4 +1,4 @@
-package patrick_vanes_unrealscript_editor.editors.default_classes;
+package patrick_vane_unrealscript_editor.editors.default_classes;
 
 import org.eclipse.jface.text.*;
 

@@ -1,8 +1,8 @@
-package patrick_vanes_unrealscript_editor.editors.settings;
+package patrick_vane_unrealscript_editor.editors.settings;
 
 import org.eclipse.jface.text.TextAttribute;
 import org.eclipse.swt.SWT;
-import patrick_vanes_unrealscript_editor.editors.default_classes.ColorManager;
+import patrick_vane_unrealscript_editor.editors.default_classes.ColorManager;
 
 
 public interface TextAttributeConstant

@@ -1,7 +1,7 @@
-package patrick_vanes_unrealscript_editor.editors.parser;
+package patrick_vane_unrealscript_editor.editors.parser;
 
 import java.util.ArrayList;
-import patrick_vanes_unrealscript_editor.editors.default_classes.WhitespaceDetector;
+import patrick_vane_unrealscript_editor.editors.default_classes.WhitespaceDetector;
 
 
 public class MyParser

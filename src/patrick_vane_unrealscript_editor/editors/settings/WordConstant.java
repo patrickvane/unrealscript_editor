@@ -1,4 +1,4 @@
-package patrick_vanes_unrealscript_editor.editors.settings;
+package patrick_vane_unrealscript_editor.editors.settings;
 
 
 public interface WordConstant

@@ -1,4 +1,4 @@
-package patrick_vanes_unrealscript_editor.editors;
+package patrick_vane_unrealscript_editor.editors;
 
 import org.eclipse.jface.text.ITextDoubleClickStrategy;
 import org.eclipse.jface.text.presentation.IPresentationReconciler;
@@ -6,11 +6,11 @@ import org.eclipse.jface.text.presentation.PresentationReconciler;
 import org.eclipse.jface.text.rules.DefaultDamagerRepairer;
 import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.jface.text.source.SourceViewerConfiguration;
-import patrick_vanes_unrealscript_editor.editors.default_classes.DoubleClickStrategy;
-import patrick_vanes_unrealscript_editor.editors.default_classes.NonRuleBasedDamagerRepairer;
-import patrick_vanes_unrealscript_editor.editors.default_classes.TagAndTextAttribute;
-import patrick_vanes_unrealscript_editor.editors.scanners.LineScanner;
-import patrick_vanes_unrealscript_editor.editors.settings.TagConstant;
+import patrick_vane_unrealscript_editor.editors.default_classes.DoubleClickStrategy;
+import patrick_vane_unrealscript_editor.editors.default_classes.NonRuleBasedDamagerRepairer;
+import patrick_vane_unrealscript_editor.editors.default_classes.TagAndTextAttribute;
+import patrick_vane_unrealscript_editor.editors.scanners.LineScanner;
+import patrick_vane_unrealscript_editor.editors.settings.TagConstant;
 
 
 public class Configuration extends SourceViewerConfiguration

@@ -1,8 +1,8 @@
-package patrick_vanes_unrealscript_editor.editors.settings;
+package patrick_vane_unrealscript_editor.editors.settings;
 
 import org.eclipse.jface.text.IDocument;
-import patrick_vanes_unrealscript_editor.editors.default_classes.Constants;
-import patrick_vanes_unrealscript_editor.editors.default_classes.TagAndTextAttribute;
+import patrick_vane_unrealscript_editor.editors.default_classes.Constants;
+import patrick_vane_unrealscript_editor.editors.default_classes.TagAndTextAttribute;
 
 
 public interface TagConstant

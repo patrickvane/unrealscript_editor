@@ -9,7 +9,7 @@
             extensions="uc"
             icon="icons/sample.gif"
             contributorClass="org.eclipse.ui.texteditor.BasicTextEditorActionContributor"
-            class="patrick_vanes_unrealscript_editor.editors.UnrealScriptEditor"
+            class="patrick_vane_unrealscript_editor.editors.UnrealScriptEditor"
             id="patrick_vanes_unrealscript_editor.editors.UnrealScriptEditor">
       </editor>
    </extension>

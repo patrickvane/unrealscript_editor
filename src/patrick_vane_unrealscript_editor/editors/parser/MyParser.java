@@ -1,22 +1,33 @@
 package patrick_vane_unrealscript_editor.editors.parser;
 
 import java.util.ArrayList;
+import java.util.LinkedList;
 import patrick_vane_unrealscript_editor.editors.default_classes.WhitespaceDetector;
 
 
 public class MyParser
 {
-	public static void checkForErrors( String data ) throws CodeErrorException
+	public static CodeException[] findErrors( String data )
 	{
-		checkBlockForErrors( read(data) );
+		CodeBlock block;
+		try
+		{
+			block = read( data );
+		}
+		catch( CodeException e )
+		{
+			return new CodeException[]{ e };
+		}
+		return findErrors( block );
 	}
-	protected static void checkForErrors( CodeBlock data ) throws CodeErrorException
+	protected static CodeException[] findErrors( CodeBlock data )
 	{
-		checkBlockForErrors( data );
+		return findErrorsInBlock( data ).toArray( new CodeException[0] );
 	}
 	
-	protected static CodeErrorException checkBlockForErrors( Code data ) throws CodeErrorException
+	protected static LinkedList<CodeException> findErrorsInBlock( Code data )
 	{
+		LinkedList<CodeException> errors = new LinkedList<CodeException>();
 		if( data instanceof CodeBlockCode )
 		{
 			CodeBlockCode code = (CodeBlockCode) data;
@@ -44,12 +55,12 @@ public class MyParser
 					if( isFunction || isInFunction )
 					{
 						if( word.equals("var") )
-							throw new CodeErrorException( worddata.getFirstCharacterPosition(), worddata.getLastCharacterPosition(), true, "You can't make a var in a function, make a local instead" );
+							errors.add( new CodeException( worddata.getFirstCharacterPosition(), worddata.getLastCharacterPosition(), true, "You can't make a var in a function, make a local instead") );
 						
 						if( (noLocalsAnymore || !isFirstInFunction) && word.equals("local") )
-							throw new CodeErrorException( worddata.getFirstCharacterPosition(), worddata.getLastCharacterPosition(), true, "You can only make locals at the beginning of the function" );
+							errors.add( new CodeException( worddata.getFirstCharacterPosition(), worddata.getLastCharacterPosition(), true, "You can only make locals at the beginning of the function") );
 						
-						if( !word.equals("local") )
+						if( !noLocalsAnymore && !word.equals("local") && !word.equals("var") )
 							noLocalsAnymore = true;
 					}
 				}
@@ -60,18 +71,16 @@ public class MyParser
 			CodeBlock block = (CodeBlock) data;
 			for( Code child : block.getChilds() )
 			{
-				CodeErrorException error = checkBlockForErrors( child );
-				if( error != null )
-					return error;
+				errors.addAll( findErrorsInBlock(child) );
 			}
 		}
-		return null;
+		return errors;
 	}
 	
 	
 	
 	
-	protected static CodeBlock read( String data ) throws CodeErrorException
+	protected static CodeBlock read( String data ) throws CodeException
 	{
 		CodeBlock root = new CodeBlock( null );
 		CodeBlock block = root;
@@ -309,21 +318,21 @@ public class MyParser
 		}
 		
 		
-		public void close( int characterPosition ) throws CodeErrorException
+		public void close( int characterPosition ) throws CodeException
 		{
 			close( characterPosition, ROOT_CHAR, ROOT_CHAR );
 		}
 		
-		public void close( int characterPosition, char openBracketCharacter, char closeBracketCharacter ) throws CodeErrorException
+		public void close( int characterPosition, char openBracketCharacter, char closeBracketCharacter ) throws CodeException
 		{
 			if( this.closeBracketCharacter != closeBracketCharacter )
 			{
 				if( closeBracketCharacter == ROOT_CHAR )
-					throw new CodeErrorException( characterPosition, characterPosition + 1, true, "Missing: "+this.openBracketCharacter );
+					throw new CodeException( characterPosition, characterPosition + 1, true, "Missing: "+this.openBracketCharacter );
 				else if( this.closeBracketCharacter == ROOT_CHAR )
-					throw new CodeErrorException( characterPosition, characterPosition + 1, true, "Missing: "+openBracketCharacter );
+					throw new CodeException( characterPosition, characterPosition + 1, true, "Missing: "+openBracketCharacter );
 				else
-					throw new CodeErrorException( characterPosition, characterPosition + 1, true, "Unexpected "+closeBracketCharacter+", was expecting "+this.closeBracketCharacter );
+					throw new CodeException( characterPosition, characterPosition + 1, true, "Unexpected "+closeBracketCharacter+", was expecting "+this.closeBracketCharacter );
 			}
 		}
 		

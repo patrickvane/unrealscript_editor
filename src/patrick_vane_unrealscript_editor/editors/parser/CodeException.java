@@ -1,7 +1,7 @@
 package patrick_vane_unrealscript_editor.editors.parser;
 
 
-public class CodeErrorException extends Exception
+public class CodeException extends Exception
 {
 	private static final long	serialVersionUID	= -3066611880047954513L;
 	
@@ -11,7 +11,7 @@ public class CodeErrorException extends Exception
 	private boolean error; // or warning
 	
 	
-	protected CodeErrorException( int firstCharacterPosition, int lastCharacterPosition, boolean isError, String message )
+	protected CodeException( int firstCharacterPosition, int lastCharacterPosition, boolean isError, String message )
 	{
 		this.firstCharacterPosition = firstCharacterPosition;
 		this.lastCharacterPosition = lastCharacterPosition;

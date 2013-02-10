@@ -12,7 +12,7 @@ import org.eclipse.jface.text.source.IVerticalRuler;
 import org.eclipse.ui.editors.text.TextEditor;
 import patrick_vane_unrealscript_editor.editors.default_classes.ColorManager;
 import patrick_vane_unrealscript_editor.editors.default_classes.DocumentProvider;
-import patrick_vane_unrealscript_editor.editors.parser.CodeErrorException;
+import patrick_vane_unrealscript_editor.editors.parser.CodeException;
 import patrick_vane_unrealscript_editor.editors.parser.MyParser;
 
 
@@ -73,21 +73,9 @@ public class UnrealScriptEditor extends TextEditor
 	}
 	
 	
-	private IMarker marker;
-	public void addErrorMarker( IDocument document, int startCharacter, int endCharacter, String message )
+	public void addErrorMarker( final int startCharacter, final int endCharacter, final String message )
 	{
-		clearErrorMarker();
-		if( getEditorInput() != null )
-		{
-			IFile file = (IFile) getEditorInput().getAdapter( IFile.class );
-			if( file != null )
-			{
-				createErrorMarker( file, document, startCharacter, endCharacter, message );
-			}
-		}
-	}
-	public void createErrorMarker( final IResource resource, final IDocument document, final int startCharacter, final int endCharacter, final String message )
-	{
+		final IFile file = getFile();
 		getSite().getShell().getDisplay().syncExec
 		(
 			new Runnable()
@@ -97,14 +85,15 @@ public class UnrealScriptEditor extends TextEditor
 				{
 					try
 					{
-						clearErrorMarker();
-						marker = resource.createMarker( ERROR_MARKER_ID );
-						//marker.setAttribute( IMarker.LINE_NUMBER, document.getLineOfOffset(startCharacter) );
-						marker.setAttribute( IMarker.CHAR_START, startCharacter );
-						marker.setAttribute( IMarker.CHAR_END, endCharacter );
-						marker.setAttribute( IMarker.LOCATION, "UnrealScript File" );
-						marker.setAttribute( IMarker.SEVERITY, IMarker.SEVERITY_ERROR );
-						marker.setAttribute( IMarker.MESSAGE, message );
+						if( file != null )
+						{
+							IMarker marker = file.createMarker( ERROR_MARKER_ID );
+							marker.setAttribute( IMarker.CHAR_START, startCharacter );
+							marker.setAttribute( IMarker.CHAR_END, endCharacter );
+							marker.setAttribute( IMarker.LOCATION, "UnrealScript File" );
+							marker.setAttribute( IMarker.SEVERITY, IMarker.SEVERITY_ERROR );
+							marker.setAttribute( IMarker.MESSAGE, message );
+						}
 					}
 					catch( Exception e )
 					{
@@ -113,36 +102,66 @@ public class UnrealScriptEditor extends TextEditor
 			}
 		);
 	}
-	public void clearErrorMarker()
+	public void clearErrorMarkers()
 	{
-		if( marker != null )
-		{
-			try
+		final IFile file = getFile();
+		getSite().getShell().getDisplay().syncExec
+		(
+			new Runnable()
 			{
-				marker.delete();
+				@Override
+				public void run()
+				{
+					try
+					{
+						if( file != null )
+						{
+							try
+							{
+								file.deleteMarkers( ERROR_MARKER_ID, true, IResource.DEPTH_INFINITE );
+							}
+							catch( CoreException e )
+							{
+								e.printStackTrace();
+							}
+						}
+					}
+					catch( Exception e )
+					{
+					}
+				}
 			}
-			catch( CoreException e )
-			{
-				e.printStackTrace();
-			}
-			marker = null;
-		}
+		);
 	}
 	
 	
 	public void showErrors()
 	{
-		try
+		CodeException[] exceptions = null;
+		if( getSourceViewer() != null )
 		{
-			if( getSourceViewer() != null )
-				if( getSourceViewer().getDocument() != null )
-					MyParser.checkForErrors( getSourceViewer().getDocument().get() );
-			clearErrorMarker();
+			if( getSourceViewer().getDocument() != null )
+			{
+				exceptions = MyParser.findErrors( getSourceViewer().getDocument().get() );
+			}
 		}
-		catch( CodeErrorException e )
+		
+		clearErrorMarkers();
+		if( exceptions != null )
 		{
-			addErrorMarker( getSourceViewer().getDocument() , e.getFirstCharacterPosition(), e.getLastCharacterPosition(), e.getMessage() );
+			for( CodeException e : exceptions )
+			{
+				addErrorMarker( e.getFirstCharacterPosition(), e.getLastCharacterPosition(), e.getMessage() );
+			}
 		}
+	}
+	
+	
+	public IFile getFile()
+	{
+		if( getEditorInput() != null )
+			return (IFile) getEditorInput().getAdapter( IFile.class );
+		return null;
 	}
 	
 	

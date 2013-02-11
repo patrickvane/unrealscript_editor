@@ -5,19 +5,22 @@ import patrick_vane_unrealscript_editor.editors.default_classes.Constants;
 import patrick_vane_unrealscript_editor.editors.default_classes.TagAndTextAttribute;
 
 
-public interface TagConstant
+public class TagConstant
 {
-	String DEFAULT			= IDocument.DEFAULT_CONTENT_TYPE;
-	String STRING			= "__string";
-	String DOCS				= "__docs";
-	String COMMENT_LINE		= "__comment_line";
-	String COMMENT_BLOCK	= "__comment_block";
+	public static final String DEFAULT			= IDocument.DEFAULT_CONTENT_TYPE;
+	public static final String STRING			= "__string";
+	public static final String DOCS				= "__docs";
+	public static final String COMMENT_LINE		= "__comment_line";
+	public static final String COMMENT_BLOCK	= "__comment_block";
 	
-	String[] TAGS = Constants.get( TagConstant.class );
+	public static final String[] TAGS = Constants.get( TagConstant.class );
 	
-	TagAndTextAttribute[] MULTILINE_TAGS = new TagAndTextAttribute[]
-	{ 
-		new TagAndTextAttribute( DOCS, TextAttributeConstant.DOCS ), 
-		new TagAndTextAttribute( COMMENT_BLOCK, TextAttributeConstant.COMMENT ) 
-	};
+	public static final TagAndTextAttribute[] createMultilineTags()
+	{
+		return new TagAndTextAttribute[]
+		{ 
+			new TagAndTextAttribute( DOCS, TextAttributeConstant.createDocs() ), 
+			new TagAndTextAttribute( COMMENT_BLOCK, TextAttributeConstant.createComment() ) 
+		};
+	}
 }

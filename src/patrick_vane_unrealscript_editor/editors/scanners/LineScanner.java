@@ -17,10 +17,10 @@ import patrick_vane_unrealscript_editor.editors.settings.WordConstant;
 
 public class LineScanner extends RuleBasedScanner
 {
-	private static IToken keyword 	= new Token( TextAttributeConstant.KEYWORD );
-	private static IToken string 	= new Token( TextAttributeConstant.STRING );
-	private static IToken comment 	= new Token( TextAttributeConstant.COMMENT );
-	private static IToken other 	= new Token( TextAttributeConstant.DEFAULT );
+	private IToken keyword 	= new Token( TextAttributeConstant.createKeyword() );
+	private IToken string 	= new Token( TextAttributeConstant.createString() );
+	private IToken comment 	= new Token( TextAttributeConstant.createComment() );
+	private IToken other 	= new Token( TextAttributeConstant.createDefault() );
 	
 	
 	public LineScanner()

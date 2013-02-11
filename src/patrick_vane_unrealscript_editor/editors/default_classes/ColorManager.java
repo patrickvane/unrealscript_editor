@@ -44,6 +44,11 @@ public class ColorManager
 			color = new Color( Display.getCurrent(), rgb );
 			fColorTable.put( rgb, color );
 		}
+		if( color.isDisposed() )
+		{
+			color = new Color( Display.getCurrent(), rgb );
+			fColorTable.put( rgb, color );
+		}
 		return color;
 	}
 	

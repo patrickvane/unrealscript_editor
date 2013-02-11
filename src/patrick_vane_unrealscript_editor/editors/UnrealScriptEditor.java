@@ -30,6 +30,10 @@ public class UnrealScriptEditor extends TextEditor
 		
 		initializeSourceViewer();
 		thread.start();
+		
+		//UDKCompilerSettingsPopup popup = new UDKCompilerSettingsPopup();
+		//popup.setLocationRelativeTo( null );
+		//popup.setVisible( true );
 	}
 	
 	

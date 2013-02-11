@@ -1,12 +1,12 @@
-package patrick_vane_unrealscript_editor.editors.scanners;
+package patrick_vane_unrealscript_editor.editors.syntaxcolor;
 
 import org.eclipse.jface.text.presentation.IPresentationReconciler;
 import org.eclipse.jface.text.presentation.PresentationReconciler;
 import org.eclipse.jface.text.rules.DefaultDamagerRepairer;
 import org.eclipse.jface.text.source.ISourceViewer;
+import patrick_vane_unrealscript_editor.editors.constants.TagConstant;
 import patrick_vane_unrealscript_editor.editors.default_classes.NonRuleBasedDamagerRepairer;
 import patrick_vane_unrealscript_editor.editors.default_classes.TagAndTextAttribute;
-import patrick_vane_unrealscript_editor.editors.settings.TagConstant;
 
 
 public class UnrealScriptSyntaxColor

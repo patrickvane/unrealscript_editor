@@ -8,9 +8,9 @@ import org.eclipse.jface.text.source.DefaultAnnotationHover;
 import org.eclipse.jface.text.source.IAnnotationHover;
 import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.jface.text.source.SourceViewerConfiguration;
+import patrick_vane_unrealscript_editor.editors.constants.TagConstant;
 import patrick_vane_unrealscript_editor.editors.default_classes.DoubleClickStrategy;
-import patrick_vane_unrealscript_editor.editors.scanners.UnrealScriptSyntaxColor;
-import patrick_vane_unrealscript_editor.editors.settings.TagConstant;
+import patrick_vane_unrealscript_editor.editors.syntaxcolor.UnrealScriptSyntaxColor;
 
 
 public class Configuration extends SourceViewerConfiguration

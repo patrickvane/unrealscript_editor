@@ -1,7 +1,7 @@
-package patrick_vane_unrealscript_editor.editors.settings;
+package patrick_vane_unrealscript_editor.editors.constants;
 
 import org.eclipse.jface.text.IDocument;
-import patrick_vane_unrealscript_editor.editors.default_classes.Constants;
+import patrick_vane_unrealscript_editor.editors.default_classes.StaticClassFieldsReader;
 import patrick_vane_unrealscript_editor.editors.default_classes.TagAndTextAttribute;
 
 
@@ -13,7 +13,7 @@ public class TagConstant
 	public static final String COMMENT_LINE		= "__comment_line";
 	public static final String COMMENT_BLOCK	= "__comment_block";
 	
-	public static final String[] TAGS = Constants.get( TagConstant.class );
+	public static final String[] TAGS = StaticClassFieldsReader.get( TagConstant.class );
 	
 	public static final TagAndTextAttribute[] createMultilineTags()
 	{

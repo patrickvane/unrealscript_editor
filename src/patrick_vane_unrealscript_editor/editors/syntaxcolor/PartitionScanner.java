@@ -1,4 +1,4 @@
-package patrick_vane_unrealscript_editor.editors.scanners;
+package patrick_vane_unrealscript_editor.editors.syntaxcolor;
 
 import java.util.ArrayList;
 import org.eclipse.jface.text.rules.EndOfLineRule;
@@ -8,7 +8,7 @@ import org.eclipse.jface.text.rules.MultiLineRule;
 import org.eclipse.jface.text.rules.RuleBasedPartitionScanner;
 import org.eclipse.jface.text.rules.SingleLineRule;
 import org.eclipse.jface.text.rules.Token;
-import patrick_vane_unrealscript_editor.editors.settings.TagConstant;
+import patrick_vane_unrealscript_editor.editors.constants.TagConstant;
 
 
 public class PartitionScanner extends RuleBasedPartitionScanner

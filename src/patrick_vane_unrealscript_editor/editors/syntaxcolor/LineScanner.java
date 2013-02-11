@@ -1,4 +1,4 @@
-package patrick_vane_unrealscript_editor.editors.scanners;
+package patrick_vane_unrealscript_editor.editors.syntaxcolor;
 
 import java.util.ArrayList;
 import org.eclipse.jface.text.rules.EndOfLineRule;
@@ -9,10 +9,10 @@ import org.eclipse.jface.text.rules.SingleLineRule;
 import org.eclipse.jface.text.rules.Token;
 import org.eclipse.jface.text.rules.WhitespaceRule;
 import org.eclipse.jface.text.rules.WordRule;
+import patrick_vane_unrealscript_editor.editors.constants.TextAttributeConstant;
+import patrick_vane_unrealscript_editor.editors.constants.WordConstant;
 import patrick_vane_unrealscript_editor.editors.default_classes.KeywordDetector;
 import patrick_vane_unrealscript_editor.editors.default_classes.WhitespaceDetector;
-import patrick_vane_unrealscript_editor.editors.settings.TextAttributeConstant;
-import patrick_vane_unrealscript_editor.editors.settings.WordConstant;
 
 
 public class LineScanner extends RuleBasedScanner

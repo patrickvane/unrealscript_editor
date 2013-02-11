@@ -12,17 +12,28 @@ import org.eclipse.swt.widgets.Display;
 
 public class ColorManager
 {
+	protected static int uses = 0;
 	protected static HashMap<RGB,Color> fColorTable = new HashMap<RGB,Color>( 10 );
 	
 	
+	public static synchronized void use()
+	{
+		uses++;
+	}
+	
 	public static synchronized void dispose()
 	{
-		Iterator<Color> iterator = fColorTable.values().iterator();
-		while( iterator.hasNext() )
+		uses = Math.max( 0, uses );
+		
+		if( uses <= 0 )
 		{
-			iterator.next().dispose();
+			Iterator<Color> iterator = fColorTable.values().iterator();
+			while( iterator.hasNext() )
+			{
+				iterator.next().dispose();
+			}
+			fColorTable.clear();
 		}
-		fColorTable.clear();
 	}
 	
 	

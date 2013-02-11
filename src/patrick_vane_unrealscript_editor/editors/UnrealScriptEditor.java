@@ -14,16 +14,17 @@ import patrick_vane_unrealscript_editor.editors.default_classes.ColorManager;
 import patrick_vane_unrealscript_editor.editors.default_classes.DocumentProvider;
 import patrick_vane_unrealscript_editor.editors.parser.CodeException;
 import patrick_vane_unrealscript_editor.editors.parser.UnrealScriptParser;
+import patrick_vane_unrealscript_editor.editors.views.UnrealScriptCompilerConsole;
 
 
 public class UnrealScriptEditor extends TextEditor
 {
-	private static final String ERROR_MARKER_ID = "org.eclipse.unrealscript.markers.error";
-	
-	
 	public UnrealScriptEditor()
 	{
 		super();
+		
+		UnrealScriptCompilerConsole.init();
+		
 		setSourceViewerConfiguration( new Configuration() );
 		setDocumentProvider( new DocumentProvider() );
 		
@@ -80,7 +81,7 @@ public class UnrealScriptEditor extends TextEditor
 		{
 			if( file != null )
 			{
-				IMarker marker = file.createMarker( ERROR_MARKER_ID );
+				IMarker marker = file.createMarker( ExtensionAssets.MARKER_ERROR );
 				marker.setAttribute( IMarker.CHAR_START, startCharacter );
 				marker.setAttribute( IMarker.CHAR_END, endCharacter );
 				marker.setAttribute( IMarker.LOCATION, "UnrealScript File" );
@@ -99,7 +100,7 @@ public class UnrealScriptEditor extends TextEditor
 		{
 			try
 			{
-				file.deleteMarkers( ERROR_MARKER_ID, true, IResource.DEPTH_INFINITE );
+				file.deleteMarkers( ExtensionAssets.MARKER_ERROR, true, IResource.DEPTH_INFINITE );
 			}
 			catch( CoreException e )
 			{

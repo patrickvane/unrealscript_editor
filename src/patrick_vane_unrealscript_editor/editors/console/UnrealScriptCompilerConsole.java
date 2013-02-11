@@ -1,4 +1,4 @@
-package patrick_vane_unrealscript_editor.editors.views;
+package patrick_vane_unrealscript_editor.editors.console;
 
 import java.io.OutputStream;
 import java.io.PrintStream;

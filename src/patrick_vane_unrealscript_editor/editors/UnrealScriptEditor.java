@@ -10,11 +10,11 @@ import org.eclipse.jface.text.source.CompositeRuler;
 import org.eclipse.jface.text.source.IAnnotationModel;
 import org.eclipse.jface.text.source.IVerticalRuler;
 import org.eclipse.ui.editors.text.TextEditor;
+import patrick_vane_unrealscript_editor.editors.console.UnrealScriptCompilerConsole;
 import patrick_vane_unrealscript_editor.editors.default_classes.ColorManager;
 import patrick_vane_unrealscript_editor.editors.default_classes.DocumentProvider;
 import patrick_vane_unrealscript_editor.editors.parser.CodeException;
 import patrick_vane_unrealscript_editor.editors.parser.UnrealScriptParser;
-import patrick_vane_unrealscript_editor.editors.views.UnrealScriptCompilerConsole;
 
 
 public class UnrealScriptEditor extends TextEditor

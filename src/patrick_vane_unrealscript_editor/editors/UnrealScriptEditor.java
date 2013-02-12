@@ -9,6 +9,7 @@ import org.eclipse.jface.text.source.AnnotationRulerColumn;
 import org.eclipse.jface.text.source.CompositeRuler;
 import org.eclipse.jface.text.source.IAnnotationModel;
 import org.eclipse.jface.text.source.IVerticalRuler;
+import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.editors.text.TextEditor;
 import patrick_vane_unrealscript_editor.editors.console.UnrealScriptCompilerConsole;
 import patrick_vane_unrealscript_editor.editors.default_classes.ColorManager;
@@ -30,6 +31,18 @@ public class UnrealScriptEditor extends TextEditor
 		
 		initializeSourceViewer();
 		thread.start();
+		
+		try
+		{
+			PlatformUI.getWorkbench().showPerspective( UnrealScriptID.VIEW_PERSPECTIVE, PlatformUI.getWorkbench().getActiveWorkbenchWindow() );
+		}
+		catch( Exception e )
+		{
+		}
+		
+		//if( !PlatformUI.getWorkbench().saveAllEditors(true) )
+		//	return;
+		//PlatformUI.getWorkbench().getProgressService().run( fork, cancelable, runnable )
 		
 		//UDKCompilerSettingsPopup popup = new UDKCompilerSettingsPopup();
 		//popup.setLocationRelativeTo( null );
@@ -85,7 +98,7 @@ public class UnrealScriptEditor extends TextEditor
 		{
 			if( file != null )
 			{
-				IMarker marker = file.createMarker( ExtensionAssets.MARKER_ERROR );
+				IMarker marker = file.createMarker( UnrealScriptID.MARKER_ERROR );
 				marker.setAttribute( IMarker.CHAR_START, startCharacter );
 				marker.setAttribute( IMarker.CHAR_END, endCharacter );
 				marker.setAttribute( IMarker.LOCATION, "UnrealScript File" );
@@ -104,7 +117,7 @@ public class UnrealScriptEditor extends TextEditor
 		{
 			try
 			{
-				file.deleteMarkers( ExtensionAssets.MARKER_ERROR, true, IResource.DEPTH_INFINITE );
+				file.deleteMarkers( UnrealScriptID.MARKER_ERROR, true, IResource.DEPTH_INFINITE );
 			}
 			catch( CoreException e )
 			{

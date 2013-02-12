@@ -25,6 +25,15 @@
 	         value="false">
 	   </persistent>
 	</extension>
+   <extension
+         point="org.eclipse.ui.perspectives">
+      <perspective
+            class="patrick_vane_unrealscript_editor.editors.perspective.UnrealScriptPerspective"
+            icon="icons/sample.gif"
+            id="patrick_vane_unrealscript_editor.editors.perspective.UnrealScriptPerspective"
+            name="UnrealScript">
+      </perspective>
+   </extension>
 	
 	
    

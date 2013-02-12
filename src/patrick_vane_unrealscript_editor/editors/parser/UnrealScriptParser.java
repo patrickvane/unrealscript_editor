@@ -180,26 +180,6 @@ public class UnrealScriptParser
 						continue;
 					}
 					
-					if( character == '<' )
-					{
-						bracketBlock = new BracketBlock( bracketBlock, '<', '>' );
-						
-						block.closeWord( characterPosition );
-						block.addCharacter( characterPosition, character );
-						block.closeWord( characterPosition+1 );
-						continue;
-					}
-					if( character == '>' )
-					{
-						bracketBlock.close( characterPosition, '<', '>' );
-						bracketBlock = bracketBlock.getParent();
-						
-						block.closeWord( characterPosition );
-						block.addCharacter( characterPosition, character );
-						block.closeWord( characterPosition+1 );
-						continue;
-					}
-					
 					if( character == '[' )
 					{
 						bracketBlock = new BracketBlock( bracketBlock, '[', ']' );
@@ -321,7 +301,7 @@ public class UnrealScriptParser
 		
 		public void newLine( int characterPosition ) throws CodeException
 		{
-			if( (openBracketCharacter == '(') || (openBracketCharacter == '[') || (openBracketCharacter == '<') )
+			if( (openBracketCharacter == '(') || (openBracketCharacter == '[') )
 				throw new CodeException( characterPosition, characterPosition+1, true, "Unexpected: ;" );
 		}
 		

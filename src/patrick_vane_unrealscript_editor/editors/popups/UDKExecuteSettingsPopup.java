@@ -4,15 +4,11 @@ import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
-import javax.swing.JDialog;
 import javax.swing.JLabel;
-import java.awt.Dimension;
 import java.awt.Font;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
 
 
-public class UDKExecuteSettingsPopup extends JDialog
+public class UDKExecuteSettingsPopup extends ExtendablePopup
 {
 	private static final long	serialVersionUID	= 2238284413436L;
 	
@@ -26,25 +22,7 @@ public class UDKExecuteSettingsPopup extends JDialog
 	
 	public UDKExecuteSettingsPopup()
 	{
-		setTitle( "UDK Execute Settings" );
-		setType( Type.NORMAL );
-		setAlwaysOnTop( true );
-		getContentPane().setLayout( null );
-		getContentPane().setPreferredSize( new Dimension(250, 240) );
-		pack();
-		setLocationRelativeTo( null );
-		setAutoRequestFocus( true );
-		
-		addWindowListener
-		(
-			new WindowAdapter()
-			{
-				@Override
-				public void windowClosing( WindowEvent e )
-				{
-				}
-			}
-		);
+		super( "UDK Execute Settings", 250, 240 );
 		
 		
 		JLabel labelMap = new JLabel( "Map:" );

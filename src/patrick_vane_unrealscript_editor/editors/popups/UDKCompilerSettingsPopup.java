@@ -2,13 +2,9 @@ package patrick_vane_unrealscript_editor.editors.popups;
 
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
-import javax.swing.JDialog;
-import java.awt.Dimension;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
 
 
-public class UDKCompilerSettingsPopup extends JDialog
+public class UDKCompilerSettingsPopup extends ExtendablePopup
 {
 	private static final long	serialVersionUID	= 6238284241701313436L;
 	private JCheckBox 			checkbox64Bit;
@@ -20,25 +16,7 @@ public class UDKCompilerSettingsPopup extends JDialog
 	
 	public UDKCompilerSettingsPopup()
 	{
-		setTitle( "UDK Compiler Settings" );
-		setType( Type.NORMAL );
-		setAlwaysOnTop( true );
-		getContentPane().setLayout( null );
-		getContentPane().setPreferredSize( new Dimension(135, 200) );
-		pack();
-		setLocationRelativeTo( null );
-		setAutoRequestFocus( true );
-		
-		addWindowListener
-		(
-			new WindowAdapter()
-			{
-				@Override
-				public void windowClosing( WindowEvent e )
-				{
-				}
-			}
-		);
+		super( "UDK Compiler Settings", 135, 200 );
 		
 		
 		checkbox64Bit = new JCheckBox( "64 bit" );

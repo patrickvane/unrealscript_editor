@@ -1,18 +1,14 @@
 package patrick_vane_unrealscript_editor.editors.popups;
 
 import javax.swing.JButton;
-import javax.swing.JDialog;
 import javax.swing.JFileChooser;
 import javax.swing.JTextField;
-import java.awt.Dimension;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.awt.event.WindowAdapter;
-import java.awt.event.WindowEvent;
 import java.io.File;
 
 
-public class UDKImportProject extends JDialog
+public class UDKImportProject extends ExtendablePopup
 {
 	private static final long	serialVersionUID	= 52325323552556L;
 	
@@ -22,33 +18,10 @@ public class UDKImportProject extends JDialog
 	private JButton				buttonImport;
 	private JButton				buttonCancel;
 	
-	private boolean 			done;
-	private boolean 			canceled;
-	
 	
 	public UDKImportProject( String name, String path )
 	{
-		setTitle( "Import UDK Project" );
-		setType( Type.NORMAL );
-		setAlwaysOnTop( true );
-		getContentPane().setLayout( null );
-		getContentPane().setPreferredSize( new Dimension(340, 135) );
-		pack();
-		setLocationRelativeTo( null );
-		setAutoRequestFocus( true );
-		
-		addWindowListener
-		(
-			new WindowAdapter()
-			{
-				@Override
-				public void windowClosing( WindowEvent e )
-				{
-					done = true;
-					canceled = true;
-				}
-			}
-		);
+		super( "Import UDK Project", 340, 135 );
 		
 		
 		if( name == null )
@@ -90,41 +63,6 @@ public class UDKImportProject extends JDialog
 	}
 	
 	
-	@Override
-	public void setVisible( boolean visible )
-	{
-		if( visible == false )
-		{
-			super.setVisible( false );
-			return;
-		}
-		
-		done = false;
-		canceled = false;
-		
-		new Thread()
-		{
-			@Override
-			public void run()
-			{
-				UDKImportProject.super.setVisible( true );
-			}
-		}.start();
-		
-		while( !isDone() )
-		{
-			try
-			{
-				Thread.sleep( 200 );
-			}
-			catch( Exception e )
-			{
-			}
-		}
-		super.setVisible( false );
-	}
-	
-	
 	private ActionListener listenerInstallationPathBrowse = new ActionListener()
 	{
 		@Override
@@ -163,8 +101,7 @@ public class UDKImportProject extends JDialog
 		@Override
 		public void actionPerformed( ActionEvent e )
 		{
-			done = true;
-			canceled = false;
+			success();
 		}
 	};
 	
@@ -173,20 +110,10 @@ public class UDKImportProject extends JDialog
 		@Override
 		public void actionPerformed( ActionEvent e )
 		{
-			done = true;
-			canceled = true;
+			canceled();
 		}
 	};
 	
-	
-	public boolean isDone()
-	{
-		return done;
-	}
-	public boolean isCanceled()
-	{
-		return canceled;
-	}
 	
 	public String getNewProjectName()
 	{

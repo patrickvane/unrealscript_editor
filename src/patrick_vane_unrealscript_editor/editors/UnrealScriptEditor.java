@@ -1,7 +1,9 @@
 package patrick_vane_unrealscript_editor.editors;
 
+import java.util.ArrayList;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
+import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.text.IDocument;
@@ -9,6 +11,9 @@ import org.eclipse.jface.text.source.AnnotationRulerColumn;
 import org.eclipse.jface.text.source.CompositeRuler;
 import org.eclipse.jface.text.source.IAnnotationModel;
 import org.eclipse.jface.text.source.IVerticalRuler;
+import org.eclipse.jface.viewers.ISelection;
+import org.eclipse.jface.viewers.TreeSelection;
+import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.editors.text.TextEditor;
 import patrick_vane_unrealscript_editor.editors.console.UnrealScriptCompilerConsole;
@@ -168,6 +173,41 @@ public class UnrealScriptEditor extends TextEditor
 		if( getEditorInput() != null )
 			return (IFile) getEditorInput().getAdapter( IFile.class );
 		return null;
+	}
+	
+	
+	public static IProject getSelectedProject( IWorkbenchWindow window ) throws Exception
+	{
+		IProject project = null;
+		ISelection selection = window.getSelectionService().getSelection( UnrealScriptID.VIEW_NAVIGATOR );
+		if( (selection != null) && !selection.isEmpty() )
+		{
+			if( selection instanceof TreeSelection )
+			{
+				Object[] selectedObjects = ((TreeSelection) selection).toArray();
+				ArrayList<IProject> projects = new ArrayList<IProject>();
+				for( Object selectedObject : selectedObjects )
+				{
+					if( selectedObject instanceof IProject )
+					{
+						projects.add( (IProject) selectedObject );
+					}
+				}
+				if( projects.size() > 1 )
+				{
+					throw new Exception( "You need to select one Project (in the Package Explorer), you've selected several Projects." );
+				}
+				if( projects.size() == 1 )
+				{
+					project = projects.get( 0 );
+				}
+			}
+		}
+		if( project == null )
+		{
+			throw new Exception( "You need to select a Project (in the Package Explorer)" );
+		}
+		return project;
 	}
 	
 	

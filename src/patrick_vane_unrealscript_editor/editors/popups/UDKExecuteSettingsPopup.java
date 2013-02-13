@@ -1,4 +1,4 @@
-package patrick_vane_unrealscript_editor.editors.settings;
+package patrick_vane_unrealscript_editor.editors.popups;
 
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
@@ -8,6 +8,8 @@ import javax.swing.JDialog;
 import javax.swing.JLabel;
 import java.awt.Dimension;
 import java.awt.Font;
+import java.awt.event.WindowAdapter;
+import java.awt.event.WindowEvent;
 
 
 public class UDKExecuteSettingsPopup extends JDialog
@@ -24,12 +26,25 @@ public class UDKExecuteSettingsPopup extends JDialog
 	
 	public UDKExecuteSettingsPopup()
 	{
-		setTitle( "UDK Settings" );
+		setTitle( "UDK Execute Settings" );
 		setType( Type.NORMAL );
 		setAlwaysOnTop( true );
 		getContentPane().setLayout( null );
 		getContentPane().setPreferredSize( new Dimension(250, 240) );
 		pack();
+		setLocationRelativeTo( null );
+		setAutoRequestFocus( true );
+		
+		addWindowListener
+		(
+			new WindowAdapter()
+			{
+				@Override
+				public void windowClosing( WindowEvent e )
+				{
+				}
+			}
+		);
 		
 		
 		JLabel labelMap = new JLabel( "Map:" );

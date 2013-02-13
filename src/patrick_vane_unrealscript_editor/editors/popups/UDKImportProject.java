@@ -110,7 +110,7 @@ public class UDKImportProject extends ExtendablePopup
 		@Override
 		public void actionPerformed( ActionEvent e )
 		{
-			canceled();
+			cancel();
 		}
 	};
 	

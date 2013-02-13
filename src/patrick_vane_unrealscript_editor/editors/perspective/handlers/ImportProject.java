@@ -40,7 +40,7 @@ public class ImportProject extends AbstractHandler
 		boolean ok = false;
 		while( !ok )
 		{
-			dialog.setVisible( true );
+			dialog.showAndBlock( window );
 			if( dialog.isCanceled() )
 				return null;
 			

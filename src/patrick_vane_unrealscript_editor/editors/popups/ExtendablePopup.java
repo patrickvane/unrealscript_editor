@@ -4,14 +4,23 @@ import javax.swing.JDialog;
 import java.awt.Dimension;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import java.lang.reflect.InvocationTargetException;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.jface.operation.IRunnableWithProgress;
+import org.eclipse.ui.IWorkbenchWindow;
 
 
 public class ExtendablePopup extends JDialog
 {
-	private static final long	serialVersionUID	= 4665137732519823141L;
+	private static final long		serialVersionUID	= 4665137732519823141L;
 	
-	private boolean 			done;
-	private boolean 			canceled;
+	private static ExtendablePopup	runningPopup		= null;
+	private static final Object 	runningPopupSyncer 	= new Object();
+	
+	private boolean					done;
+	private boolean					canceled;
+	
+	private IProgressMonitor		progressionMonitor;
 	
 	
 	public ExtendablePopup( String title, int width, int height )
@@ -32,45 +41,66 @@ public class ExtendablePopup extends JDialog
 				@Override
 				public void windowClosing( WindowEvent e )
 				{
-					done = true;
-					canceled = true;
+					cancel();
 				}
 			}
 		);
 	}
 	
 	
-	@Override
-	public void setVisible( boolean visible )
+	public void showAndBlock( final IWorkbenchWindow window )
 	{
-		if( visible == false )
+		synchronized( runningPopupSyncer )
 		{
-			super.setVisible( false );
-			return;
+			if( runningPopup != null )
+			{
+				cancel();
+				return;
+			}
+			runningPopup = this;
 		}
 		
 		done = false;
 		canceled = false;
 		
-		new Thread()
+		IRunnableWithProgress runnable = new IRunnableWithProgress()
 		{
 			@Override
-			public void run()
+			public void run( IProgressMonitor monitor ) throws InvocationTargetException, InterruptedException
 			{
+				ExtendablePopup.this.progressionMonitor = monitor;
+				
+				monitor.beginTask( "Handling Popup", IProgressMonitor.UNKNOWN );
 				ExtendablePopup.super.setVisible( true );
+				while( !isDone() )
+				{
+					try
+					{
+						Thread.sleep( 200 );
+					}
+					catch( Exception e )
+					{
+					}
+				}
+				monitor.setCanceled( isCanceled() );
+				monitor.done();
 			}
-		}.start();
+		};
 		
-		while( !isDone() )
+		try
 		{
-			try
-			{
-				Thread.sleep( 200 );
-			}
-			catch( Exception e )
-			{
-			}
+			window.run( true, false, runnable );
 		}
+		catch( InvocationTargetException | InterruptedException e )
+		{
+			cancel();
+		}
+		
+		synchronized( runningPopupSyncer )
+		{
+			runningPopup = null;
+		}
+		
 		super.setVisible( false );
 	}
 	
@@ -83,6 +113,10 @@ public class ExtendablePopup extends JDialog
 	{
 		return canceled;
 	}
+	public IProgressMonitor getProgressionMonitor()
+	{
+		return progressionMonitor;
+	}
 	
 	
 	protected void success()
@@ -90,7 +124,7 @@ public class ExtendablePopup extends JDialog
 		done = true;
 		canceled = false;
 	}
-	protected void canceled()
+	protected void cancel()
 	{
 		done = true;
 		canceled = true;

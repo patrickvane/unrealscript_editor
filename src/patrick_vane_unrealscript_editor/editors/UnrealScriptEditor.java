@@ -34,7 +34,7 @@ public class UnrealScriptEditor extends TextEditor
 		
 		try
 		{
-			PlatformUI.getWorkbench().showPerspective( UnrealScriptID.VIEW_PERSPECTIVE, PlatformUI.getWorkbench().getActiveWorkbenchWindow() );
+			PlatformUI.getWorkbench().showPerspective( UnrealScriptID.PERSPECTIVE, PlatformUI.getWorkbench().getActiveWorkbenchWindow() );
 		}
 		catch( Exception e )
 		{

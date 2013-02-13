@@ -11,6 +11,7 @@ public class UnrealScriptID
 	public static final String	COMMAND_CATEGORY_UDK		= "patrick_vane_unrealscript_editor.editors.commandcategory.udk";
 	public static final String	COMMAND_IMPORT_PROJECT		= "patrick_vane_unrealscript_editor.editors.command.import_project";
 	public static final String	COMMAND_COMPILER_SETTINGS	= "patrick_vane_unrealscript_editor.editors.command.compiler_settings";
+	public static final String	COMMAND_EXECUTER_SETTINGS	= "patrick_vane_unrealscript_editor.editors.command.executer_settings";
 	public static final String	COMMAND_RUN_EDITOR			= "patrick_vane_unrealscript_editor.editors.command.run_editor";
 	public static final String	COMMAND_RUN_GAME			= "patrick_vane_unrealscript_editor.editors.command.run_game";
 }

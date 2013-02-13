@@ -33,7 +33,7 @@
             class="patrick_vane_unrealscript_editor.editors.perspective.UnrealScriptPerspective"
             icon="icons/sample.gif"
             id="patrick_vane_unrealscript_editor.editors.perspective.UnrealScriptPerspective"
-            name="UnrealScript">
+            name="UDK">
       </perspective>
    </extension>
    
@@ -47,9 +47,37 @@
       <command
             categoryId="patrick_vane_unrealscript_editor.editors.commandcategory.udk"
             defaultHandler="patrick_vane_unrealscript_editor.editors.perspective.handlers.ImportProject"
-            description="Import UDK Project"
+            description="Import Project"
             id="patrick_vane_unrealscript_editor.editors.command.import_project"
-            name="Import UDK Project">
+            name="Import Project">
+      </command>
+      <command
+            categoryId="patrick_vane_unrealscript_editor.editors.commandcategory.udk"
+            defaultHandler="patrick_vane_unrealscript_editor.editors.perspective.handlers.CompilerSettings"
+            description="Configure Compiler"
+            id="patrick_vane_unrealscript_editor.editors.command.compiler_settings"
+            name="Configure Compiler">
+      </command>
+      <command
+            categoryId="patrick_vane_unrealscript_editor.editors.commandcategory.udk"
+            defaultHandler="patrick_vane_unrealscript_editor.editors.perspective.handlers.ExecuterSettings"
+            description="Configure Executer"
+            id="patrick_vane_unrealscript_editor.editors.command.executer_settings"
+            name="Configure Executer">
+      </command>
+      <command
+            categoryId="patrick_vane_unrealscript_editor.editors.commandcategory.udk"
+            defaultHandler="patrick_vane_unrealscript_editor.editors.perspective.handlers.RunEditor"
+            description="Run Editor"
+            id="patrick_vane_unrealscript_editor.editors.command.run_editor"
+            name="Run Editor">
+      </command>
+      <command
+            categoryId="patrick_vane_unrealscript_editor.editors.commandcategory.udk"
+            defaultHandler="patrick_vane_unrealscript_editor.editors.perspective.handlers.RunGame"
+            description="Run Game"
+            id="patrick_vane_unrealscript_editor.editors.command.run_game"
+            name="Run Game">
       </command>
    </extension>
    
@@ -62,16 +90,42 @@
                id="patrick_vane_unrealscript_editor.editors.menu.udk"
                label="UDK"
                tooltip="Unreal Development Kit">
-            <command
-                  commandId="patrick_vane_unrealscript_editor.editors.command.import_project"
-                  mnemonic="">
-            </command>
             <visibleWhen
                   checkEnabled="true">
                <reference
                      definitionId="patrick_vane_unrealscript_editor.editors.perspective.definition.isUdkPerspectiveActive">
                </reference>
             </visibleWhen>
+            <command
+                  commandId="patrick_vane_unrealscript_editor.editors.command.import_project"
+                  icon="icons/sample.gif"
+                  style="push"
+                  tooltip="Import Project">
+            </command>
+            <command
+                  commandId="patrick_vane_unrealscript_editor.editors.command.compiler_settings"
+                  icon="icons/sample.gif"
+                  style="push"
+                  tooltip="Configure Compiler">
+            </command>
+            <command
+                  commandId="patrick_vane_unrealscript_editor.editors.command.executer_settings"
+                  icon="icons/sample.gif"
+                  style="push"
+                  tooltip="Configure Executer">
+            </command>
+            <command
+                  commandId="patrick_vane_unrealscript_editor.editors.command.run_editor"
+                  icon="icons/sample.gif"
+                  style="push"
+                  tooltip="Run Editor">
+            </command>
+            <command
+                  commandId="patrick_vane_unrealscript_editor.editors.command.run_game"
+                  icon="icons/sample.gif"
+                  style="push"
+                  tooltip="Run Game">
+            </command>
          </menu>
       </menuContribution>
       
@@ -80,11 +134,65 @@
          <toolbar
                id="patrick_vane_unrealscript_editor.editors.toolbar.udk"
                label="UDK">
+            <visibleWhen
+                  checkEnabled="true">
+               <reference
+                     definitionId="patrick_vane_unrealscript_editor.editors.perspective.definition.isUdkPerspectiveActive">
+               </reference>
+            </visibleWhen>
             <command
                   commandId="patrick_vane_unrealscript_editor.editors.command.import_project"
                   icon="icons/sample.gif"
                   style="push"
-                  tooltip="Import UDK Project">
+                  tooltip="Import Project">
+               <visibleWhen
+                     checkEnabled="true">
+                  <reference
+                        definitionId="patrick_vane_unrealscript_editor.editors.perspective.definition.isUdkPerspectiveActive">
+                  </reference>
+               </visibleWhen>
+            </command>
+            <command
+                  commandId="patrick_vane_unrealscript_editor.editors.command.compiler_settings"
+                  icon="icons/sample.gif"
+                  style="push"
+                  tooltip="Configure Compiler">
+               <visibleWhen
+                     checkEnabled="true">
+                  <reference
+                        definitionId="patrick_vane_unrealscript_editor.editors.perspective.definition.isUdkPerspectiveActive">
+                  </reference>
+               </visibleWhen>
+            </command>
+            <command
+                  commandId="patrick_vane_unrealscript_editor.editors.command.executer_settings"
+                  icon="icons/sample.gif"
+                  style="push"
+                  tooltip="Configure Executer">
+               <visibleWhen
+                     checkEnabled="true">
+                  <reference
+                        definitionId="patrick_vane_unrealscript_editor.editors.perspective.definition.isUdkPerspectiveActive">
+                  </reference>
+               </visibleWhen>
+            </command>
+            <command
+                  commandId="patrick_vane_unrealscript_editor.editors.command.run_game"
+                  icon="icons/sample.gif"
+                  style="push"
+                  tooltip="Run Game">
+               <visibleWhen
+                     checkEnabled="true">
+                  <reference
+                        definitionId="patrick_vane_unrealscript_editor.editors.perspective.definition.isUdkPerspectiveActive">
+                  </reference>
+               </visibleWhen>
+            </command>
+            <command
+                  commandId="patrick_vane_unrealscript_editor.editors.command.run_editor"
+                  icon="icons/sample.gif"
+                  style="push"
+                  tooltip="Run Editor">
                <visibleWhen
                      checkEnabled="true">
                   <reference

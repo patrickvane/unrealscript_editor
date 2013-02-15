@@ -1,11 +1,17 @@
 package patrick_vane_unrealscript_editor.editors;
 
 import java.util.ArrayList;
+import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IWorkspaceRoot;
+import org.eclipse.core.resources.IWorkspaceRunnable;
+import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.source.AnnotationRulerColumn;
 import org.eclipse.jface.text.source.CompositeRuler;
@@ -13,12 +19,14 @@ import org.eclipse.jface.text.source.IAnnotationModel;
 import org.eclipse.jface.text.source.IVerticalRuler;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.TreeSelection;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.editors.text.TextEditor;
 import patrick_vane_unrealscript_editor.editors.console.UnrealScriptCompilerConsole;
 import patrick_vane_unrealscript_editor.editors.default_classes.ColorManager;
 import patrick_vane_unrealscript_editor.editors.default_classes.DocumentProvider;
+import patrick_vane_unrealscript_editor.editors.default_classes.MyRunnable;
 import patrick_vane_unrealscript_editor.editors.parser.CodeException;
 import patrick_vane_unrealscript_editor.editors.parser.UnrealScriptParser;
 
@@ -48,10 +56,6 @@ public class UnrealScriptEditor extends TextEditor
 		//if( !PlatformUI.getWorkbench().saveAllEditors(true) )
 		//	return;
 		//PlatformUI.getWorkbench().getProgressService().run( fork, cancelable, runnable )
-		
-		//UDKCompilerSettingsPopup popup = new UDKCompilerSettingsPopup();
-		//popup.setLocationRelativeTo( null );
-		//popup.setVisible( true );
 	}
 	
 	
@@ -144,27 +148,31 @@ public class UnrealScriptEditor extends TextEditor
 		}
 		
 		final CodeException[] EXCEPTIONS = exceptions;
-		getSourceViewer().getTextWidget().getDisplay().syncExec
-		( 
-			new Runnable()
+		IWorkspaceRunnable runnable = new IWorkspaceRunnable()
+		{
+			@Override
+			public void run( IProgressMonitor monitor ) throws CoreException
 			{
-				@Override
-				public void run()
+				clearMarkers();
+				if( EXCEPTIONS != null )
 				{
-					clearMarkers();
-					if( EXCEPTIONS != null )
+					for( CodeException e : EXCEPTIONS )
 					{
-						for( CodeException e : EXCEPTIONS )
+						if( e.isError() )
 						{
-							if( e.isError() )
-							{
-								addErrorMarker( e.getFirstCharacterPosition(), e.getLastCharacterPosition(), e.getMessage() );
-							}
+							addErrorMarker( e.getFirstCharacterPosition(), e.getLastCharacterPosition(), e.getMessage() );
 						}
 					}
 				}
 			}
-		);
+		};
+		try
+		{
+			ResourcesPlugin.getWorkspace().run( runnable, new NullProgressMonitor() );
+		}
+		catch( CoreException e )
+		{
+		}
 	}
 	
 	
@@ -176,8 +184,85 @@ public class UnrealScriptEditor extends TextEditor
 	}
 	
 	
+	public static IWorkbenchWindow getActiveWorkbenchWindow()
+	{
+		MyRunnable runnable = new MyRunnable()
+		{
+			@Override
+			public void run()
+			{
+				done( PlatformUI.getWorkbench().getActiveWorkbenchWindow() );
+			}
+		};
+		Display.getDefault().syncExec( runnable );
+		while( !runnable.isDone() )
+		{
+			try
+			{
+				Thread.sleep( 20 );
+			}
+			catch( Exception e )
+			{
+			}
+		}
+		if( runnable.getResult() != null )
+			return (IWorkbenchWindow) runnable.getResult();
+		return null;
+	}
+	public static IFile getActiveFile()
+	{
+		try
+		{
+			Object object = getActiveWorkbenchWindow().getActivePage().getActiveEditor().getEditorInput().getAdapter( IFile.class );
+			if( object instanceof IFile )
+			{
+				return (IFile) object;
+			}
+		}
+		catch( Exception e )
+		{
+		}
+		return null;
+	}
+	public static IProject getProject( String name )
+	{
+		try
+		{
+			IWorkspaceRoot myWorkspaceRoot = ResourcesPlugin.getWorkspace().getRoot();
+			return myWorkspaceRoot.getProject( name );
+		}
+		catch( Exception e )
+		{
+		}
+		return null;
+	}
+	public static IProject getActiveProject()
+	{
+		try
+		{
+			IFile file = getActiveFile();
+			IContainer project = file.getProject();
+			while( project.getParent().getParent() != null )
+			{
+				project = project.getParent();
+			}
+			return project.getProject();
+		}
+		catch( Exception e )
+		{
+		}
+		return null;
+	}
+	public static IProject getSelectedProject() throws Exception
+	{
+		return getSelectedProject( getActiveWorkbenchWindow() );
+	}
 	public static IProject getSelectedProject( IWorkbenchWindow window ) throws Exception
 	{
+		if( window == null )
+			window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
+		if( window == null )
+			return null;
 		IProject project = null;
 		ISelection selection = window.getSelectionService().getSelection( UnrealScriptID.VIEW_NAVIGATOR );
 		if( (selection != null) && !selection.isEmpty() )

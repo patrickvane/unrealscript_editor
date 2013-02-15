@@ -6,6 +6,7 @@ import javax.swing.JCheckBox;
 import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
+import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import org.eclipse.core.resources.IProject;
@@ -88,6 +89,7 @@ public class UDKExecuteSettingsPopup extends ExtendablePopup
 		dropdownMode.setEditable( true );
 		dropdownMode.setBounds( 67, 58, 210, 20 );
 		dropdownMode.setSelectedItem( mode );
+		dropdownMode.setFont( new Font(dropdownMode.getFont().getFontName(), dropdownMode.getFont().getStyle(), (int) Math.round(dropdownMode.getFont().getSize()*0.75)) );
 		getContentPane().add( dropdownMode );
 		
 		

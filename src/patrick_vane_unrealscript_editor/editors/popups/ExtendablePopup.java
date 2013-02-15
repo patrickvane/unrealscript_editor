@@ -4,9 +4,11 @@ import javax.swing.JDialog;
 import java.awt.Dimension;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
-import java.lang.reflect.InvocationTargetException;
+import org.eclipse.core.resources.IWorkspaceRunnable;
+import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
-import org.eclipse.jface.operation.IRunnableWithProgress;
+import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.ui.IWorkbenchWindow;
 
 
@@ -63,10 +65,10 @@ public class ExtendablePopup extends JDialog
 		done = false;
 		canceled = false;
 		
-		IRunnableWithProgress runnable = new IRunnableWithProgress()
+		IWorkspaceRunnable runnable = new IWorkspaceRunnable()
 		{
 			@Override
-			public void run( IProgressMonitor monitor ) throws InvocationTargetException, InterruptedException
+			public void run( IProgressMonitor monitor )
 			{
 				ExtendablePopup.this.progressionMonitor = monitor;
 				
@@ -87,13 +89,16 @@ public class ExtendablePopup extends JDialog
 			}
 		};
 		
+		NullProgressMonitor monitor = new NullProgressMonitor();
 		try
 		{
-			window.run( true, false, runnable );
+			ResourcesPlugin.getWorkspace().run( runnable, monitor );
 		}
-		catch( InvocationTargetException | InterruptedException e )
+		catch( CoreException e )
 		{
 			cancel();
+			monitor.setCanceled( isCanceled() );
+			monitor.done();
 		}
 		
 		synchronized( runningPopupSyncer )

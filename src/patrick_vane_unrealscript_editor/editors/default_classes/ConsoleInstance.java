@@ -13,9 +13,9 @@ import org.eclipse.ui.console.MessageConsoleStream;
 
 public class ConsoleInstance
 {
-	protected MessageConsole		console;
-	protected MessageConsoleStream	stream;
-
+	protected final MessageConsole			console;
+	protected final MessageConsoleStream	stream;
+	
 	
 	public ConsoleInstance( String name )
 	{
@@ -98,5 +98,11 @@ public class ConsoleInstance
 	public PrintStream getPrintStream()
 	{
 		return new PrintStream( stream );
+	}
+	
+	
+	public Object getSynchronizer()
+	{
+		return stream;
 	}
 }

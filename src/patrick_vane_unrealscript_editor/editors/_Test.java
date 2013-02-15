@@ -4,7 +4,7 @@ import patrick_vane_unrealscript_editor.editors.parser.CodeException;
 import patrick_vane_unrealscript_editor.editors.parser.UnrealScriptParser;
 
 
-public class _Main
+public class _Test
 {
 	public static String code = 
 	(

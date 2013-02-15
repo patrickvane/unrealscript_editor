@@ -30,7 +30,7 @@
    <extension
          point="org.eclipse.ui.perspectives">
       <perspective
-            class="patrick_vane_unrealscript_editor.editors.perspective.UnrealScriptPerspective"
+            class="patrick_vane_unrealscript_editor.editors.perspective.UDKPerspective"
             icon="icons/sample.gif"
             id="patrick_vane_unrealscript_editor.editors.perspective.UnrealScriptPerspective"
             name="UDK">

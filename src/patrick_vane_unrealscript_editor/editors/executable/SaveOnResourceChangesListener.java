@@ -14,8 +14,9 @@ public class SaveOnResourceChangesListener extends AbstractResourcesChangedListe
 	@Override
 	public void fileChanged( String name )
 	{
-		System.out.println( getRoot().toURI().getPath()+name+" changed" );
 		if( name.endsWith(".uc") )
-			System.out.println( "recompile!" );
+		{
+			UDKCompiler.compile();
+		}
 	}
 }

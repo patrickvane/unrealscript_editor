@@ -8,6 +8,7 @@ import java.awt.event.ActionListener;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import patrick_vane_unrealscript_editor.editors.UnrealScriptID;
+import patrick_vane_unrealscript_editor.editors.executable.UDKCompiler;
 
 
 public class UDKCompilerSettingsPopup extends ExtendablePopup
@@ -57,13 +58,13 @@ public class UDKCompilerSettingsPopup extends ExtendablePopup
 		getContentPane().add( checkbox64Bit );
 		
 		checkboxStripSource = new JCheckBox( "strip source" );
-		checkboxStripSource.setToolTipText( "Removes the source from the compiled .u files (it won't remove the comments!)" );
+		checkboxStripSource.setToolTipText( "Removes the source from the compiled .u files (it won't remove comments!)" );
 		checkboxStripSource.setBounds( 21, 50, 102, 21 );
 		checkboxStripSource.setSelected( stripsource );
 		getContentPane().add( checkboxStripSource );
 		
 		buttonFullRebuild = new JButton( "Full Rebuild" );
-		buttonFullRebuild.setToolTipText( "Save and Full Rebuild" );
+		buttonFullRebuild.setToolTipText( "Save, Close and Full Rebuild" );
 		buttonFullRebuild.setBounds( 18, 92, 99, 23 );
 		buttonFullRebuild.addActionListener( listenerFullRebuild );
 		getContentPane().add( buttonFullRebuild );
@@ -111,7 +112,8 @@ public class UDKCompilerSettingsPopup extends ExtendablePopup
 		{
 			if( save() )
 			{
-				//TODO: compile
+				success();
+				UDKCompiler.compileForced( "-full" );
 			}
 		}
 	};

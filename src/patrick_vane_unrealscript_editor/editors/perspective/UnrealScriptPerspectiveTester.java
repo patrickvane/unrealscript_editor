@@ -8,6 +8,6 @@ public class UnrealScriptPerspectiveTester extends PropertyTester
 	@Override
 	public boolean test( Object receiver, String property, Object[] args, Object expectedValue )
 	{
-		return UnrealScriptPerspective.isActive();
+		return UDKPerspective.isActive();
 	}
 }

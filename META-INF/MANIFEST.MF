@@ -10,7 +10,8 @@ Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.ui.editors,
  org.eclipse.jdt.ui;bundle-version="3.8.1",
  org.eclipse.ui.console;bundle-version="3.5.100",
- org.eclipse.core.expressions;bundle-version="3.4.401"
+ org.eclipse.core.expressions;bundle-version="3.4.401",
+ org.eclipse.debug.core;bundle-version="3.7.100"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
 Import-Package: My_File_Listener,
  net.contentobjects.jnotify,
@@ -18,6 +19,7 @@ Import-Package: My_File_Listener,
  net.contentobjects.jnotify.macosx,
  net.contentobjects.jnotify.win32,
  org.eclipse.core.resources,
+ org.eclipse.debug.core,
  org.eclipse.jdt.ui,
  org.eclipse.ui.console
 Bundle-ClassPath: .,

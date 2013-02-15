@@ -1,6 +1,9 @@
 package patrick_vane_unrealscript_editor.editors;
 
+import java.io.File;
+import java.io.PrintStream;
 import java.util.ArrayList;
+import java.util.Collection;
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IMarker;
@@ -27,6 +30,7 @@ import patrick_vane_unrealscript_editor.editors.console.UnrealScriptCompilerCons
 import patrick_vane_unrealscript_editor.editors.default_classes.ColorManager;
 import patrick_vane_unrealscript_editor.editors.default_classes.DocumentProvider;
 import patrick_vane_unrealscript_editor.editors.default_classes.MyRunnable;
+import patrick_vane_unrealscript_editor.editors.default_classes.MyStream;
 import patrick_vane_unrealscript_editor.editors.parser.CodeException;
 import patrick_vane_unrealscript_editor.editors.parser.UnrealScriptParser;
 
@@ -52,10 +56,6 @@ public class UnrealScriptEditor extends TextEditor
 		catch( Exception e )
 		{
 		}
-		
-		//if( !PlatformUI.getWorkbench().saveAllEditors(true) )
-		//	return;
-		//PlatformUI.getWorkbench().getProgressService().run( fork, cancelable, runnable )
 	}
 	
 	
@@ -253,6 +253,17 @@ public class UnrealScriptEditor extends TextEditor
 		}
 		return null;
 	}
+	public static File getActiveProjectFile()
+	{
+		try
+		{
+			return new File( UnrealScriptEditor.getActiveProject().getFolder("UnrealScript").getLocationURI() ).getParentFile().getParentFile();
+		}
+		catch( Exception e )
+		{
+			return null;
+		}
+	}
 	public static IProject getSelectedProject() throws Exception
 	{
 		return getSelectedProject( getActiveWorkbenchWindow() );
@@ -293,6 +304,92 @@ public class UnrealScriptEditor extends TextEditor
 			throw new Exception( "You need to select a Project (in the Package Explorer)" );
 		}
 		return project;
+	}
+	
+	
+	/** 
+	 * Returns the exit value:<br>
+	 *  0 = ok<br>
+	 * -1 = failed (inside java)<br>
+	 *  1+ = process failed, number represents an error code<br>
+	 */
+	public static int runUDK( final boolean newWindow, PrintStream output, PrintStream error, final Collection<String> params )
+	{
+		return runUDK( newWindow, output, error, params.toArray(new String[0]) );
+	}
+	/** 
+	 * Returns the exit value:<br>
+	 *  0 = ok<br>
+	 * -1 = failed (inside java)<br>
+	 *  1+ = process failed, number represents an error code<br>
+	 */
+	public static int runUDK( final boolean newWindow, PrintStream output, PrintStream error, final String... params )
+	{
+		if( !PlatformUI.getWorkbench().saveAllEditors(true) )
+			return -1;
+		if( output == null )
+			output = System.out;
+		if( error == null )
+		{
+			if( output == System.out )
+				error = System.err;
+			else
+				error = output;
+		}
+		
+		
+		boolean bit64;
+		String root;
+		try
+		{
+			bit64 = Boolean.parseBoolean( getActiveProject().getPersistentProperty(UnrealScriptID.PROPERTY_64BIT) );
+			root = getActiveProjectFile().getAbsolutePath() + "/";
+		}
+		catch( Exception e )
+		{
+			bit64 = false;
+			root = "C:/UDK/";
+			e.printStackTrace( error );
+		}
+		String binFolder = root+"Binaries/"+(bit64?"Win64":"Win32")+"/";
+		String executablePath = binFolder+"UDK."+(newWindow?"exe":"com");
+		
+		File bin = new File( binFolder );
+		File executable = new File( executablePath );
+		if( !executable.exists() )
+		{
+			error.println( "\""+executable.getAbsolutePath()+"\" doesn't exist" );
+			return -1;
+		}
+		
+		
+		ArrayList<String> commandLine = new ArrayList<String>();
+		commandLine.add( executable.getAbsolutePath() );
+		for( String param : params )
+		{
+			commandLine.add( param );
+		}
+		//commandLine.add( "-forcelogflush" );
+		
+		StringBuilder command = new StringBuilder();
+		for( String arg : commandLine )
+		{
+			command.append(" \""+arg+"\"");
+		}
+		
+		
+		try
+		{
+			Process process = Runtime.getRuntime().exec( command.toString(), null, bin );
+			MyStream.copy( process.getInputStream(), output );
+			MyStream.copy( process.getErrorStream(), error  );
+			return process.waitFor();
+		}
+		catch( Exception e )
+		{
+			e.printStackTrace( error );
+			return -1;
+		}
 	}
 	
 	

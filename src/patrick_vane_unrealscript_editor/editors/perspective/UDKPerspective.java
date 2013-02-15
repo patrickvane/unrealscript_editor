@@ -9,7 +9,7 @@ import org.eclipse.ui.console.IConsoleConstants;
 import patrick_vane_unrealscript_editor.editors.UnrealScriptID;
 
 
-public class UnrealScriptPerspective implements IPerspectiveFactory
+public class UDKPerspective implements IPerspectiveFactory
 {
 	@Override
 	public void createInitialLayout( IPageLayout layout )

@@ -73,4 +73,9 @@ public class UnrealScriptCompilerConsole
 	{
 		return console.getPrintStream();
 	}
+	
+	public static Object getSynchronizer()
+	{
+		return console.getSynchronizer();
+	}
 }

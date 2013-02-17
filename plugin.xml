@@ -177,10 +177,10 @@
                </visibleWhen>
             </command>
             <command
-                  commandId="patrick_vane_unrealscript_editor.editors.command.run_game"
+                  commandId="patrick_vane_unrealscript_editor.editors.command.run_editor"
                   icon="icons/sample.gif"
                   style="push"
-                  tooltip="Run Game">
+                  tooltip="Run Editor">
                <visibleWhen
                      checkEnabled="true">
                   <reference
@@ -189,10 +189,10 @@
                </visibleWhen>
             </command>
             <command
-                  commandId="patrick_vane_unrealscript_editor.editors.command.run_editor"
+                  commandId="patrick_vane_unrealscript_editor.editors.command.run_game"
                   icon="icons/sample.gif"
                   style="push"
-                  tooltip="Run Editor">
+                  tooltip="Run Game">
                <visibleWhen
                      checkEnabled="true">
                   <reference

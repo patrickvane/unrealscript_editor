@@ -24,13 +24,13 @@ public class UDKExecuteSettingsPopup extends ExtendablePopup
 	private JComboBox 			dropdownMode;
 	private JCheckBox 			checkboxDisableSound;
 	private JCheckBox 			checkboxDisableStartupVideos;
-	private JButton 			buttonRun;
+	private JButton 			buttonSave;
 	private JButton 			buttonCancel;
 	
 	
 	public UDKExecuteSettingsPopup( IProject project )
 	{
-		super( "UDK Execute Settings", 300, 280 );
+		super( "UDK Execute Settings", 305, 245 );
 		
 		this.project = project;
 		
@@ -40,19 +40,15 @@ public class UDKExecuteSettingsPopup extends ExtendablePopup
 		boolean disableStartupVideos;
 		try
 		{
-			map = project.getPersistentProperty( UnrealScriptID.PROPERTY_GAME_MAP );
+			map  = project.getPersistentProperty( UnrealScriptID.PROPERTY_GAME_MAP );
 			mode = project.getPersistentProperty( UnrealScriptID.PROPERTY_GAME_MODE );
 			disableSound = Boolean.parseBoolean( project.getPersistentProperty(UnrealScriptID.PROPERTY_DISABLE_SOUND) );
 			disableStartupVideos = Boolean.parseBoolean( project.getPersistentProperty(UnrealScriptID.PROPERTY_DISABLE_STARTUP_VIDEOS) );
-			if( map == null )
-				map = "ExampleMap";
-			if( mode == null )
-				mode = "UTGame.UTDeathmatch";
 		}
 		catch( CoreException e )
 		{
-			map = "ExampleMap";
-			mode = "UTGame.UTDeathmatch";
+			map = null;
+			mode = null;
 			disableSound = false;
 			disableStartupVideos = false;
 			
@@ -64,30 +60,34 @@ public class UDKExecuteSettingsPopup extends ExtendablePopup
 				JOptionPane.WARNING_MESSAGE
 			);
 		}
+		if( map == null )
+			map = "ExampleMap";
+		if( mode == null )
+			mode = "UTGame.UTDeathmatch";
 		
 		
 		JLabel labelMap = new JLabel( "Map:" );
-		labelMap.setBounds( 25, 26, 38, 14 );
+		labelMap.setBounds( 23, 26, 38, 14 );
 		getContentPane().add( labelMap );
 		
 		dropdownMap = new JComboBox();
 		dropdownMap.setModel( new DefaultComboBoxModel(new String[]{"ExampleMap", "EpicCitadel", "DM-Deck"}) );
 		dropdownMap.setEditable( true );
 		dropdownMap.setToolTipText( "A map from the UDKGame/Content/Maps/ folder" );
-		dropdownMap.setBounds( 67, 24, 210, 20 );
+		dropdownMap.setBounds( 67, 24, 217, 20 );
 		dropdownMap.setSelectedItem( map );
 		getContentPane().add( dropdownMap );
 		
 		
 		JLabel labelMode = new JLabel( "Mode:" );
-		labelMode.setBounds( 25, 60, 36, 14 );
+		labelMode.setBounds( 23, 60, 36, 14 );
 		getContentPane().add( labelMode );
 		
 		dropdownMode = new JComboBox();
 		dropdownMode.setModel( new DefaultComboBoxModel(new String[]{"UTGame.UTDeathmatch", "UTGame.UTTeamGame", "UTGameContent.UTCTFGame_Content", "UTGameContent.UTVehicleCTFGame_Content"}) );
 		dropdownMode.setToolTipText( "A game mode" );
 		dropdownMode.setEditable( true );
-		dropdownMode.setBounds( 67, 58, 210, 20 );
+		dropdownMode.setBounds( 67, 58, 217, 20 );
 		dropdownMode.setSelectedItem( mode );
 		dropdownMode.setFont( new Font(dropdownMode.getFont().getFontName(), dropdownMode.getFont().getStyle(), (int) Math.round(dropdownMode.getFont().getSize()*0.75)) );
 		getContentPane().add( dropdownMode );
@@ -105,22 +105,15 @@ public class UDKExecuteSettingsPopup extends ExtendablePopup
 		checkboxDisableStartupVideos.setSelected( disableStartupVideos );
 		getContentPane().add( checkboxDisableStartupVideos );
 		
-		
-		buttonRun = new JButton( "Run" );
-		buttonRun.setToolTipText( "Save, Close and Run" );
-		buttonRun.setBounds( 112, 166, 89, 23 );
-		buttonRun.addActionListener( listenerRun );
-		getContentPane().add( buttonRun );
-		
 		buttonSave = new JButton( "Save" );
 		buttonSave.setToolTipText( "Save and Close" );
-		buttonSave.setBounds( 112, 203, 89, 23 );
+		buttonSave.setBounds( 112, 173, 89, 23 );
 		buttonSave.addActionListener( listenerSave );
 		getContentPane().add( buttonSave );
 		
 		buttonCancel = new JButton( "Cancel" );
 		buttonCancel.setToolTipText( "Close without Saving" );
-		buttonCancel.setBounds( 112, 232, 89, 23 );
+		buttonCancel.setBounds( 112, 202, 89, 23 );
 		buttonCancel.addActionListener( listenerCancel );
 		getContentPane().add( buttonCancel );
 	}
@@ -150,18 +143,6 @@ public class UDKExecuteSettingsPopup extends ExtendablePopup
 	}
 	
 	
-	private ActionListener listenerRun = new ActionListener()
-	{
-		@Override
-		public void actionPerformed( ActionEvent e )
-		{
-			if( save() )
-			{
-				//TODO: run
-			}
-		}
-	};
-	
 	private ActionListener listenerSave = new ActionListener()
 	{
 		@Override
@@ -182,5 +163,4 @@ public class UDKExecuteSettingsPopup extends ExtendablePopup
 			cancel();
 		}
 	};
-	private JButton buttonSave;
 }

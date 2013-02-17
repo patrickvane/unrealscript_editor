@@ -313,9 +313,12 @@ public class UnrealScriptEditor extends TextEditor
 	 * -1 = failed (inside java)<br>
 	 *  1+ = process failed, number represents an error code<br>
 	 */
-	public static int runUDK( final boolean newWindow, PrintStream output, PrintStream error, final Collection<String> params )
+	public static int runUDK( final boolean newWindow, PrintStream output, PrintStream error, final String... params )
 	{
-		return runUDK( newWindow, output, error, params.toArray(new String[0]) );
+		ArrayList<String> collection = new ArrayList<String>();
+		for( String param : params )
+			collection.add( param );
+		return runUDK( newWindow, output, error, collection );
 	}
 	/** 
 	 * Returns the exit value:<br>
@@ -323,7 +326,20 @@ public class UnrealScriptEditor extends TextEditor
 	 * -1 = failed (inside java)<br>
 	 *  1+ = process failed, number represents an error code<br>
 	 */
-	public static int runUDK( final boolean newWindow, PrintStream output, PrintStream error, final String... params )
+	public static int runUDK( final boolean newWindow, PrintStream output, PrintStream error, final Collection<String> params )
+	{
+		ArrayList<String> collection = new ArrayList<String>();
+		for( String param : params )
+			collection.add( param );
+		return runUDK( newWindow, output, error, collection );
+	}
+	/** 
+	 * Returns the exit value:<br>
+	 *  0 = ok<br>
+	 * -1 = failed (inside java)<br>
+	 *  1+ = process failed, number represents an error code<br>
+	 */
+	public static int runUDK( final boolean newWindow, PrintStream output, PrintStream error, final ArrayList<String> params )
 	{
 		if( !PlatformUI.getWorkbench().saveAllEditors(true) )
 			return -1;
@@ -336,7 +352,6 @@ public class UnrealScriptEditor extends TextEditor
 			else
 				error = output;
 		}
-		
 		
 		boolean bit64;
 		String root;
@@ -361,26 +376,11 @@ public class UnrealScriptEditor extends TextEditor
 			error.println( "\""+executable.getAbsolutePath()+"\" doesn't exist" );
 			return -1;
 		}
-		
-		
-		ArrayList<String> commandLine = new ArrayList<String>();
-		commandLine.add( executable.getAbsolutePath() );
-		for( String param : params )
-		{
-			commandLine.add( param );
-		}
-		//commandLine.add( "-forcelogflush" );
-		
-		StringBuilder command = new StringBuilder();
-		for( String arg : commandLine )
-		{
-			command.append(" \""+arg+"\"");
-		}
-		
+		params.add( 0, executable.getAbsolutePath() );
 		
 		try
 		{
-			Process process = Runtime.getRuntime().exec( command.toString(), null, bin );
+			Process process = Runtime.getRuntime().exec( params.toArray(new String[0]), null, bin );
 			MyStream.copy( process.getInputStream(), output );
 			MyStream.copy( process.getErrorStream(), error  );
 			return process.waitFor();

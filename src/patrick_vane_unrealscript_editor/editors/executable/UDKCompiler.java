@@ -14,7 +14,7 @@ public class UDKCompiler
 	private static final ArrayList<String> params = new ArrayList<String>();
 	static
 	{
-		params.add( "make" );
+		params.add( 0, "make" );
 		params.add( "-unattended" );
 		params.add( "-debug" );
 	}
@@ -123,23 +123,21 @@ public class UDKCompiler
 					}
 				}
 				
-				synchronized( UnrealScriptCompilerConsole.getSynchronizer() )
+				boolean stripSources;
+				try
 				{
-					boolean stripSources;
-					try
-					{
-						stripSources = Boolean.parseBoolean( UnrealScriptEditor.getActiveProject().getPersistentProperty(UnrealScriptID.PROPERTY_STRIP_SOUCE) );
-					}
-					catch( Exception e )
-					{
-						stripSources = false;
-						e.printStackTrace();
-					}
-					if( stripSources )
-					{
-						params.add( "-stripsource" );
-					}
-					
+					stripSources = Boolean.parseBoolean( UnrealScriptEditor.getActiveProject().getPersistentProperty(UnrealScriptID.PROPERTY_STRIP_SOUCE) );
+				}
+				catch( Exception e )
+				{
+					stripSources = false;
+					e.printStackTrace();
+				}
+				if( stripSources )
+					params.add( "-stripsource" );
+				
+				synchronized( UnrealScriptCompilerConsole.getSynchronizer() )
+				{	
 					UnrealScriptCompilerConsole.clear();
 					UnrealScriptEditor.runUDK( false, UnrealScriptCompilerConsole.getPrintStream(), UnrealScriptCompilerConsole.getPrintStream(), params );
 				}

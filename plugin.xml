@@ -8,7 +8,7 @@
       <editor
             name="UnrealScript Editor"
             extensions="uc"
-            icon="icons/sample.gif"
+            icon="icons/uc.png"
             contributorClass="org.eclipse.ui.texteditor.BasicTextEditorActionContributor"
             class="patrick_vane_unrealscript_editor.editors.UnrealScriptEditor"
             id="patrick_vane_unrealscript_editor.editors.UnrealScriptEditor">
@@ -31,7 +31,7 @@
          point="org.eclipse.ui.perspectives">
       <perspective
             class="patrick_vane_unrealscript_editor.editors.perspective.UDKPerspective"
-            icon="icons/sample.gif"
+            icon="icons/perspective.png"
             id="patrick_vane_unrealscript_editor.editors.perspective.UnrealScriptPerspective"
             name="UDK">
       </perspective>
@@ -98,31 +98,31 @@
             </visibleWhen>
             <command
                   commandId="patrick_vane_unrealscript_editor.editors.command.import_project"
-                  icon="icons/sample.gif"
+                  icon="icons/buttons/import.png"
                   style="push"
                   tooltip="Import Project">
             </command>
             <command
                   commandId="patrick_vane_unrealscript_editor.editors.command.compiler_settings"
-                  icon="icons/sample.gif"
+                  icon="icons/buttons/settings_compiler.png"
                   style="push"
                   tooltip="Configure Compiler">
             </command>
             <command
                   commandId="patrick_vane_unrealscript_editor.editors.command.executer_settings"
-                  icon="icons/sample.gif"
+                  icon="icons/buttons/settings_game.png"
                   style="push"
                   tooltip="Configure Executer">
             </command>
             <command
                   commandId="patrick_vane_unrealscript_editor.editors.command.run_editor"
-                  icon="icons/sample.gif"
+                  icon="icons/buttons/editor.png"
                   style="push"
                   tooltip="Run Editor">
             </command>
             <command
                   commandId="patrick_vane_unrealscript_editor.editors.command.run_game"
-                  icon="icons/sample.gif"
+                  icon="icons/buttons/game.png"
                   style="push"
                   tooltip="Run Game">
             </command>
@@ -142,7 +142,7 @@
             </visibleWhen>
             <command
                   commandId="patrick_vane_unrealscript_editor.editors.command.import_project"
-                  icon="icons/sample.gif"
+                  icon="icons/buttons/import.png"
                   style="push"
                   tooltip="Import Project">
                <visibleWhen
@@ -154,7 +154,7 @@
             </command>
             <command
                   commandId="patrick_vane_unrealscript_editor.editors.command.compiler_settings"
-                  icon="icons/sample.gif"
+                  icon="icons/buttons/settings_compiler.png"
                   style="push"
                   tooltip="Configure Compiler">
                <visibleWhen
@@ -166,7 +166,7 @@
             </command>
             <command
                   commandId="patrick_vane_unrealscript_editor.editors.command.executer_settings"
-                  icon="icons/sample.gif"
+                  icon="icons/buttons/settings_game.png"
                   style="push"
                   tooltip="Configure Executer">
                <visibleWhen
@@ -178,7 +178,7 @@
             </command>
             <command
                   commandId="patrick_vane_unrealscript_editor.editors.command.run_editor"
-                  icon="icons/sample.gif"
+                  icon="icons/buttons/editor.png"
                   style="push"
                   tooltip="Run Editor">
                <visibleWhen
@@ -190,7 +190,7 @@
             </command>
             <command
                   commandId="patrick_vane_unrealscript_editor.editors.command.run_game"
-                  icon="icons/sample.gif"
+                  icon="icons/buttons/game.png"
                   style="push"
                   tooltip="Run Game">
                <visibleWhen

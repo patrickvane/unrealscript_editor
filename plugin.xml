@@ -10,7 +10,7 @@
             extensions="uc"
             icon="icons/uc.png"
             contributorClass="org.eclipse.ui.texteditor.BasicTextEditorActionContributor"
-            class="patrick_vane_unrealscript_editor.editors.UnrealScriptEditor"
+            class="com.patrick_vane.unrealscript.editor.UnrealScriptEditor"
             id="patrick_vane_unrealscript_editor.editors.UnrealScriptEditor">
       </editor>
    </extension>
@@ -30,7 +30,7 @@
    <extension
          point="org.eclipse.ui.perspectives">
       <perspective
-            class="patrick_vane_unrealscript_editor.editors.perspective.UDKPerspective"
+            class="com.patrick_vane.unrealscript.editor.perspective.UDKPerspective"
             icon="icons/perspective.png"
             id="patrick_vane_unrealscript_editor.editors.perspective.UnrealScriptPerspective"
             name="UDK">
@@ -46,35 +46,35 @@
       </category>
       <command
             categoryId="patrick_vane_unrealscript_editor.editors.commandcategory.udk"
-            defaultHandler="patrick_vane_unrealscript_editor.editors.perspective.handlers.ImportProject"
+            defaultHandler="com.patrick_vane.unrealscript.editor.perspective.handlers.ImportProject"
             description="Import Project"
             id="patrick_vane_unrealscript_editor.editors.command.import_project"
             name="Import Project">
       </command>
       <command
             categoryId="patrick_vane_unrealscript_editor.editors.commandcategory.udk"
-            defaultHandler="patrick_vane_unrealscript_editor.editors.perspective.handlers.CompilerSettings"
+            defaultHandler="com.patrick_vane.unrealscript.editor.perspective.handlers.CompilerSettings"
             description="Configure Compiler"
             id="patrick_vane_unrealscript_editor.editors.command.compiler_settings"
             name="Configure Compiler">
       </command>
       <command
             categoryId="patrick_vane_unrealscript_editor.editors.commandcategory.udk"
-            defaultHandler="patrick_vane_unrealscript_editor.editors.perspective.handlers.ExecuterSettings"
+            defaultHandler="com.patrick_vane.unrealscript.editor.perspective.handlers.ExecuterSettings"
             description="Configure Executer"
             id="patrick_vane_unrealscript_editor.editors.command.executer_settings"
             name="Configure Executer">
       </command>
       <command
             categoryId="patrick_vane_unrealscript_editor.editors.commandcategory.udk"
-            defaultHandler="patrick_vane_unrealscript_editor.editors.perspective.handlers.RunEditor"
+            defaultHandler="com.patrick_vane.unrealscript.editor.perspective.handlers.RunEditor"
             description="Run Editor"
             id="patrick_vane_unrealscript_editor.editors.command.run_editor"
             name="Run Editor">
       </command>
       <command
             categoryId="patrick_vane_unrealscript_editor.editors.commandcategory.udk"
-            defaultHandler="patrick_vane_unrealscript_editor.editors.perspective.handlers.RunGame"
+            defaultHandler="com.patrick_vane.unrealscript.editor.perspective.handlers.RunGame"
             description="Run Game"
             id="patrick_vane_unrealscript_editor.editors.command.run_game"
             name="Run Game">
@@ -208,7 +208,7 @@
    <extension
          point="org.eclipse.core.expressions.propertyTesters">
       <propertyTester
-            class="patrick_vane_unrealscript_editor.editors.perspective.UnrealScriptPerspectiveTester"
+            class="com.patrick_vane.unrealscript.editor.perspective.UnrealScriptPerspectiveTester"
             id="patrick_vane_unrealscript_editor.editors.perspective.UnrealScriptPerspectiveTester"
             namespace="patrick_vane_unrealscript_editor.editors.perspective.UnrealScriptPerspectiveTester"
             properties="isUdkPerspectiveActive"

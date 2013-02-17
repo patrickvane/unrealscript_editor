@@ -13,7 +13,7 @@ Require-Bundle: org.eclipse.core.runtime,
  org.eclipse.core.expressions;bundle-version="3.4.401",
  org.eclipse.debug.core;bundle-version="3.7.100"
 Bundle-RequiredExecutionEnvironment: JavaSE-1.7
-Import-Package: My_File_Listener,
+Import-Package: com.patrick_vane.unrealscript.editor.My_File_Listener,
  net.contentobjects.jnotify,
  net.contentobjects.jnotify.linux,
  net.contentobjects.jnotify.macosx,
@@ -23,12 +23,7 @@ Import-Package: My_File_Listener,
  org.eclipse.ui.console
 Bundle-ClassPath: .,
  jnotify-0.94.jar
-Export-Package: My_File_Listener,
- net.contentobjects.jnotify,
- net.contentobjects.jnotify.linux;uses:="net.contentobjects.jnotify",
- net.contentobjects.jnotify.macosx;uses:="net.contentobjects.jnotify",
- net.contentobjects.jnotify.win32;uses:="net.contentobjects.jnotify",
- patrick_vane_unrealscript_editor.editors;
+Export-Package: com.patrick_vane.unrealscript.editor;
   uses:="org.eclipse.jface.text,
    org.eclipse.core.runtime,
    org.eclipse.jface.text.source,
@@ -36,9 +31,10 @@ Export-Package: My_File_Listener,
    org.eclipse.ui,
    org.eclipse.core.resources,
    org.eclipse.ui.editors.text",
- patrick_vane_unrealscript_editor.editors.console;uses:="org.eclipse.swt.graphics",
- patrick_vane_unrealscript_editor.editors.constants;uses:="org.eclipse.jface.text",
- patrick_vane_unrealscript_editor.editors.default_classes;
+ com.patrick_vane.unrealscript.editor.My_File_Listener,
+ com.patrick_vane.unrealscript.editor.console;uses:="org.eclipse.swt.graphics",
+ com.patrick_vane.unrealscript.editor.constants;uses:="org.eclipse.jface.text",
+ com.patrick_vane.unrealscript.editor.default_classes;
   uses:="org.eclipse.jface.text,
    org.eclipse.ui.console,
    org.eclipse.jface.text.presentation,
@@ -47,13 +43,17 @@ Export-Package: My_File_Listener,
    My_File_Listener,
    org.eclipse.jface.text.rules,
    org.eclipse.ui.editors.text",
- patrick_vane_unrealscript_editor.editors.executable;uses:="patrick_vane_unrealscript_editor.editors.default_classes",
- patrick_vane_unrealscript_editor.editors.parser,
- patrick_vane_unrealscript_editor.editors.perspective;uses:="org.eclipse.core.expressions,org.eclipse.ui",
- patrick_vane_unrealscript_editor.editors.perspective.handlers;uses:="org.eclipse.core.commands",
- patrick_vane_unrealscript_editor.editors.popups;
+ com.patrick_vane.unrealscript.editor.executable;uses:="patrick_vane_unrealscript_editor.editors.default_classes",
+ com.patrick_vane.unrealscript.editor.parser,
+ com.patrick_vane.unrealscript.editor.perspective;uses:="org.eclipse.core.expressions,org.eclipse.ui",
+ com.patrick_vane.unrealscript.editor.perspective.handlers;uses:="org.eclipse.core.commands",
+ com.patrick_vane.unrealscript.editor.popups;
   uses:="org.eclipse.core.runtime,
    javax.swing,
    org.eclipse.ui,
    org.eclipse.core.resources",
- patrick_vane_unrealscript_editor.editors.syntaxcolor;uses:="org.eclipse.jface.text.source,org.eclipse.jface.text.presentation,org.eclipse.jface.text.rules"
+ com.patrick_vane.unrealscript.editor.syntaxcolor;uses:="org.eclipse.jface.text.source,org.eclipse.jface.text.presentation,org.eclipse.jface.text.rules",
+ net.contentobjects.jnotify,
+ net.contentobjects.jnotify.linux;uses:="net.contentobjects.jnotify",
+ net.contentobjects.jnotify.macosx;uses:="net.contentobjects.jnotify",
+ net.contentobjects.jnotify.win32;uses:="net.contentobjects.jnotify"

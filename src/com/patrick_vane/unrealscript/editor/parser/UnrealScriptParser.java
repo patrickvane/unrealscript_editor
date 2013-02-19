@@ -92,7 +92,8 @@ public class UnrealScriptParser
 		boolean inCommentLine = false;
 		boolean inCommentBlock = false;
 		boolean inDocs = false;
-		BracketBlock bracketBlock = new BracketBlock();
+		int stringStartCharacterPosition = 0;
+		UnrealScriptParserBracketBlock bracketBlock = new UnrealScriptParserBracketBlock();
 		char previousChar = ' ';
 		char character = ' ';
 		char nextChar = ' ';
@@ -116,13 +117,30 @@ public class UnrealScriptParser
 			if( i+2 < data.length() )
 				nextNextChar = data.charAt( i+2 );
 			
-			if( (character == '\n') || (character == '\r') )
+			if( !inCommentBlock && !inDocs )
 			{
-				if( (character == '\n') && (nextChar == '\r') )
-					skip = 1;
-				else if( (character == '\r') && (nextChar == '\n') )
-					skip = 1;
-				inCommentLine = false;
+				if( (character == '\n') || (character == '\r') )
+				{
+					if( !inString && !inChar )
+					{
+						if( (bracketBlock.getKeywordWord() != null) && bracketBlock.getKeywordWord().endsWith("defaultproperties") )
+						{
+							block.closeWord( characterPosition );
+							block.newLine();
+							bracketBlock.newLine( characterPosition );
+						}
+						if( (character == '\n') && (nextChar == '\r') )
+							skip = 1;
+						else if( (character == '\r') && (nextChar == '\n') )
+							skip = 1;
+						inCommentLine = false;
+					}
+					else
+					{
+						throw new CodeException( stringStartCharacterPosition, characterPosition, true, "String not closed" );
+					}
+					continue;
+				}
 			}
 			if( !inString && !inChar )
 			{
@@ -137,13 +155,14 @@ public class UnrealScriptParser
 					{
 						block.closeWord( characterPosition );
 						block.newLine();
+						
 						bracketBlock.newLine( characterPosition );
 						continue;
 					}
 					
 					if( character == '{' )
 					{
-						bracketBlock = new BracketBlock( bracketBlock, '{', '}' );
+						bracketBlock = new UnrealScriptParserBracketBlock( bracketBlock, block.getLastCompletedWord(), '{', '}' );
 						
 						block.closeWord( characterPosition );
 						block = new CodeBlock( block );
@@ -162,7 +181,7 @@ public class UnrealScriptParser
 					
 					if( character == '(' )
 					{
-						bracketBlock = new BracketBlock( bracketBlock, '(', ')' );
+						bracketBlock = new UnrealScriptParserBracketBlock( bracketBlock, block.getLastCompletedWord(), '(', ')' );
 						
 						block.closeWord( characterPosition );
 						block.addCharacter( characterPosition, character );
@@ -182,7 +201,7 @@ public class UnrealScriptParser
 					
 					if( character == '[' )
 					{
-						bracketBlock = new BracketBlock( bracketBlock, '[', ']' );
+						bracketBlock = new UnrealScriptParserBracketBlock( bracketBlock, block.getLastCompletedWord(), '[', ']' );
 						
 						block.closeWord( characterPosition );
 						block.addCharacter( characterPosition, character );
@@ -238,6 +257,7 @@ public class UnrealScriptParser
 						}
 						else
 						{
+							stringStartCharacterPosition = characterPosition;
 							block.closeWord( characterPosition );
 							block.addCharacter( characterPosition, character );
 						}
@@ -253,6 +273,7 @@ public class UnrealScriptParser
 						}
 						else
 						{
+							stringStartCharacterPosition = characterPosition;
 							block.closeWord( characterPosition );
 							block.addCharacter( characterPosition, character );
 						}
@@ -270,64 +291,5 @@ public class UnrealScriptParser
 		block.close();
 		
 		return root;
-	}
-	
-	
-	private static class BracketBlock
-	{
-		private static final char ROOT_CHAR = ' ';
-		
-		private BracketBlock parent;
-		private char closeBracketCharacter;
-		
-		@SuppressWarnings( "unused" )
-		private char openBracketCharacter;
-		
-		
-		public BracketBlock()
-		{
-			this.parent = null;
-			this.openBracketCharacter = ROOT_CHAR;
-			this.closeBracketCharacter = ROOT_CHAR;
-		}
-		
-		public BracketBlock( BracketBlock parent, char openBracketCharacter, char closeBracketCharacter )
-		{
-			this.parent = parent;
-			this.openBracketCharacter = openBracketCharacter;
-			this.closeBracketCharacter = closeBracketCharacter;
-		}
-		
-		
-		public void newLine( int characterPosition ) throws CodeException
-		{
-			if( (openBracketCharacter == '(') || (openBracketCharacter == '[') )
-				throw new CodeException( characterPosition, characterPosition+1, true, "Unexpected: ;" );
-		}
-		
-		
-		public void close( int characterPosition ) throws CodeException
-		{
-			close( characterPosition, ROOT_CHAR, ROOT_CHAR );
-		}
-		
-		public void close( int characterPosition, char openBracketCharacter, char closeBracketCharacter ) throws CodeException
-		{
-			if( this.closeBracketCharacter != closeBracketCharacter )
-			{
-				if( closeBracketCharacter == ROOT_CHAR )
-					throw new CodeException( characterPosition, characterPosition + 1, true, "Missing: "+this.openBracketCharacter );
-				else if( this.closeBracketCharacter == ROOT_CHAR )
-					throw new CodeException( characterPosition, characterPosition + 1, true, "Missing: "+openBracketCharacter );
-				else
-					throw new CodeException( characterPosition, characterPosition + 1, true, "Unexpected: "+closeBracketCharacter+", was expecting: "+this.closeBracketCharacter );
-			}
-		}
-		
-		
-		public BracketBlock getParent()
-		{
-			return parent;
-		}
 	}
 }

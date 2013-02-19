@@ -11,11 +11,11 @@ public interface Code
 	public boolean isNewWordOpen();
 	
 	public ArrayList<CodeWord> getLastLine();
+	public CodeWord getLastCompletedWord();
 	
 	public int getDepth();
 	
 	public void addCharacter( int characterPosition, char character );
-	//public void newWord( int characterPosition );
 	public void closeWord( int characterPosition );
 	public void newLine();
 	

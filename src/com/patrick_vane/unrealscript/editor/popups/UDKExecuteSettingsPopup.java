@@ -11,6 +11,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
+import com.patrick_vane.unrealscript.editor.UnrealScriptEditor;
 import com.patrick_vane.unrealscript.editor.UnrealScriptID;
 
 
@@ -71,7 +72,7 @@ public class UDKExecuteSettingsPopup extends ExtendablePopup
 		getContentPane().add( labelMap );
 		
 		dropdownMap = new JComboBox();
-		dropdownMap.setModel( new DefaultComboBoxModel(new String[]{"ExampleMap", "EpicCitadel", "DM-Deck"}) );
+		dropdownMap.setModel( new DefaultComboBoxModel(UnrealScriptEditor.getMapNames()) );
 		dropdownMap.setEditable( true );
 		dropdownMap.setToolTipText( "A map from the UDKGame/Content/Maps/ folder" );
 		dropdownMap.setBounds( 67, 24, 217, 20 );

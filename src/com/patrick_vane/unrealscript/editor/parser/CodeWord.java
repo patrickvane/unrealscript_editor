@@ -43,6 +43,13 @@ public class CodeWord
 	{
 		return lastCharacterPosition;
 	}
+	/** Use getWord() instead. */
+	@Override
+	@Deprecated
+	public String toString()
+	{
+		return word;
+	}
 	public String getWord()
 	{
 		return word;

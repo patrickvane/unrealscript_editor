@@ -51,11 +51,6 @@ public class CodeBlock implements Code
 		if( currentCode != null )
 			currentCode.addCharacter( characterPosition, character );
 	}
-	//protected void newWord( int characterPosition )
-	//{
-	//	if( currentCode != null )
-	//		currentCode.newWord( characterPosition );
-	//}
 	@Override
 	public void closeWord( int characterPosition )
 	{
@@ -130,6 +125,14 @@ public class CodeBlock implements Code
 			i++;
 		}
 		return line;
+	}
+	@Override
+	public CodeWord getLastCompletedWord()
+	{
+		ArrayList<CodeWord> lastLine = getLastLine();
+		if( lastLine.size() > 0 )
+			return lastLine.get( lastLine.size() - 1 );
+		return null;
 	}
 	
 	/** Is this block a function? */

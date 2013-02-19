@@ -20,7 +20,7 @@ public class TagConstant
 		return new TagAndTextAttribute[]
 		{ 
 			new TagAndTextAttribute( DOCS, TextAttributeConstant.createDocs() ), 
-			new TagAndTextAttribute( COMMENT_BLOCK, TextAttributeConstant.createComment() ) 
+			new TagAndTextAttribute( COMMENT_BLOCK, TextAttributeConstant.createComment() )
 		};
 	}
 }

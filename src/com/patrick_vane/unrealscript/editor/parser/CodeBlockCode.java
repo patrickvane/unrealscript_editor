@@ -101,6 +101,14 @@ public class CodeBlockCode implements Code
 			return lines.get( lines.size() - 1 );
 		return new ArrayList<CodeWord>();
 	}
+	@Override
+	public CodeWord getLastCompletedWord()
+	{
+		ArrayList<CodeWord> lastLine = getLastLine();
+		if( lastLine.size() > 0 )
+			return lastLine.get( lastLine.size() - 1 );
+		return null;
+	}
 	
 	@Override
 	public int getDepth()

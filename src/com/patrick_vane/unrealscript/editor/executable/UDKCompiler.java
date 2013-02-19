@@ -23,31 +23,31 @@ public class UDKCompiler
 	public static final HashSet<IProject>		waitForCompileProjects	= new HashSet<IProject>();
 	
 	
-	public static void compile()
+	public static void compile( final IProject project )
 	{
-		compile( false, (ArrayList<String>) params.clone() );
+		compile( project, false, (ArrayList<String>) params.clone() );
 	}
-	public static void compileForced()
+	public static void compileForced( final IProject project )
 	{
-		compile( true, (ArrayList<String>) params.clone() );
+		compile( project, true, (ArrayList<String>) params.clone() );
 	}
-	public static void compile( final String... extraParams )
+	public static void compile( final IProject project, final String... extraParams )
 	{
 		ArrayList<String> newParams = (ArrayList<String>) params.clone();
 		for( String param : extraParams )
 		{
 			newParams.add( param );
 		}
-		compile( false, newParams );
+		compile( project, false, newParams );
 	}
-	public static void compileForced( final String... extraParams )
+	public static void compileForced( final IProject project, final String... extraParams )
 	{
 		ArrayList<String> newParams = (ArrayList<String>) params.clone();
 		for( String param : extraParams )
 		{
 			newParams.add( param );
 		}
-		compile( true, newParams );
+		compile( project, true, newParams );
 	}
 	
 	
@@ -76,33 +76,65 @@ public class UDKCompiler
 		}
 	}
 	
-	
-	private static void compile( final boolean forced, final ArrayList<String> params )
+	public static void saveAndWaitForCompiles( final IProject project )
 	{
+		if( project == null )
+			return;
+		
+		try
+		{
+			//FIX ERROW! org.eclipse.swt.SWTException: Invalid thread access
+			/*Display.getDefault().syncExec
+			(
+				new Runnable()
+				{
+					@Override
+					public void run()
+					{
+						try
+						{
+							project.getWorkspace().save( true, new NullProgressMonitor() );
+						}
+						catch( Exception e )
+						{
+						}
+					}
+				}
+			);*/
+			Thread.sleep( 1000 );
+		}
+		catch( Exception e )
+		{
+		}
+		UDKCompiler.waitForCompiles();
+	}
+	
+	
+	private static void compile( final IProject project, final boolean forced, final ArrayList<String> params )
+	{
+		if( project == null )
+			return;
 		new Thread()
 		{
 			@Override
 			public void run()
 			{
-				IProject activeProject = UnrealScriptEditor.getActiveProject();
-				if( activeProject == null )
-					return;
 				while( true )
 				{
 					synchronized( compilingProjects )
 					{
-						Long time = compilingProjects.get( activeProject );
+						Long time = compilingProjects.get( project );
 						if( time == null )
 						{
-							compilingProjects.put( activeProject, System.currentTimeMillis() );
-							waitForCompileProjects.remove( activeProject );
+							compilingProjects.put( project, System.currentTimeMillis() );
+							waitForCompileProjects.remove( project );
 							break;
 						}
 						else if( !forced )
 						{
 							if( System.currentTimeMillis()-time >= 200 )
 							{
-								waitForCompileProjects.add( activeProject );
+								waitForCompileProjects.add( project );
 								return;
 							}
 							else
@@ -144,10 +176,10 @@ public class UDKCompiler
 				
 				synchronized( compilingProjects )
 				{
-					compilingProjects.remove( activeProject );
-					if( waitForCompileProjects.contains(activeProject) )
+					compilingProjects.remove( project );
+					if( waitForCompileProjects.contains(project) )
 					{
-						compile( false, params );
+						compile( project, false, params );
 					}
 				}
 			}

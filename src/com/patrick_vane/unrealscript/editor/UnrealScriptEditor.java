@@ -27,6 +27,7 @@ import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.editors.text.TextEditor;
 import com.patrick_vane.unrealscript.editor.console.UnrealScriptCompilerConsole;
+import com.patrick_vane.unrealscript.editor.constants.ProjectConstant;
 import com.patrick_vane.unrealscript.editor.default_classes.ColorManager;
 import com.patrick_vane.unrealscript.editor.default_classes.DocumentProvider;
 import com.patrick_vane.unrealscript.editor.default_classes.MyRunnable;
@@ -37,6 +38,9 @@ import com.patrick_vane.unrealscript.editor.parser.UnrealScriptParser;
 
 public class UnrealScriptEditor extends TextEditor
 {
+	private int markers = -1;
+	
+	
 	public UnrealScriptEditor()
 	{
 		super();
@@ -107,11 +111,30 @@ public class UnrealScriptEditor extends TextEditor
 		{
 			if( file != null )
 			{
-				IMarker marker = file.createMarker( UnrealScriptID.MARKER_ERROR );
+				IMarker marker = file.createMarker( UnrealScriptID.MARKER_PROBLEM );
 				marker.setAttribute( IMarker.CHAR_START, startCharacter );
 				marker.setAttribute( IMarker.CHAR_END, endCharacter );
 				marker.setAttribute( IMarker.LOCATION, "UnrealScript File" );
 				marker.setAttribute( IMarker.SEVERITY, IMarker.SEVERITY_ERROR );
+				marker.setAttribute( IMarker.MESSAGE, message );
+			}
+		}
+		catch( CoreException e )
+		{
+		}
+	}
+	public void addWarningMarker( final int startCharacter, final int endCharacter, final String message )
+	{
+		final IFile file = getFile();
+		try
+		{
+			if( file != null )
+			{
+				IMarker marker = file.createMarker( UnrealScriptID.MARKER_PROBLEM );
+				marker.setAttribute( IMarker.CHAR_START, startCharacter );
+				marker.setAttribute( IMarker.CHAR_END, endCharacter );
+				marker.setAttribute( IMarker.LOCATION, "UnrealScript File" );
+				marker.setAttribute( IMarker.SEVERITY, IMarker.SEVERITY_WARNING );
 				marker.setAttribute( IMarker.MESSAGE, message );
 			}
 		}
@@ -126,7 +149,7 @@ public class UnrealScriptEditor extends TextEditor
 		{
 			try
 			{
-				file.deleteMarkers( UnrealScriptID.MARKER_ERROR, true, IResource.DEPTH_INFINITE );
+				file.deleteMarkers( UnrealScriptID.MARKER_PROBLEM, true, IResource.DEPTH_INFINITE );
 			}
 			catch( CoreException e )
 			{
@@ -147,31 +170,36 @@ public class UnrealScriptEditor extends TextEditor
 			}
 		}
 		
-		final CodeException[] EXCEPTIONS = exceptions;
-		IWorkspaceRunnable runnable = new IWorkspaceRunnable()
+		if( (markers != 0) || ((exceptions != null) && (exceptions.length != 0)) )
 		{
-			@Override
-			public void run( IProgressMonitor monitor ) throws CoreException
+			if( exceptions != null )
+				markers = exceptions.length;
+			final CodeException[] EXCEPTIONS = exceptions;
+			IWorkspaceRunnable runnable = new IWorkspaceRunnable()
 			{
-				clearMarkers();
-				if( EXCEPTIONS != null )
+				@Override
+				public void run( IProgressMonitor monitor ) throws CoreException
 				{
-					for( CodeException e : EXCEPTIONS )
+					clearMarkers();
+					if( EXCEPTIONS != null )
 					{
-						if( e.isError() )
+						for( CodeException e : EXCEPTIONS )
 						{
-							addErrorMarker( e.getFirstCharacterPosition(), e.getLastCharacterPosition(), e.getMessage() );
+							if( e.isError() )
+								addErrorMarker( e.getFirstCharacterPosition(), e.getLastCharacterPosition(), e.getMessage() );
+							else
+								addWarningMarker( e.getFirstCharacterPosition(), e.getLastCharacterPosition(), e.getMessage() );
 						}
 					}
 				}
+			};
+			try
+			{
+				ResourcesPlugin.getWorkspace().run( runnable, new NullProgressMonitor() );
 			}
-		};
-		try
-		{
-			ResourcesPlugin.getWorkspace().run( runnable, new NullProgressMonitor() );
-		}
-		catch( CoreException e )
-		{
+			catch( CoreException e )
+			{
+			}
 		}
 	}
 	
@@ -389,6 +417,51 @@ public class UnrealScriptEditor extends TextEditor
 		{
 			e.printStackTrace( error );
 			return -1;
+		}
+	}
+	
+	
+	public static String[] getMapNames()
+	{
+		String[] maps = null;
+		
+		try
+		{
+			ArrayList<String> names = new ArrayList<String>();
+			getMapNamesRecursive( names, new File(getActiveProjectFile(), ProjectConstant.subfolders.get("Maps")) );
+			maps = names.toArray( new String[0] );
+		}
+		catch( Exception e )
+		{
+			maps = null;
+		}
+		
+		if( (maps == null) || (maps.length == 0) )
+			maps = new String[]{ "ExampleMap", "EpicCitadel", "DM-Deck" };
+		return maps;
+	}
+	private static void getMapNamesRecursive( ArrayList<String> names, File file ) throws Exception
+	{
+		if( file.exists() )
+		{
+			if( file.isDirectory() )
+			{
+				File[] subfiles = file.listFiles();
+				if( subfiles != null )
+				{
+					for( File subfile : subfiles )
+					{
+						getMapNamesRecursive( names, subfile );
+					}
+				}
+			}
+			else
+			{
+				if( file.getAbsolutePath().endsWith(".udk") )
+				{
+					names.add( file.getName() );
+				}
+			}
 		}
 	}
 	

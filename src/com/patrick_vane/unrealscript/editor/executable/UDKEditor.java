@@ -15,31 +15,31 @@ public class UDKEditor
 	}
 	
 	
-	public static void run()
+	public static void run( final IProject project )
 	{
-		run( (ArrayList<String>) params.clone() );
+		run( project, (ArrayList<String>) params.clone() );
 	}
-	public static void run( final String... extraParams )
+	public static void run( final IProject project, final String... extraParams )
 	{
 		ArrayList<String> newParams = (ArrayList<String>) params.clone();
 		for( String param : extraParams )
 		{
 			newParams.add( param );
 		}
-		run( newParams );
+		run( project, newParams );
 	}
 	
 	
-	private static void run( final ArrayList<String> params )
+	private static void run( final IProject project, final ArrayList<String> params )
 	{
+		if( project == null )
+			return;
 		new Thread()
 		{
 			@Override
 			public void run()
 			{
-				IProject activeProject = UnrealScriptEditor.getActiveProject();
-				if( activeProject == null )
-					return;
+				UDKCompiler.saveAndWaitForCompiles( project );
 				
 				String map;
 				try

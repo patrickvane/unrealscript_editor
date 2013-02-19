@@ -113,7 +113,7 @@ public class UDKCompilerSettingsPopup extends ExtendablePopup
 			if( save() )
 			{
 				success();
-				UDKCompiler.compileForced( "-full" );
+				UDKCompiler.compileForced( project, "-full" );
 			}
 		}
 	};

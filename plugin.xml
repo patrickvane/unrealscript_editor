@@ -17,14 +17,14 @@
    
    
    <extension
-	      id="patrick_vane_unrealscript_editor.markers.error"
+	      id="patrick_vane_unrealscript_editor.markers.problem"
 	      name="UnrealScript Syntax Problem"
 	      point="org.eclipse.core.resources.markers">
 	   <super
 	         type="org.eclipse.core.resources.problemmarker">
 	   </super>
 	   <persistent
-	         value="false">
+	         value="true">
 	   </persistent>
 	</extension>
    <extension

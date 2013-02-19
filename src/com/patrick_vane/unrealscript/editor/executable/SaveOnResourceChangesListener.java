@@ -1,6 +1,7 @@
 package com.patrick_vane.unrealscript.editor.executable;
 
 import java.io.File;
+import com.patrick_vane.unrealscript.editor.UnrealScriptEditor;
 import com.patrick_vane.unrealscript.editor.default_classes.AbstractResourcesChangedListener;
 
 
@@ -16,7 +17,7 @@ public class SaveOnResourceChangesListener extends AbstractResourcesChangedListe
 	{
 		if( name.endsWith(".uc") )
 		{
-			UDKCompiler.compile();
+			UDKCompiler.compile( UnrealScriptEditor.getActiveProject() );
 		}
 	}
 }

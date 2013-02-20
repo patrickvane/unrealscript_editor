@@ -3,7 +3,6 @@ package com.patrick_vane.unrealscript.editor;
 import java.io.File;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
-import org.eclipse.jface.text.DefaultTextHover;
 import org.eclipse.jface.text.ITextDoubleClickStrategy;
 import org.eclipse.jface.text.ITextHover;
 import org.eclipse.jface.text.presentation.IPresentationReconciler;
@@ -73,11 +72,11 @@ public class Configuration extends SourceViewerConfiguration
 	@Override
 	public ITextHover getTextHover( ISourceViewer sourceViewer, String contentType )
 	{
-		return new DefaultTextHover( sourceViewer );
+		return new TextHover( );
 	}
 	@Override
 	public ITextHover getTextHover( ISourceViewer sourceViewer, String contentType, int stateMask )
 	{
-		return new DefaultTextHover( sourceViewer );
+		return new TextHover( );
 	}
 }

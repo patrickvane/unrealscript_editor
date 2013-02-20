@@ -369,8 +369,6 @@ public class UnrealScriptEditor extends TextEditor
 	 */
 	public static int runUDK( final boolean newWindow, PrintStream output, PrintStream error, final ArrayList<String> params )
 	{
-		if( !PlatformUI.getWorkbench().saveAllEditors(true) )
-			return -1;
 		if( output == null )
 			output = System.out;
 		if( error == null )
@@ -408,6 +406,7 @@ public class UnrealScriptEditor extends TextEditor
 		
 		try
 		{
+			output.println( "Running: "+params.toString() );
 			Process process = Runtime.getRuntime().exec( params.toArray(new String[0]), null, bin );
 			MyStream.copy( process.getInputStream(), output );
 			MyStream.copy( process.getErrorStream(), error  );

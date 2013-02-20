@@ -4,6 +4,8 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.HashSet;
 import org.eclipse.core.resources.IProject;
+import org.eclipse.swt.widgets.Display;
+import org.eclipse.ui.PlatformUI;
 import com.patrick_vane.unrealscript.editor.UnrealScriptEditor;
 import com.patrick_vane.unrealscript.editor.UnrealScriptID;
 import com.patrick_vane.unrealscript.editor.console.UnrealScriptCompilerConsole;
@@ -83,24 +85,17 @@ public class UDKCompiler
 		
 		try
 		{
-			//FIX ERROW! org.eclipse.swt.SWTException: Invalid thread access
-			/*Display.getDefault().syncExec
+			Display.getDefault().syncExec
 			(
 				new Runnable()
 				{
 					@Override
 					public void run()
 					{
-						try
-						{
-							project.getWorkspace().save( true, new NullProgressMonitor() );
-						}
-						catch( Exception e )
-						{
-						}
+						PlatformUI.getWorkbench().saveAllEditors( false );
 					}
 				}
-			);*/
+			);
 			Thread.sleep( 1000 );
 		}
 		catch( Exception e )

@@ -1,6 +1,7 @@
 package com.patrick_vane.unrealscript.editor.default_classes;
 
 import java.util.HashMap;
+import java.util.Iterator;
 import org.eclipse.jface.text.TextAttribute;
 import org.eclipse.jface.text.rules.IToken;
 import org.eclipse.jface.text.rules.Token;
@@ -15,7 +16,7 @@ public class ColorManager
 	protected static HashMap<RGB,Color> fColorTable = new HashMap<RGB,Color>( 10 );
 	
 	
-	public static synchronized void use()
+	public static synchronized void init()
 	{
 		uses++;
 	}
@@ -24,7 +25,7 @@ public class ColorManager
 	{
 		uses = Math.max( 0, uses-- );
 		
-		/*if( uses <= 0 )
+		if( uses <= 0 )
 		{
 			Iterator<Color> iterator = fColorTable.values().iterator();
 			while( iterator.hasNext() )
@@ -32,7 +33,7 @@ public class ColorManager
 				iterator.next().dispose();
 			}
 			fColorTable.clear();
-		}*/
+		}
 	}
 	
 	

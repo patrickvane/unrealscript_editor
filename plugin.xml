@@ -227,6 +227,12 @@
 	    </with>
 	  </definition>
    </extension>
+   <extension
+         point="org.eclipse.ui.startup">
+      <startup
+            class="com.patrick_vane.unrealscript.editor.UnrealScriptStartup">
+      </startup>
+   </extension>
    
    
 </plugin>

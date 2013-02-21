@@ -21,6 +21,7 @@ public class UnrealScriptID
 	public static final String			COMMAND_RUN_EDITOR				= "patrick_vane_unrealscript_editor.editors.command.run_editor";
 	public static final String			COMMAND_RUN_GAME				= "patrick_vane_unrealscript_editor.editors.command.run_game";
 	
+	public static final QualifiedName	PROPERTY_FIRST_RUN				= new QualifiedName( PROPERTIES, "first_run" );
 	public static final QualifiedName	PROPERTY_64BIT					= new QualifiedName( PROPERTIES, "64bit" );
 	public static final QualifiedName	PROPERTY_STRIP_SOUCE			= new QualifiedName( PROPERTIES, "stip_code" );
 	public static final QualifiedName	PROPERTY_GAME_MAP				= new QualifiedName( PROPERTIES, "game_map" );

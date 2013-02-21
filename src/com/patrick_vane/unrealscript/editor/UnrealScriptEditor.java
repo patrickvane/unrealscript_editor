@@ -46,6 +46,8 @@ public class UnrealScriptEditor extends TextEditor
 	{
 		super();
 		
+		ColorManager.init();
+		
 		UnrealScriptCompilerConsole.init();
 		UDKLaunchLogConsole.init();
 		

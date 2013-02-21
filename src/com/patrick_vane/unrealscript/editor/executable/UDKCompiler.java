@@ -9,6 +9,7 @@ import org.eclipse.ui.PlatformUI;
 import com.patrick_vane.unrealscript.editor.UnrealScriptEditor;
 import com.patrick_vane.unrealscript.editor.UnrealScriptID;
 import com.patrick_vane.unrealscript.editor.console.UnrealScriptCompilerConsole;
+import com.patrick_vane.unrealscript.editor.constants.ColorConstant;
 
 
 public class UDKCompiler
@@ -166,7 +167,7 @@ public class UDKCompiler
 				synchronized( UnrealScriptCompilerConsole.getSynchronizer() )
 				{	
 					UnrealScriptCompilerConsole.clear();
-					UnrealScriptEditor.runUDK( false, UnrealScriptCompilerConsole.getPrintStream(), UnrealScriptCompilerConsole.getPrintStream(), params );
+					UnrealScriptEditor.runUDK( false, UnrealScriptCompilerConsole.getPrintStream(ColorConstant.INFO_COLOR), UnrealScriptCompilerConsole.getPrintStream(ColorConstant.ERROR_COLOR), params );
 				}
 				
 				synchronized( compilingProjects )

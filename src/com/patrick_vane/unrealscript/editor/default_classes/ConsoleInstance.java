@@ -3,7 +3,10 @@ package com.patrick_vane.unrealscript.editor.default_classes;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.io.PrintStream;
-import org.eclipse.swt.graphics.Color;
+import java.util.ArrayList;
+import java.util.HashMap;
+import org.eclipse.swt.graphics.RGB;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.console.ConsolePlugin;
 import org.eclipse.ui.console.IConsole;
 import org.eclipse.ui.console.IConsoleManager;
@@ -13,15 +16,16 @@ import org.eclipse.ui.console.MessageConsoleStream;
 
 public class ConsoleInstance
 {
-	protected final MessageConsole			console;
-	protected final MessageConsoleStream	stream;
+	protected final MessageConsole						console;
+	protected final HashMap<RGB,MessageConsoleStream>	streams				= new HashMap<RGB,MessageConsoleStream>();
+	protected final MessageConsoleStream				defaultStream;
+	protected final ArrayList<Runnable>					clearedListeners	= new ArrayList<Runnable>();
 	
 	
 	public ConsoleInstance( String name )
 	{
 		console = findMessageConsole( name );
-		stream = console.newMessageStream();
-		stream.setActivateOnWrite( true );
+		defaultStream = getStream( new RGB(0, 0, 0) );
 	}
 	
 	protected static MessageConsole findMessageConsole( String name )
@@ -43,34 +47,55 @@ public class ConsoleInstance
 		// create a new one if it doens't exist yet <<
 	}
 	
+	protected MessageConsoleStream getStream( final RGB color )
+	{
+		synchronized( streams )
+		{
+			MessageConsoleStream stream = streams.get( color );
+			if( stream == null )
+			{
+				stream = console.newMessageStream();
+				stream.setActivateOnWrite( true );
+				
+				final MessageConsoleStream STREAM = stream;
+				Display.getDefault().syncExec
+				(
+					new Runnable()
+					{
+						@Override
+						public void run()
+						{
+							STREAM.setColor( ColorManager.getColor(color) );
+						}
+					}
+				);
+				
+				streams.put( color, stream );
+			}
+			return stream;
+		}
+	}
+	
 	
 	public void print( String string )
 	{
-		stream.print( string );
+		defaultStream.print( string );
 	}
 	
 	public void println( String string )
 	{
-		stream.println( string );
+		defaultStream.println( string );
 	}
 	
 	
-	public void print( String string, Color color )
+	public void print( String string, RGB color )
 	{
-		//Color oldColor = stream.getColor();
-		//stream.setColor( color );
-		stream.print( string );
-		//flush();
-		//stream.setColor( oldColor );
+		getStream( color ).print( string );
 	}
 	
-	public void println( String string, Color color )
+	public void println( String string, RGB color )
 	{
-		//Color oldColor = stream.getColor();
-		//stream.setColor( color );
-		stream.println( string );
-		//flush();
-		//stream.setColor( oldColor );
+		getStream( color ).println( string );
 	}
 	
 	
@@ -78,7 +103,17 @@ public class ConsoleInstance
 	{
 		try
 		{
-			stream.flush();
+			defaultStream.flush();
+		}
+		catch( IOException e )
+		{
+		}
+	}
+	public void flush( RGB color )
+	{
+		try
+		{
+			getStream( color ).flush();
 		}
 		catch( IOException e )
 		{
@@ -88,21 +123,54 @@ public class ConsoleInstance
 	public void clear()
 	{
 		console.clearConsole();
+		synchronized( clearedListeners )
+		{
+			for( Runnable runnable : clearedListeners )
+			{
+				runnable.run();
+			}
+		}
 	}
 	
 	
 	public OutputStream getOutputStream()
 	{
-		return stream;
+		return defaultStream;
 	}
 	public PrintStream getPrintStream()
 	{
-		return new PrintStream( stream );
+		return new PrintStream( defaultStream );
+	}
+	
+	public OutputStream getOutputStream( RGB color )
+	{
+		return getStream( color );
+	}
+	public PrintStream getPrintStream( RGB color )
+	{
+		return new PrintStream( getStream(color) );
 	}
 	
 	
 	public Object getSynchronizer()
 	{
-		return stream;
+		return console;
+	}
+	
+	
+	public void addClearListener( Runnable runnable )
+	{
+		synchronized( clearedListeners )
+		{
+			removeClearListener( runnable );
+			clearedListeners.add( runnable );
+		}
+	}
+	public void removeClearListener( Runnable runnable )
+	{
+		synchronized( clearedListeners )
+		{
+			clearedListeners.remove( runnable );
+		}
 	}
 }

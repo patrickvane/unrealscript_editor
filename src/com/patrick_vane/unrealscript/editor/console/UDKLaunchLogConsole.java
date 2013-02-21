@@ -7,7 +7,7 @@ import com.patrick_vane.unrealscript.editor.constants.ColorConstant;
 import com.patrick_vane.unrealscript.editor.default_classes.ConsoleInstance;
 
 
-public class UnrealScriptCompilerConsole
+public class UDKLaunchLogConsole
 {
 	private static ConsoleInstance console;
 	
@@ -16,7 +16,7 @@ public class UnrealScriptCompilerConsole
 	{
 		if( console == null )
 		{
-			console = new ConsoleInstance( "UnrealScript Compiler" );
+			console = new ConsoleInstance( "UDK Launch Log" );
 		}
 	}
 	

@@ -1,7 +1,6 @@
 package com.patrick_vane.unrealscript.editor.parser;
 
 import java.util.ArrayList;
-import java.util.LinkedList;
 import com.patrick_vane.unrealscript.editor.default_classes.WhitespaceDetector;
 
 
@@ -22,12 +21,13 @@ public class UnrealScriptParser
 	}
 	protected static CodeException[] findErrors( CodeBlock data )
 	{
-		return findErrorsInBlock( data ).toArray( new CodeException[0] );
+		ArrayList<CodeException> errors = new ArrayList<CodeException>();
+		findErrorsInBlock( errors, data );
+		return errors.toArray( new CodeException[0] );
 	}
 	
-	protected static LinkedList<CodeException> findErrorsInBlock( Code data )
+	protected static void findErrorsInBlock( ArrayList<CodeException> errors, Code data )
 	{
-		LinkedList<CodeException> errors = new LinkedList<CodeException>();
 		if( data instanceof CodeBlockCode )
 		{
 			CodeBlockCode code = (CodeBlockCode) data;
@@ -71,10 +71,9 @@ public class UnrealScriptParser
 			CodeBlock block = (CodeBlock) data;
 			for( Code child : block.getChilds() )
 			{
-				errors.addAll( findErrorsInBlock(child) );
+				findErrorsInBlock( errors, child );
 			}
 		}
-		return errors;
 	}
 	
 	

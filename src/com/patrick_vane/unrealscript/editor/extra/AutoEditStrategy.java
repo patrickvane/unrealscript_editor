@@ -22,6 +22,7 @@ public class AutoEditStrategy implements IAutoEditStrategy
 			int currentLine = document.getLineOfOffset( command.offset );
 			String indent = getIntend( document, currentLine );
 			String line = getLine( document, currentLine );
+			String lineTrimmed = line.trim();
 			String linetextBeforeCommand = getLine( document, currentLine, command.offset );
 			String openStringChar = getStringOpenChar( linetextBeforeCommand );
 			boolean inOpenString = (openStringChar != null);
@@ -29,43 +30,22 @@ public class AutoEditStrategy implements IAutoEditStrategy
 			if( leftBracket && !inOpenString )
 			{
 				command.text += System.lineSeparator();
-				
-				if( indent.startsWith("    ") )
-					indent += "    ";
-				else
-					indent += "\t";
-				
-				command.text += indent;
+				command.text += increaseIndend( indent );
 				configureCaret( command );
 			}
 			else if( rightBracket && !inOpenString )
 			{
-				if( line.startsWith("\t") )
-				{
-					document.replace( document.getLineOffset(currentLine), 1, "" );
-					command.offset -= 1;
-				}
-				else if( line.startsWith("    ") )
-				{
-					document.replace( document.getLineOffset(currentLine), 4, "" );
-					command.offset -= 4;
-				}
-				if( indent.contains("\t") )
-				{
-					indent = indent.replaceFirst( "\t", "" );
-				}
-				else if( indent.contains("    ") )
-				{
-					indent = indent.replaceFirst( "    ", "" );
-				}
+				decreaseIndendInLine( document, command, currentLine, line, indent );
 				command.text += System.lineSeparator();
-				command.text += indent;
+				command.text += decreaseIndend( indent );
 				configureCaret( command );
 			}
 			else if( newline )
 			{
 				if( inOpenString )
 					command.text = openStringChar+";" + command.text;
+				else if( lineTrimmed.endsWith("{") )
+					indent = increaseIndend( indent );
 				command.text += indent;
 				configureCaret( command );
 			}
@@ -97,6 +77,42 @@ public class AutoEditStrategy implements IAutoEditStrategy
 			return document.get( start, whiteSpaceEnd - start );
 		}
 		return "";
+	}
+	
+	private static String increaseIndend( String indent )
+	{
+		if( indent.startsWith("    ") )
+			indent += "    ";
+		else
+			indent += "\t";
+		return indent;
+	}
+	
+	private static String decreaseIndend( String indent )
+	{
+		if( indent.contains("\t") )
+		{
+			indent = indent.replaceFirst( "\t", "" );
+		}
+		else if( indent.contains("    ") )
+		{
+			indent = indent.replaceFirst( "    ", "" );
+		}
+		return indent;
+	}
+	
+	private static void decreaseIndendInLine( IDocument document, DocumentCommand command, int currentLine, String line, String indent ) throws BadLocationException
+	{
+		if( line.startsWith("\t") )
+		{
+			document.replace( document.getLineOffset(currentLine), 1, "" );
+			command.offset -= 1;
+		}
+		else if( line.startsWith("    ") )
+		{
+			document.replace( document.getLineOffset(currentLine), 4, "" );
+			command.offset -= 4;
+		}
 	}
 	
 	private static String getLine( IDocument document, int currentLine ) throws BadLocationException

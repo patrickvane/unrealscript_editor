@@ -72,7 +72,7 @@ public class UDKExecuteSettingsPopup extends ExtendablePopup
 		getContentPane().add( labelMap );
 		
 		dropdownMap = new JComboBox();
-		dropdownMap.setModel( new DefaultComboBoxModel(UnrealScriptEditor.getMapNames()) );
+		dropdownMap.setModel( new DefaultComboBoxModel(UnrealScriptEditor.getMapNames(project)) );
 		dropdownMap.setEditable( true );
 		dropdownMap.setToolTipText( "A map from the UDKGame/Content/Maps/ folder" );
 		dropdownMap.setBounds( 67, 24, 217, 20 );

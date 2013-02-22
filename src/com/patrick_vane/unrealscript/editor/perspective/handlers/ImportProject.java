@@ -15,6 +15,7 @@ import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.handlers.HandlerUtil;
+import com.patrick_vane.unrealscript.editor.UnrealScriptID;
 import com.patrick_vane.unrealscript.editor.constants.ProjectConstant;
 import com.patrick_vane.unrealscript.editor.popups.UDKImportProject;
 
@@ -96,6 +97,7 @@ public class ImportProject extends AbstractHandler
 		{
 			project.create( progressMonitor );
 			project.open( progressMonitor );
+			project.setPersistentProperty( UnrealScriptID.PROPERTY_IS_UDK_IMPORT, "true" );
 			for( Entry<String,String> subfolder : ProjectConstant.subfolders.entrySet() )
 			{
 				IFolder folder = project.getFolder( subfolder.getKey() );

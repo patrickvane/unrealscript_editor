@@ -9,6 +9,7 @@ import java.util.Collection;
 import java.util.List;
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
+import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
@@ -401,6 +402,17 @@ public class UnrealScriptEditor extends TextEditor
 		}
 		return null;
 	}
+	public static File getProjectFile( IProject project )
+	{
+		try
+		{
+			return new File( project.getFolder("UnrealScript").getLocationURI() ).getParentFile().getParentFile();
+		}
+		catch( Exception e )
+		{
+			return null;
+		}
+	}
 	public static IProject getActiveProject()
 	{
 		try
@@ -422,7 +434,7 @@ public class UnrealScriptEditor extends TextEditor
 	{
 		try
 		{
-			return new File( UnrealScriptEditor.getActiveProject().getFolder("UnrealScript").getLocationURI() ).getParentFile().getParentFile();
+			return getProjectFile( getActiveProject() );
 		}
 		catch( Exception e )
 		{
@@ -469,6 +481,166 @@ public class UnrealScriptEditor extends TextEditor
 			throw new Exception( "You need to select a Project (in the Package Explorer)" );
 		}
 		return project;
+	}
+	public static IFile getSelectedFile() throws Exception
+	{
+		return getSelectedFile( getActiveWorkbenchWindow() );
+	}
+	public static IFile getSelectedFile( IWorkbenchWindow window ) throws Exception
+	{
+		if( window == null )
+			window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
+		if( window == null )
+			return null;
+		IFile file = null;
+		ISelection selection = window.getSelectionService().getSelection( UnrealScriptID.VIEW_NAVIGATOR );
+		if( (selection != null) && !selection.isEmpty() )
+		{
+			if( selection instanceof TreeSelection )
+			{
+				Object[] selectedObjects = ((TreeSelection) selection).toArray();
+				ArrayList<IFile> files = new ArrayList<IFile>();
+				for( Object selectedObject : selectedObjects )
+				{
+					if( selectedObject instanceof IFile )
+					{
+						files.add( (IFile) selectedObject );
+					}
+				}
+				if( files.size() > 1 )
+				{
+					throw new Exception( "You need to select one File (in the Package Explorer), you've selected several Files." );
+				}
+				if( files.size() == 1 )
+				{
+					file = files.get( 0 );
+				}
+			}
+		}
+		if( file == null )
+		{
+			throw new Exception( "You need to select a File (in the Package Explorer)" );
+		}
+		return file;
+	}
+	public static IFolder getSelectedFolder() throws Exception
+	{
+		return getSelectedFolder( getActiveWorkbenchWindow() );
+	}
+	public static IFolder getSelectedFolder( IWorkbenchWindow window ) throws Exception
+	{
+		if( window == null )
+			window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
+		if( window == null )
+			return null;
+		IFolder folder = null;
+		ISelection selection = window.getSelectionService().getSelection( UnrealScriptID.VIEW_NAVIGATOR );
+		if( (selection != null) && !selection.isEmpty() )
+		{
+			if( selection instanceof TreeSelection )
+			{
+				Object[] selectedObjects = ((TreeSelection) selection).toArray();
+				ArrayList<IFolder> folders = new ArrayList<IFolder>();
+				for( Object selectedObject : selectedObjects )
+				{
+					if( selectedObject instanceof IFolder )
+					{
+						folders.add( (IFolder) selectedObject );
+					}
+				}
+				if( folders.size() > 1 )
+				{
+					throw new Exception( "You need to select one Folder (in the Package Explorer), you've selected several Folders." );
+				}
+				if( folders.size() == 1 )
+				{
+					folder = folders.get( 0 );
+				}
+			}
+		}
+		if( folder == null )
+		{
+			throw new Exception( "You need to select a Folder (in the Package Explorer)" );
+		}
+		return folder;
+	}
+	
+	public static IProject getSelectedOrActiveProject() throws Exception
+	{
+		return getSelectedOrActiveProject( getActiveWorkbenchWindow() );
+	}
+	public static IProject getSelectedOrActiveProject( IWorkbenchWindow window ) throws Exception
+	{
+		if( window == null )
+			window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
+		if( window == null )
+			return null;
+		
+		try
+		{
+			IProject project = getSelectedProject( window );
+			if( project != null )
+				return project;
+		}
+		catch( Exception e )
+		{
+		}
+		
+		try
+		{
+			IFile file = getSelectedFile( window );
+			IProject project = file.getProject();
+			if( project != null )
+				return project;
+		}
+		catch( Exception e )
+		{
+		}
+		
+		try
+		{
+			IFolder folder = getSelectedFolder( window );
+			IProject project = folder.getProject();
+			if( project != null )
+				return project;
+		}
+		catch( Exception e )
+		{
+		}
+		
+		try
+		{
+			IProject project = getActiveProject( );
+			if( project != null )
+				return project;
+		}
+		catch( Exception e )
+		{
+		}
+		
+		throw new Exception( "You need to select a Project or a File from a Project (in the Package Explorer), or you need to have a File from a Project currently open" );
+	}
+	
+	public static boolean isProjectUDK( IProject project )
+	{
+		if( project == null )
+			return false;
+		try
+		{
+			String udkImport = project.getPersistentProperty( UnrealScriptID.PROPERTY_IS_UDK_IMPORT );
+			if( (udkImport == null) || !udkImport.equalsIgnoreCase("true") )
+				return false;
+			return true;
+		}
+		catch( Exception e )
+		{
+			return false;
+		}
+	}
+	public static void testIsProjectUDK( IProject project ) throws Exception
+	{
+		if( !isProjectUDK(project) )
+			throw new Exception( "Project is not an UDK Project" );
 	}
 	
 	
@@ -557,14 +729,14 @@ public class UnrealScriptEditor extends TextEditor
 	}
 	
 	
-	public static String[] getMapNames()
+	public static String[] getMapNames( IProject project )
 	{
 		String[] maps = null;
 		
 		try
 		{
 			ArrayList<String> names = new ArrayList<String>();
-			getMapNamesRecursive( names, new File(getActiveProjectFile(), ProjectConstant.subfolders.get("Maps")) );
+			getMapNamesRecursive( names, new File(getProjectFile(project), ProjectConstant.subfolders.get("Maps")) );
 			maps = names.toArray( new String[0] );
 		}
 		catch( Exception e )

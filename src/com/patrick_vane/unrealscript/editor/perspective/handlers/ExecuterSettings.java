@@ -26,7 +26,8 @@ public class ExecuterSettings extends AbstractHandler
 		IProject project = null;
 		try
 		{
-			project = UnrealScriptEditor.getSelectedProject( window );
+			project = UnrealScriptEditor.getSelectedOrActiveProject( window );
+			UnrealScriptEditor.testIsProjectUDK( project );
 		}
 		catch( Exception e )
 		{

@@ -151,8 +151,6 @@ public class UnrealScriptEditor extends TextEditor
 							{
 								UDKLaunchLogConsole.clear();
 							}
-							launchLogFileLastModified 	= 0;
-							launchLogFileLength 		= 0;
 						}
 						else
 						{
@@ -160,11 +158,11 @@ public class UnrealScriptEditor extends TextEditor
 							long newLaunchLogFileLength 		= launchLogFile.length();
 							if( (newLaunchLogFileLastModified != launchLogFileLastModified) || (newLaunchLogFileLength != launchLogFileLength) )
 							{
-								launchLogFileLastModified 	= newLaunchLogFileLastModified;
-								launchLogFileLength 		= newLaunchLogFileLength;
-								
 								List<String> lines = Files.readAllLines( launchLogFile.toPath(), Charset.defaultCharset() );
 								UDKLaunchLogConsole.clear();
+								
+								launchLogFileLastModified 	= newLaunchLogFileLastModified;
+								launchLogFileLength 		= newLaunchLogFileLength;
 								
 								int logMode = 0;
 								for( String line : lines )

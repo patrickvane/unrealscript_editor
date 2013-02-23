@@ -11,8 +11,7 @@ public class MyStream
 {
 	public static void copy( InputStream in, PrintStream out )
 	{
-		MyStreamCopy copy = new MyStreamCopy( in, out );
-		copy.start();
+		new MyStreamCopy( in, out ).start();
 	}
 }
 

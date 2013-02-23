@@ -44,7 +44,7 @@ public class UDKEditor
 				String map;
 				try
 				{
-					map = UnrealScriptEditor.getActiveProject().getPersistentProperty( UnrealScriptID.PROPERTY_GAME_MAP );
+					map = project.getPersistentProperty( UnrealScriptID.PROPERTY_GAME_MAP );
 				}
 				catch( Exception e )
 				{
@@ -57,7 +57,7 @@ public class UDKEditor
 					map = map+".udk";
 				
 				params.add( 1, map );
-				UnrealScriptEditor.runUDK( true, null, null, params );
+				UnrealScriptEditor.runUDK( project, null, null, params );
 			}
 		}.start();
 	}

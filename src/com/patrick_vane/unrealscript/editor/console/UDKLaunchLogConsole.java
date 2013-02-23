@@ -9,16 +9,8 @@ import com.patrick_vane.unrealscript.editor.default_classes.ConsoleInstance;
 
 public class UDKLaunchLogConsole
 {
-	private static ConsoleInstance console;
-	
-	
-	public static void init()
-	{
-		if( console == null )
-		{
-			console = new ConsoleInstance( "UDK Launch Log" );
-		}
-	}
+	private static final ConsoleInstance					console					= new ConsoleInstance( "UDK Launch Log" );
+	private static final UDKLaunchLogConsolePrintStream		filteringPrintStream	= new UDKLaunchLogConsolePrintStream();
 	
 	
 	public static final Out out = new Out();
@@ -95,6 +87,11 @@ public class UDKLaunchLogConsole
 	public static PrintStream getPrintStream( RGB color )
 	{
 		return console.getPrintStream( color );
+	}
+	
+	public static PrintStream getFilteringOutputStream()
+	{
+		return filteringPrintStream;
 	}
 	
 	public static Object getSynchronizer()

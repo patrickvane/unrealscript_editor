@@ -4,6 +4,7 @@ import java.util.ArrayList;
 import org.eclipse.core.resources.IProject;
 import com.patrick_vane.unrealscript.editor.UnrealScriptEditor;
 import com.patrick_vane.unrealscript.editor.UnrealScriptID;
+import com.patrick_vane.unrealscript.editor.console.UDKLaunchLogConsole;
 
 
 public class UDKGame
@@ -13,6 +14,8 @@ public class UDKGame
 	{
 		params.add( "-useunpublished" );
 		params.add( "-windowed -resx=1024 resy=768" );
+		params.add( "-log" );
+		params.add( "-forcelogflush" );
 	}
 	
 	
@@ -48,7 +51,6 @@ public class UDKGame
 				boolean disableStartupVideos;
 				try
 				{
-					IProject project = UnrealScriptEditor.getActiveProject();
 					map  = project.getPersistentProperty( UnrealScriptID.PROPERTY_GAME_MAP );
 					mode = project.getPersistentProperty( UnrealScriptID.PROPERTY_GAME_MODE );
 					disableSound = Boolean.parseBoolean( project.getPersistentProperty(UnrealScriptID.PROPERTY_DISABLE_SOUND) );
@@ -79,7 +81,8 @@ public class UDKGame
 					params.add( "-nomoviestartup" );
 				}
 				
-				UnrealScriptEditor.runUDK( true, null, null, params );
+				UDKLaunchLogConsole.clear();
+				UnrealScriptEditor.runUDK( project, UDKLaunchLogConsole.getFilteringOutputStream(), UDKLaunchLogConsole.getFilteringOutputStream(), params );
 			}
 		}.start();
 	}

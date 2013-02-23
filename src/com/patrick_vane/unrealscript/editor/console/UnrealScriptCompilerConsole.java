@@ -9,16 +9,7 @@ import com.patrick_vane.unrealscript.editor.default_classes.ConsoleInstance;
 
 public class UnrealScriptCompilerConsole
 {
-	private static ConsoleInstance console;
-	
-	
-	public static void init()
-	{
-		if( console == null )
-		{
-			console = new ConsoleInstance( "UnrealScript Compiler" );
-		}
-	}
+	private static final ConsoleInstance	console		= new ConsoleInstance( "UnrealScript Compiler" );
 	
 	
 	public static final Out out = new Out();

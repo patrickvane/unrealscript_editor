@@ -53,16 +53,15 @@ public class UDKCompiler
 	}
 	
 	
-	public static void waitForCompiles()
+	public static void waitForCompiles( final IProject project )
 	{
-		IProject activeProject = UnrealScriptEditor.getActiveProject();
-		if( activeProject == null )
+		if( project == null )
 			return;
 		while( true )
 		{
 			synchronized( compilingProjects )
 			{
-				Long time = compilingProjects.get( activeProject );
+				Long time = compilingProjects.get( project );
 				if( time == null )
 				{
 					return;
@@ -82,7 +81,6 @@ public class UDKCompiler
 	{
 		if( project == null )
 			return;
-		
 		try
 		{
 			Display.getDefault().syncExec
@@ -101,7 +99,7 @@ public class UDKCompiler
 		catch( Exception e )
 		{
 		}
-		UDKCompiler.waitForCompiles();
+		UDKCompiler.waitForCompiles( project );
 	}
 	
 	
@@ -163,11 +161,8 @@ public class UDKCompiler
 				if( stripSources )
 					params.add( "-stripsource" );
 				
-				synchronized( UnrealScriptCompilerConsole.getSynchronizer() )
-				{	
-					UnrealScriptCompilerConsole.clear();
-					UnrealScriptEditor.runUDK( false, UnrealScriptCompilerConsole.getPrintStream(ColorConstant.INFO_COLOR), UnrealScriptCompilerConsole.getPrintStream(ColorConstant.ERROR_COLOR), params );
-				}
+				UnrealScriptCompilerConsole.clear();
+				UnrealScriptEditor.runUDK( project, UnrealScriptCompilerConsole.getPrintStream(ColorConstant.INFO_COLOR), UnrealScriptCompilerConsole.getPrintStream(ColorConstant.ERROR_COLOR), params );
 				
 				ArrayList<String> newParams;
 				synchronized( compilingProjects )

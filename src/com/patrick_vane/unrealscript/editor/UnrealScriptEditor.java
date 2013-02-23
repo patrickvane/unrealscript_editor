@@ -2,11 +2,8 @@ package com.patrick_vane.unrealscript.editor;
 
 import java.io.File;
 import java.io.PrintStream;
-import java.nio.charset.Charset;
-import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Collection;
-import java.util.List;
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
@@ -30,10 +27,7 @@ import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.editors.text.TextEditor;
-import com.patrick_vane.unrealscript.editor.console.UDKLaunchLogConsole;
-import com.patrick_vane.unrealscript.editor.console.UnrealScriptCompilerConsole;
 import com.patrick_vane.unrealscript.editor.constants.ProjectConstant;
-import com.patrick_vane.unrealscript.editor.default_classes.ColorManager;
 import com.patrick_vane.unrealscript.editor.default_classes.DocumentProvider;
 import com.patrick_vane.unrealscript.editor.default_classes.MyRunnable;
 import com.patrick_vane.unrealscript.editor.default_classes.MyStream;
@@ -47,26 +41,11 @@ public class UnrealScriptEditor extends TextEditor
 	{
 		super();
 		
-		ColorManager.init();
-		
-		UnrealScriptCompilerConsole.init();
-		UDKLaunchLogConsole.init();
-		
 		setSourceViewerConfiguration( new Configuration() );
 		setDocumentProvider( new DocumentProvider() );
 		
 		initializeSourceViewer();
 		updateMarkersThread.start();
-		
-		synchronized( updateLaunchLogThreadSynchronizer )
-		{
-			if( updateLaunchLogThreadRunners == 0 )
-			{
-				updateLaunchLogThread = new UpdateLaunchLogThread();
-				updateLaunchLogThread.start();
-			}
-			updateLaunchLogThreadRunners++;
-		}
 		
 		try
 		{
@@ -98,126 +77,6 @@ public class UnrealScriptEditor extends TextEditor
 			}
 		}
 	};
-	
-	private static final String		LAUNCH_LOG_TAG					= "] ScriptLog: ";
-	private static final int		LAUNCH_LOG_TAG_LENGTH			= LAUNCH_LOG_TAG.length();
-	private static final String		LAUNCH_WARNING_TAG				= "] ScriptWarning: ";
-	private static final int		LAUNCH_WARNING_TAG_LENGTH		= LAUNCH_WARNING_TAG.length();
-	private static final String		LAUNCH_ERROR_TAG				= "] Error: ";
-	private static final int		LAUNCH_ERROR_TAG_LENGTH			= LAUNCH_ERROR_TAG.length();
-	private static File				launchLogFile;
-	private static long				launchLogFileLastModified;
-	private static long				launchLogFileLength;
-	private static int updateLaunchLogThreadRunners = 0;
-	private static final Object updateLaunchLogThreadSynchronizer = new Object();
-	private static final Runnable launchConsoleClearListener = new Runnable()
-	{
-		@Override
-		public void run()
-		{
-			synchronized( UDKLaunchLogConsole.getSynchronizer() )
-			{
-				launchLogFileLastModified = 0;
-				launchLogFileLength = 0;
-			}
-		}
-	};
-	private static UpdateLaunchLogThread updateLaunchLogThread;
-	private class UpdateLaunchLogThread extends Thread
-	{
-		public UpdateLaunchLogThread()
-		{
-			UDKLaunchLogConsole.addClearListener( launchConsoleClearListener );
-		}
-		@Override
-		public void run()
-		{
-			while( updateLaunchLogThreadRunners > 0 )
-			{
-				try
-				{
-					Thread.sleep( 500 );
-					
-					if( launchLogFile == null )
-					{
-						launchLogFile = new File( getActiveProjectFile(), ProjectConstant.subfolders.get("Logs")+"/Launch.log" );
-					}
-					
-					synchronized( UDKLaunchLogConsole.getSynchronizer() )
-					{
-						if( !launchLogFile.exists() )
-						{
-							if( (launchLogFileLastModified != 0) || (launchLogFileLength != 0) )
-							{
-								UDKLaunchLogConsole.clear();
-							}
-						}
-						else
-						{
-							long newLaunchLogFileLastModified 	= launchLogFile.lastModified();
-							long newLaunchLogFileLength 		= launchLogFile.length();
-							if( (newLaunchLogFileLastModified != launchLogFileLastModified) || (newLaunchLogFileLength != launchLogFileLength) )
-							{
-								List<String> lines = Files.readAllLines( launchLogFile.toPath(), Charset.defaultCharset() );
-								UDKLaunchLogConsole.clear();
-								
-								launchLogFileLastModified 	= newLaunchLogFileLastModified;
-								launchLogFileLength 		= newLaunchLogFileLength;
-								
-								int logMode = 0;
-								for( String line : lines )
-								{
-									int logCharAt 		= line.indexOf( LAUNCH_LOG_TAG );
-									int warningCharAt 	= line.indexOf( LAUNCH_WARNING_TAG );
-									int errorCharAt 	= line.indexOf( LAUNCH_ERROR_TAG );
-									
-									if( logCharAt >= 0 )
-									{
-										logMode = 1;
-										UDKLaunchLogConsole.out.println( line.substring(0, logCharAt+1) + " [INFO] " + line.substring(logCharAt+LAUNCH_LOG_TAG_LENGTH) );
-									}
-									else if( warningCharAt >= 0 )
-									{
-										logMode = 2;
-										UDKLaunchLogConsole.warn.println( line.substring(0, warningCharAt+1) + " [WARNING] " + line.substring(warningCharAt+LAUNCH_WARNING_TAG_LENGTH) );
-									}
-									else if( errorCharAt >= 0 )
-									{
-										logMode = 3;
-										UDKLaunchLogConsole.err.println( line.substring(0, errorCharAt+1) + " [ERROR] " + line.substring(errorCharAt+LAUNCH_ERROR_TAG_LENGTH) );
-									}
-									else
-									{
-										if( logMode > 0 )
-										{
-											if( !line.startsWith("[") )
-											{
-												if( logMode == 1 )
-													UDKLaunchLogConsole.out.println( line );
-												else if( logMode == 2 )
-													UDKLaunchLogConsole.warn.println( line );
-												else if( logMode == 3 )
-													UDKLaunchLogConsole.err.println( line );
-											}
-											else
-											{
-												logMode = 0;
-											}
-										}
-									}
-								}
-							}
-						}
-					}
-				}
-				catch( Exception e )
-				{
-				}
-			}
-			
-			UDKLaunchLogConsole.removeClearListener( launchConsoleClearListener );
-		}
-	}
 	
 	
 	protected void initializeSourceViewer()
@@ -648,12 +507,12 @@ public class UnrealScriptEditor extends TextEditor
 	 * -1 = failed (inside java)<br>
 	 *  1+ = process failed, number represents an error code<br>
 	 */
-	public static int runUDK( final boolean newWindow, PrintStream output, PrintStream error, final String... params )
+	public static int runUDK( final IProject project, PrintStream output, PrintStream error, final String... params )
 	{
 		ArrayList<String> collection = new ArrayList<String>();
 		for( String param : params )
 			collection.add( param );
-		return runUDK( newWindow, output, error, collection );
+		return runUDK( project, output, error, collection );
 	}
 	/** 
 	 * Returns the exit value:<br>
@@ -661,12 +520,12 @@ public class UnrealScriptEditor extends TextEditor
 	 * -1 = failed (inside java)<br>
 	 *  1+ = process failed, number represents an error code<br>
 	 */
-	public static int runUDK( final boolean newWindow, PrintStream output, PrintStream error, final Collection<String> params )
+	public static int runUDK( final IProject project, PrintStream output, PrintStream error, final Collection<String> params )
 	{
 		ArrayList<String> collection = new ArrayList<String>();
 		for( String param : params )
 			collection.add( param );
-		return runUDK( newWindow, output, error, collection );
+		return runUDK( project, output, error, collection );
 	}
 	/** 
 	 * Returns the exit value:<br>
@@ -674,7 +533,7 @@ public class UnrealScriptEditor extends TextEditor
 	 * -1 = failed (inside java)<br>
 	 *  1+ = process failed, number represents an error code<br>
 	 */
-	public static int runUDK( final boolean newWindow, PrintStream output, PrintStream error, final ArrayList<String> params )
+	public static int runUDK( final IProject project, PrintStream output, PrintStream error, final ArrayList<String> params )
 	{
 		if( output == null )
 			output = System.out;
@@ -690,8 +549,8 @@ public class UnrealScriptEditor extends TextEditor
 		String root;
 		try
 		{
-			bit64 = Boolean.parseBoolean( getActiveProject().getPersistentProperty(UnrealScriptID.PROPERTY_64BIT) );
-			root = getActiveProjectFile().getAbsolutePath() + "/";
+			bit64 = Boolean.parseBoolean( project.getPersistentProperty(UnrealScriptID.PROPERTY_64BIT) );
+			root = getProjectFile(project).getAbsolutePath() + "/";
 		}
 		catch( Exception e )
 		{
@@ -700,7 +559,7 @@ public class UnrealScriptEditor extends TextEditor
 			e.printStackTrace( error );
 		}
 		String binFolder = root+"Binaries/"+(bit64?"Win64":"Win32")+"/";
-		String executablePath = binFolder+"UDK."+(newWindow?"exe":"com");
+		String executablePath = binFolder+"UDK.com";
 		
 		File bin = new File( binFolder );
 		File executable = new File( executablePath );
@@ -776,24 +635,6 @@ public class UnrealScriptEditor extends TextEditor
 	public void dispose()
 	{
 		updateMarkersThreadRunning = false;
-		
-		synchronized( updateLaunchLogThreadSynchronizer )
-		{
-			updateLaunchLogThreadRunners--;
-			if( updateLaunchLogThreadRunners == 0 )
-			{
-				try
-				{
-					updateLaunchLogThread.join();
-					updateLaunchLogThread = null;
-				}
-				catch( Exception e )
-				{
-				}
-			}
-		}
-		
-		ColorManager.dispose();
 		super.dispose();
 	}
 }

@@ -448,7 +448,7 @@ public class UnrealScriptEditor extends TextEditor
 	public static IProject getSelectedProject( IWorkbenchWindow window ) throws Exception
 	{
 		if( window == null )
-			window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
+			window = getActiveWorkbenchWindow();
 		if( window == null )
 			return null;
 		IProject project = null;

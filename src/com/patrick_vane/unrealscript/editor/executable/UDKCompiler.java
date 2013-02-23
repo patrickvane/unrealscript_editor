@@ -2,7 +2,6 @@ package com.patrick_vane.unrealscript.editor.executable;
 
 import java.util.ArrayList;
 import java.util.HashMap;
-import java.util.HashSet;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.PlatformUI;
@@ -22,8 +21,8 @@ public class UDKCompiler
 		params.add( "-debug" );
 	}
 	
-	public static final HashMap<IProject,Long>	compilingProjects		= new HashMap<IProject,Long>();
-	public static final HashSet<IProject>		waitForCompileProjects	= new HashSet<IProject>();
+	public static final HashMap<IProject,Long>					compilingProjects		= new HashMap<IProject,Long>();
+	public static final HashMap<IProject,ArrayList<String>>		waitForCompileProjects	= new HashMap<IProject,ArrayList<String>>();
 	
 	
 	public static void compile( final IProject project )
@@ -130,7 +129,7 @@ public class UDKCompiler
 						{
 							if( System.currentTimeMillis()-time >= 200 )
 							{
-								waitForCompileProjects.add( project );
+								waitForCompileProjects.put( project, params );
 								return;
 							}
 							else
@@ -170,14 +169,17 @@ public class UDKCompiler
 					UnrealScriptEditor.runUDK( false, UnrealScriptCompilerConsole.getPrintStream(ColorConstant.INFO_COLOR), UnrealScriptCompilerConsole.getPrintStream(ColorConstant.ERROR_COLOR), params );
 				}
 				
+				ArrayList<String> newParams;
 				synchronized( compilingProjects )
 				{
 					compilingProjects.remove( project );
-					if( waitForCompileProjects.contains(project) )
+					newParams = waitForCompileProjects.get( project );
+					if( newParams == null )
 					{
-						compile( project, false, params );
+						return;
 					}
 				}
+				compile( project, false, newParams );
 			}
 		}.start();
 	}

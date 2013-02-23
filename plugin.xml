@@ -93,7 +93,7 @@
             <visibleWhen
                   checkEnabled="true">
                <reference
-                     definitionId="patrick_vane_unrealscript_editor.editors.perspective.definition.isUdkPerspectiveActive">
+                     definitionId="patrick_vane_unrealscript_editor.editors.perspective.definition.isUDKPerspectiveActive">
                </reference>
             </visibleWhen>
             <command
@@ -107,24 +107,48 @@
                   icon="icons/buttons/settings_compiler.png"
                   style="push"
                   tooltip="Configure Compiler">
+               <visibleWhen
+                     checkEnabled="true">
+                  <reference
+                        definitionId="patrick_vane_unrealscript_editor.editors.perspective.definition.isUDKProjectSelected">
+                  </reference>
+               </visibleWhen>
             </command>
             <command
                   commandId="patrick_vane_unrealscript_editor.editors.command.executer_settings"
                   icon="icons/buttons/settings_game.png"
                   style="push"
                   tooltip="Configure Executer">
+               <visibleWhen
+                     checkEnabled="true">
+                  <reference
+                        definitionId="patrick_vane_unrealscript_editor.editors.perspective.definition.isUDKProjectSelected">
+                  </reference>
+               </visibleWhen>
             </command>
             <command
                   commandId="patrick_vane_unrealscript_editor.editors.command.run_editor"
                   icon="icons/buttons/editor.png"
                   style="push"
                   tooltip="Run Editor">
+               <visibleWhen
+                     checkEnabled="true">
+                  <reference
+                        definitionId="patrick_vane_unrealscript_editor.editors.perspective.definition.isUDKProjectSelected">
+                  </reference>
+               </visibleWhen>
             </command>
             <command
                   commandId="patrick_vane_unrealscript_editor.editors.command.run_game"
                   icon="icons/buttons/game.png"
                   style="push"
                   tooltip="Run Game">
+               <visibleWhen
+                     checkEnabled="true">
+                  <reference
+                        definitionId="patrick_vane_unrealscript_editor.editors.perspective.definition.isUDKProjectSelected">
+                  </reference>
+               </visibleWhen>
             </command>
          </menu>
       </menuContribution>
@@ -134,12 +158,6 @@
          <toolbar
                id="patrick_vane_unrealscript_editor.editors.toolbar.udk"
                label="UDK">
-            <visibleWhen
-                  checkEnabled="true">
-               <reference
-                     definitionId="patrick_vane_unrealscript_editor.editors.perspective.definition.isUdkPerspectiveActive">
-               </reference>
-            </visibleWhen>
             <command
                   commandId="patrick_vane_unrealscript_editor.editors.command.import_project"
                   icon="icons/buttons/import.png"
@@ -148,7 +166,7 @@
                <visibleWhen
                      checkEnabled="true">
                   <reference
-                        definitionId="patrick_vane_unrealscript_editor.editors.perspective.definition.isUdkPerspectiveActive">
+                        definitionId="patrick_vane_unrealscript_editor.editors.perspective.definition.isUDKPerspectiveActive">
                   </reference>
                </visibleWhen>
             </command>
@@ -160,7 +178,7 @@
                <visibleWhen
                      checkEnabled="true">
                   <reference
-                        definitionId="patrick_vane_unrealscript_editor.editors.perspective.definition.isUdkPerspectiveActive">
+                        definitionId="patrick_vane_unrealscript_editor.editors.definition.isUDKPerspectiveActiveAndIsUDKProjectSelected">
                   </reference>
                </visibleWhen>
             </command>
@@ -172,7 +190,7 @@
                <visibleWhen
                      checkEnabled="true">
                   <reference
-                        definitionId="patrick_vane_unrealscript_editor.editors.perspective.definition.isUdkPerspectiveActive">
+                        definitionId="patrick_vane_unrealscript_editor.editors.definition.isUDKPerspectiveActiveAndIsUDKProjectSelected">
                   </reference>
                </visibleWhen>
             </command>
@@ -184,7 +202,7 @@
                <visibleWhen
                      checkEnabled="true">
                   <reference
-                        definitionId="patrick_vane_unrealscript_editor.editors.perspective.definition.isUdkPerspectiveActive">
+                        definitionId="patrick_vane_unrealscript_editor.editors.definition.isUDKPerspectiveActiveAndIsUDKProjectSelected">
                   </reference>
                </visibleWhen>
             </command>
@@ -196,7 +214,7 @@
                <visibleWhen
                      checkEnabled="true">
                   <reference
-                        definitionId="patrick_vane_unrealscript_editor.editors.perspective.definition.isUdkPerspectiveActive">
+                        definitionId="patrick_vane_unrealscript_editor.editors.definition.isUDKPerspectiveActiveAndIsUDKProjectSelected">
                   </reference>
                </visibleWhen>
             </command>
@@ -208,24 +226,56 @@
    <extension
          point="org.eclipse.core.expressions.propertyTesters">
       <propertyTester
-            class="com.patrick_vane.unrealscript.editor.perspective.UnrealScriptPerspectiveTester"
-            id="patrick_vane_unrealscript_editor.editors.perspective.UnrealScriptPerspectiveTester"
-            namespace="patrick_vane_unrealscript_editor.editors.perspective.UnrealScriptPerspectiveTester"
-            properties="isUdkPerspectiveActive"
+            class="com.patrick_vane.unrealscript.editor.perspective.UDKPerspectiveTester"
+            id="patrick_vane_unrealscript_editor.editors.perspective.UDKPerspectiveTester"
+            namespace="patrick_vane_unrealscript_editor.editors.perspective.UDKPerspectiveTester"
+            properties="isUDKPerspectiveActive"
+            type="java.lang.Object">
+      </propertyTester>
+      <propertyTester
+            class="com.patrick_vane.unrealscript.editor.perspective.UDKProjectActiveOrSelectedTester"
+            id="patrick_vane_unrealscript_editor.editors.perspective.UDKProjectActiveOrSelectedTester"
+            namespace="patrick_vane_unrealscript_editor.editors.perspective.UDKProjectActiveOrSelectedTester"
+            properties="isUDKProjectSelected"
             type="java.lang.Object">
       </propertyTester>
    </extension>
    
    
    <extension point="org.eclipse.core.expressions.definitions">
-	  <definition id="patrick_vane_unrealscript_editor.editors.perspective.definition.isUdkPerspectiveActive">
+	  <definition id="patrick_vane_unrealscript_editor.editors.perspective.definition.isUDKPerspectiveActive">
 	    <with variable="activeWorkbenchWindow.activePerspective">
 	      <test
 	        forcePluginActivation="true"
-	        property="patrick_vane_unrealscript_editor.editors.perspective.UnrealScriptPerspectiveTester.isUdkPerspectiveActive">
+	        property="patrick_vane_unrealscript_editor.editors.perspective.UDKPerspectiveTester.isUDKPerspectiveActive">
 	      </test>
 	    </with>
 	  </definition>
+   <definition
+         id="patrick_vane_unrealscript_editor.editors.perspective.definition.isUDKProjectSelected">
+      <with
+            variable="activeWorkbenchWindow.activePerspective">
+         <test
+               forcePluginActivation="true"
+               property="patrick_vane_unrealscript_editor.editors.perspective.UDKProjectActiveOrSelectedTester.isUDKProjectSelected">
+         </test>
+      </with>
+   </definition>
+   <definition
+         id="patrick_vane_unrealscript_editor.editors.definition.isUDKPerspectiveActiveAndIsUDKProjectSelected">
+      <with
+            variable="activeWorkbenchWindow.activePerspective">
+         <test
+               forcePluginActivation="true"
+               property="patrick_vane_unrealscript_editor.editors.perspective.UDKPerspectiveTester.isUDKPerspectiveActive">
+         </test>
+         <and></and>
+         <test
+               forcePluginActivation="true"
+               property="patrick_vane_unrealscript_editor.editors.perspective.UDKProjectActiveOrSelectedTester.isUDKProjectSelected">
+         </test>
+      </with>
+   </definition>
    </extension>
    <extension
          point="org.eclipse.ui.startup">

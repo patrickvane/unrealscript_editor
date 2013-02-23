@@ -49,7 +49,7 @@ public class UnrealScriptEditor extends TextEditor
 		
 		try
 		{
-			PlatformUI.getWorkbench().showPerspective( UnrealScriptID.PERSPECTIVE, PlatformUI.getWorkbench().getActiveWorkbenchWindow() );
+			PlatformUI.getWorkbench().showPerspective( UnrealScriptID.PERSPECTIVE, getActiveWorkbenchWindow() );
 		}
 		catch( Exception e )
 		{
@@ -307,7 +307,7 @@ public class UnrealScriptEditor extends TextEditor
 		if( window == null )
 			window = getActiveWorkbenchWindow();
 		if( window == null )
-			return null;
+			throw new Exception( "No workbench window available" );
 		IProject project = null;
 		ISelection selection = window.getSelectionService().getSelection( UnrealScriptID.VIEW_NAVIGATOR );
 		if( (selection != null) && !selection.isEmpty() )
@@ -346,9 +346,9 @@ public class UnrealScriptEditor extends TextEditor
 	public static IFile getSelectedFile( IWorkbenchWindow window ) throws Exception
 	{
 		if( window == null )
-			window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
+			window = getActiveWorkbenchWindow();
 		if( window == null )
-			return null;
+			throw new Exception( "No workbench window available" );
 		IFile file = null;
 		ISelection selection = window.getSelectionService().getSelection( UnrealScriptID.VIEW_NAVIGATOR );
 		if( (selection != null) && !selection.isEmpty() )
@@ -387,9 +387,9 @@ public class UnrealScriptEditor extends TextEditor
 	public static IFolder getSelectedFolder( IWorkbenchWindow window ) throws Exception
 	{
 		if( window == null )
-			window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
+			window = getActiveWorkbenchWindow();
 		if( window == null )
-			return null;
+			throw new Exception( "No workbench window available" );
 		IFolder folder = null;
 		ISelection selection = window.getSelectionService().getSelection( UnrealScriptID.VIEW_NAVIGATOR );
 		if( (selection != null) && !selection.isEmpty() )
@@ -429,9 +429,9 @@ public class UnrealScriptEditor extends TextEditor
 	public static IProject getSelectedOrActiveProject( IWorkbenchWindow window ) throws Exception
 	{
 		if( window == null )
-			window = PlatformUI.getWorkbench().getActiveWorkbenchWindow();
+			window = getActiveWorkbenchWindow();
 		if( window == null )
-			return null;
+			throw new Exception( "No workbench window available" );
 		
 		try
 		{
@@ -478,6 +478,62 @@ public class UnrealScriptEditor extends TextEditor
 		throw new Exception( "You need to select a Project or a File from a Project (in the Package Explorer), or you need to have a File from a Project currently open" );
 	}
 	
+	public static IProject getSelectedOrActiveUDKProject() throws Exception
+	{
+		return getSelectedOrActiveUDKProject( getActiveWorkbenchWindow() );
+	}
+	public static IProject getSelectedOrActiveUDKProject( IWorkbenchWindow window ) throws Exception
+	{
+		if( window == null )
+			window = getActiveWorkbenchWindow();
+		if( window == null )
+			throw new Exception( "No workbench window available" );
+		
+		try
+		{
+			IProject project = getSelectedProject( window );
+			if( isProjectUDK(project) )
+				return project;
+		}
+		catch( Exception e )
+		{
+		}
+		
+		try
+		{
+			IFile file = getSelectedFile( window );
+			IProject project = file.getProject();
+			if( isProjectUDK(project) )
+				return project;
+		}
+		catch( Exception e )
+		{
+		}
+		
+		try
+		{
+			IFolder folder = getSelectedFolder( window );
+			IProject project = folder.getProject();
+			if( isProjectUDK(project) )
+				return project;
+		}
+		catch( Exception e )
+		{
+		}
+		
+		try
+		{
+			IProject project = getActiveProject( );
+			if( isProjectUDK(project) )
+				return project;
+		}
+		catch( Exception e )
+		{
+		}
+		
+		throw new Exception( "You need to select a Project or a File from a Project (in the Package Explorer), or you need to have a File from a Project currently open" );
+	}
+	
 	public static boolean isProjectUDK( IProject project )
 	{
 		if( project == null )
@@ -493,11 +549,6 @@ public class UnrealScriptEditor extends TextEditor
 		{
 			return false;
 		}
-	}
-	public static void testIsProjectUDK( IProject project ) throws Exception
-	{
-		if( !isProjectUDK(project) )
-			throw new Exception( "Project is not an UDK Project" );
 	}
 	
 	

@@ -11,7 +11,7 @@ public class UDKProjectActiveOrSelectedTester extends PropertyTester
 	{
 		try
 		{
-			return UnrealScriptEditor.isProjectUDK( UnrealScriptEditor.getSelectedOrActiveProject() );
+			return (UnrealScriptEditor.getSelectedOrActiveUDKProject() != null);
 		}
 		catch( Exception e )
 		{

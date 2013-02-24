@@ -5,7 +5,7 @@ import org.eclipse.jface.viewers.Viewer;
 import com.patrick_vane.unrealscript.editor.class_hierarchy.parser.UnrealScriptClass;
 
 
-public class ClassHierarchyContentProvider implements ITreeContentProvider
+public class TypeHierarchyContentProvider implements ITreeContentProvider
 {
 	@Override
 	public void inputChanged( Viewer viewer, Object oldInput, Object newInput )

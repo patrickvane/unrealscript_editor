@@ -11,6 +11,7 @@ public class UnrealScriptID
 	public static final String			EDITOR							= "patrick_vane_unrealscript_editor.editors.UnrealScriptEditor";
 	
 	public static final String			VIEW_NAVIGATOR					= JavaUI.ID_PACKAGES;
+	public static final String			VIEW_TYPE_HIERARCHY				= "com.patrick_vane.unrealscript.editor.class_hierarchy.TypeHierarchyView";
 	
 	public static final String			MARKER_PROBLEM					= "patrick_vane_unrealscript_editor.markers.problem";
 	

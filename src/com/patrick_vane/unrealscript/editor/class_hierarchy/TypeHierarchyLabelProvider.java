@@ -11,7 +11,7 @@ import org.osgi.framework.FrameworkUtil;
 import com.patrick_vane.unrealscript.editor.class_hierarchy.parser.UnrealScriptClass;
 
 
-public class ClassHierarchyLabelProvider extends LabelProvider
+public class TypeHierarchyLabelProvider extends LabelProvider
 {
 	private static final Image IMAGE = getImage( "uc.png" );
 	
@@ -35,7 +35,7 @@ public class ClassHierarchyLabelProvider extends LabelProvider
 	
 	private static Image getImage( String file )
 	{
-		Bundle bundle = FrameworkUtil.getBundle( ClassHierarchyLabelProvider.class );
+		Bundle bundle = FrameworkUtil.getBundle( TypeHierarchyLabelProvider.class );
 		URL url = FileLocator.find( bundle, new Path("icons/" + file), null );
 		ImageDescriptor image = ImageDescriptor.createFromURL( url );
 		return image.createImage();

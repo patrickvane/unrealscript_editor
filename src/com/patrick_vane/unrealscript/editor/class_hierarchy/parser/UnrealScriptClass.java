@@ -7,7 +7,7 @@ import java.util.ArrayList;
 public class UnrealScriptClass
 {
 	private final UnrealScriptClass 			parent;
-	private final ArrayList<UnrealScriptClass> 	childs 	= new ArrayList<UnrealScriptClass>();
+	private final ArrayList<UnrealScriptClass> 	childs = new ArrayList<UnrealScriptClass>();
 	private final String 						name;
 	private final int 							depth;
 	private final File 							file;
@@ -58,11 +58,50 @@ public class UnrealScriptClass
 	}
 	
 	
+	public boolean equalsCompletely( Object obj )
+	{
+		if( obj != null )
+		{
+			if( obj instanceof UnrealScriptClass )
+			{
+				UnrealScriptClass root = (UnrealScriptClass) obj;
+				return equalsCompletelyRecursive( root );
+			}
+		}
+		return false;
+	}
+	private boolean equalsCompletelyRecursive( UnrealScriptClass root )
+	{
+		if( !getName().equals(root.getName()) )
+		{
+			return false;
+		}
+		
+		ArrayList<UnrealScriptClass> array1 = getChilds();
+		ArrayList<UnrealScriptClass> array2 = root.getChilds();
+		if( array1.size() != array2.size() )
+		{
+			return false;
+		}
+		
+		for( int i=0; i<array1.size(); i++ )
+		{
+			if( !array1.get(i).equalsCompletelyRecursive(array2.get(i)) )
+			{
+				return false;
+			}
+		}
+		
+		return true;
+	}
+	
+	
 	@Override
 	public boolean equals( Object obj )
 	{
-		if( obj instanceof UnrealScriptClass )
-			return getName().equals( ((UnrealScriptClass)obj).getName() );
+		if( obj != null )
+			if( obj instanceof UnrealScriptClass )
+				return getName().equals( ((UnrealScriptClass)obj).getName() );
 		return false;
 	}
 	@Override

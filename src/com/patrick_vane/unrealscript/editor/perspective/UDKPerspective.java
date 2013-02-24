@@ -14,7 +14,9 @@ public class UDKPerspective implements IPerspectiveFactory
 	@Override
 	public void createInitialLayout( IPageLayout layout )
 	{
-		layout.addView( UnrealScriptID.VIEW_NAVIGATOR, IPageLayout.LEFT, 0.20f, layout.getEditorArea() );
+		IFolderLayout left = layout.createFolder( "left", IPageLayout.LEFT, 0.25f, layout.getEditorArea() );
+		left.addView( UnrealScriptID.VIEW_NAVIGATOR );
+		left.addView( UnrealScriptID.VIEW_TYPE_HIERARCHY );
 		
 		IFolderLayout bottom = layout.createFolder( "bottom", IPageLayout.BOTTOM, 0.70f, layout.getEditorArea() );
 		bottom.addView( IPageLayout.ID_PROBLEM_VIEW );

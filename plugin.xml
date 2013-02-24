@@ -283,6 +283,22 @@
             class="com.patrick_vane.unrealscript.editor.UnrealScriptStartup">
       </startup>
    </extension>
+   <extension
+         point="org.eclipse.ui.views">
+      <view
+            allowMultiple="false"
+            category="com.patrick_vane.unrealscript.editor.views.UDK"
+            class="com.patrick_vane.unrealscript.editor.class_hierarchy.TypeHierarchyView"
+            icon="icons/hierarchy.gif"
+            id="com.patrick_vane.unrealscript.editor.class_hierarchy.TypeHierarchyView"
+            name="UnrealScript Type Hierarchy"
+            restorable="true">
+      </view>
+      <category
+            id="com.patrick_vane.unrealscript.editor.views.UDK"
+            name="UDK">
+      </category>
+   </extension>
    
    
 </plugin>

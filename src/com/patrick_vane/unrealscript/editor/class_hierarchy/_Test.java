@@ -1,13 +1,15 @@
 package com.patrick_vane.unrealscript.editor.class_hierarchy;
 
 import java.io.File;
+import com.patrick_vane.unrealscript.editor.class_hierarchy.parser.UnrealScriptClassHierarchyParser;
+import com.patrick_vane.unrealscript.editor.class_hierarchy.parser.UnrealScriptClass;
 
 
 public class _Test
 {
 	public static void main( String[] args )
 	{
-		UnrealScriptClass root = ClassHierarchyParser.parse( new File("C:/UDK/00_Test/Development/Src/") );
+		UnrealScriptClass root = UnrealScriptClassHierarchyParser.parse( new File("C:/UDK/00_Test/Development/Src/") );
 		print( root );
 	}
 	

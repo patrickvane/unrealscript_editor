@@ -1,5 +1,6 @@
-package com.patrick_vane.unrealscript.editor.class_hierarchy;
+package com.patrick_vane.unrealscript.editor.class_hierarchy.parser;
 
+import java.io.File;
 import java.util.ArrayList;
 
 
@@ -9,12 +10,14 @@ public class UnrealScriptClass
 	private final ArrayList<UnrealScriptClass> 	childs 	= new ArrayList<UnrealScriptClass>();
 	private final String 						name;
 	private final int 							depth;
+	private final File 							file;
 	
 	
-	public UnrealScriptClass( UnrealScriptClass parent, String name )
+	public UnrealScriptClass( UnrealScriptClass parent, String name, File file )
 	{
 		this.parent = parent;
 		this.name 	= name;
+		this.file 	= file;
 		
 		if( parent == null )
 		{
@@ -48,6 +51,10 @@ public class UnrealScriptClass
 	public int getDepth()
 	{
 		return depth;
+	}
+	public File getFile()
+	{
+		return file;
 	}
 	
 	

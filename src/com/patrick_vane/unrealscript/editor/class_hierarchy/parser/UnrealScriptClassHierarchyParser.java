@@ -1,4 +1,4 @@
-package com.patrick_vane.unrealscript.editor.class_hierarchy;
+package com.patrick_vane.unrealscript.editor.class_hierarchy.parser;
 
 import java.io.BufferedReader;
 import java.io.DataInputStream;
@@ -8,14 +8,14 @@ import java.io.InputStreamReader;
 import java.util.HashMap;
 
 
-public class ClassHierarchyParser
+public class UnrealScriptClassHierarchyParser
 {
 	public static UnrealScriptClass parse( File sourceDir )
 	{
 		HashMap<String,UnrealScriptParsingClass> parsingClasses = new HashMap<String,UnrealScriptParsingClass>();
 		parse( parsingClasses, sourceDir );
 		
-		UnrealScriptClass root = new UnrealScriptClass( null, "root" );
+		UnrealScriptClass root = new UnrealScriptClass( null, "root", sourceDir );
 		HashMap<String,UnrealScriptClass> classes = new HashMap<String,UnrealScriptClass>();
 		for( UnrealScriptParsingClass parsedClass : parsingClasses.values() )
 		{
@@ -37,19 +37,19 @@ public class ClassHierarchyParser
 		String parentName = parsedClass.getParentName();
 		if( parentName != null )
 		{
-			parentName = parentName.toLowerCase();
-			parent = classes.get( parentName );
+			String parentNameLowerCase = parentName.toLowerCase();
+			parent = classes.get( parentNameLowerCase );
 			if( parent == null )
 			{
-				UnrealScriptParsingClass parentClass = parsingClasses.get( parentName );
+				UnrealScriptParsingClass parentClass = parsingClasses.get( parentNameLowerCase );
 				if( parentClass != null )
 				{
 					parent = parse( root, parsingClasses, classes, parentClass );
 				}
 				else
 				{
-					parent = new UnrealScriptClass( root, parentName );
-					classes.put( parentName, parent );
+					parent = new UnrealScriptClass( root, parentName, null );
+					classes.put( parentNameLowerCase, parent );
 				}
 			}
 		}
@@ -58,7 +58,7 @@ public class ClassHierarchyParser
 			parent = root;
 		}
 		
-		thisClass = new UnrealScriptClass( parent, parsedClass.getName() );
+		thisClass = new UnrealScriptClass( parent, parsedClass.getName(), parsedClass.getFile() );
 		classes.put( name, thisClass );
 		return thisClass;
 	}
@@ -99,43 +99,87 @@ public class ClassHierarchyParser
 			String line;
 			String name   = null;
 			String parent = null;
-			boolean hasExtends = false;
+			boolean hasClass 	= false;
+			boolean hasExtends 	= false;
+			boolean hasClassLineEnded = false;
+			boolean inBlockCommend = false;
 			while( (line = buffer.readLine()) != null )
 			{
 				line = line.trim();
-				if( line.startsWith("class") )
+				
+				StringBuilder builder = new StringBuilder();
+				for( int charI=0; charI<line.length(); charI++ )
 				{
-					String[] data = line.split( " " );
-					for( int i=1; i<data.length; i++ )
+					char char1 = line.charAt( charI );
+					char char2 = ' ';
+					if( charI+1 < line.length() )
+						char2 = line.charAt( charI+1 );
+					
+					if( (char1 == '/') && (char2 == '*') )
+						inBlockCommend = true;
+					else if( (char1 == '*') && (char2 == '/') )
+						inBlockCommend = false;
+					
+					if( !inBlockCommend )
+					{
+						if( (char1 == '/') && (char2 == '/') )
+							break;
+						builder.append( char1 );
+					}
+				}
+				line = builder.toString();
+				
+				String[] data = line.split( " " );
+				if( !hasClass )
+				{
+					if( (data.length > 0) && data[0].toLowerCase().equals("class") )
+					{
+						hasClass = true;
+					}
+				}
+				if( hasClass )
+				{
+					for( int i=0; i<data.length; i++ )
 					{
 						String dataPart = data[i];
-						dataPart = dataPart.replaceAll( ";", "" );
-						dataPart = dataPart.replaceAll( "//", "" );
 						dataPart = dataPart.trim();
+						hasClassLineEnded = dataPart.contains( ";" );
+						if( hasClassLineEnded )
+							dataPart = dataPart.substring( 0, dataPart.indexOf(";") );
+						dataPart = dataPart.trim();
+						String dataPartLowerCase = dataPart.toLowerCase();
 						if( !dataPart.isEmpty() )
 						{
-							if( name == null )
+							if( !dataPartLowerCase.equals("class") )
 							{
-								name = dataPart;
-							}
-							else if( !hasExtends )
-							{
-								if( dataPart.toLowerCase().equals("extends") )
-									hasExtends = true;
-							}
-							else
-							{
-								parent = dataPart;
-								break;
+								if( name == null )
+								{
+									name = dataPart;
+								}
+								else if( !hasExtends )
+								{
+									if( dataPartLowerCase.equals("extends") )
+										hasExtends = true;
+									else
+										hasClassLineEnded = true;
+								}
+								else
+								{
+									parent = dataPart;
+									hasClassLineEnded = true;
+								}
 							}
 						}
+						if( hasClassLineEnded )
+							break;
 					}
-					break;
+					if( hasClassLineEnded )
+						break;
 				}
 			}
 			if( name != null )
 			{
-				return new UnrealScriptParsingClass( name, parent );
+				return new UnrealScriptParsingClass( name, parent, file );
 			}
 			return null;
 		}

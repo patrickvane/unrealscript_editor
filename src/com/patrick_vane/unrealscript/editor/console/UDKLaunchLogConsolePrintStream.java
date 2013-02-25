@@ -37,6 +37,12 @@ public class UDKLaunchLogConsolePrintStream extends PrintStream
 	{
 		synchronized( UDKLaunchLogConsole.getSynchronizer() )
 		{
+			if( line.startsWith("Running: ") )
+			{
+				UDKLaunchLogConsole.out.println( line );
+				return;
+			}
+			
 			int logCharAt 		= line.indexOf( LAUNCH_LOG_TAG );
 			int warningCharAt 	= line.indexOf( LAUNCH_WARNING_TAG );
 			int errorCharAt 	= line.indexOf( LAUNCH_ERROR_TAG );

@@ -9,7 +9,6 @@ public class UnrealScriptClass
 	private final UnrealScriptClass 			parent;
 	private final ArrayList<UnrealScriptClass> 	childs = new ArrayList<UnrealScriptClass>();
 	private final String 						name;
-	private final int 							depth;
 	private final File 							file;
 	
 	
@@ -19,18 +18,14 @@ public class UnrealScriptClass
 		this.name 	= name;
 		this.file 	= file;
 		
-		if( parent == null )
+		if( parent != null )
 		{
-			this.depth = 0;
-		}
-		else
-		{
-			this.depth = parent.getDepth() + 1;
 			parent.addChild( this );
 		}
 	}
 	
 	
+	/** Don't call your method yourself! (this method is used internally) */
 	public void addChild( UnrealScriptClass child )
 	{
 		childs.add( child );
@@ -48,13 +43,24 @@ public class UnrealScriptClass
 	{
 		return childs;
 	}
-	public int getDepth()
-	{
-		return depth;
-	}
 	public File getFile()
 	{
 		return file;
+	}
+	public int getDepth()
+	{
+		int depth = 0;
+		UnrealScriptClass parent = this.parent;
+		while( parent != null )
+		{
+			depth++;
+			parent = parent.getParent();
+		}
+		return depth;
+	}
+	public boolean exists()
+	{
+		return ((file != null) && file.exists());
 	}
 	
 	

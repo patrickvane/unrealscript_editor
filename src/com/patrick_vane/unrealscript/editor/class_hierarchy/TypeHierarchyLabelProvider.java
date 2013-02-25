@@ -13,15 +13,19 @@ import com.patrick_vane.unrealscript.editor.class_hierarchy.parser.UnrealScriptC
 
 public class TypeHierarchyLabelProvider extends LabelProvider
 {
-	private static final Image IMAGE = getImage( "uc.png" );
+	private static final Image FILE 			= getImage( "uc.png" );
+	private static final Image FILE_NOT_FOUND 	= getImage( "uc_unknown.png" );
 	
 	
 	@Override
 	public String getText( Object element )
 	{
-		if( element instanceof UnrealScriptClass )
+		if( element != null )
 		{
-			return ((UnrealScriptClass) element).getName();
+			if( element instanceof UnrealScriptClass )
+			{
+				return ((UnrealScriptClass) element).getName();
+			}
 		}
 		return null;
 	}
@@ -29,7 +33,17 @@ public class TypeHierarchyLabelProvider extends LabelProvider
 	@Override
 	public Image getImage( Object element )
 	{
-		return IMAGE;
+		if( element != null )
+		{
+			if( element instanceof UnrealScriptClass )
+			{
+				if( ((UnrealScriptClass) element).exists() )
+					return FILE;
+				else
+					return FILE_NOT_FOUND;
+			}
+		}
+		return FILE_NOT_FOUND;
 	}
 	
 	

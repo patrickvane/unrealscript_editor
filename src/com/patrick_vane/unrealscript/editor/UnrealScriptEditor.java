@@ -206,7 +206,6 @@ public class UnrealScriptEditor extends TextEditor
 		return null;
 	}
 	
-	
 	public static IWorkbenchWindow getActiveWorkbenchWindow()
 	{
 		MyRunnable runnable = new MyRunnable()

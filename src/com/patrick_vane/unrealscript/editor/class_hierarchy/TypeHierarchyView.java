@@ -45,7 +45,7 @@ public class TypeHierarchyView extends ViewPart
 						
 						if( (sourceFolder != null) && sourceFolder.exists() )
 						{
-							if( fileChanged || (lastRoot == null) || (lastSourceFolder == null) || !lastSourceFolder.equals(sourceFolder) )
+							if( fileChanged || (lastRoot == null) || (lastRoot.getChilds().size() == 0) || (lastSourceFolder == null) || !lastSourceFolder.equals(sourceFolder) )
 							{
 								lastSourceFolder = sourceFolder;
 								fileChanged = false;
@@ -97,6 +97,7 @@ public class TypeHierarchyView extends ViewPart
 		classHierarchyViewer.setContentProvider( new TypeHierarchyContentProvider() );
 		classHierarchyViewer.setLabelProvider( new TypeHierarchyLabelProvider() );
 		classHierarchyViewer.setSorter( new TypeHierarchySorter() );
+		classHierarchyViewer.addDoubleClickListener( new TypeHierarchyDoubleClickListener() );
 		classHierarchyViewer.setAutoExpandLevel( 2 );
 	}
 	

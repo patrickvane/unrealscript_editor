@@ -12,6 +12,7 @@ import org.eclipse.ui.console.IConsole;
 import org.eclipse.ui.console.IConsoleManager;
 import org.eclipse.ui.console.MessageConsole;
 import org.eclipse.ui.console.MessageConsoleStream;
+import com.patrick_vane.unrealscript.editor.constants.ColorConstant;
 
 
 public class ConsoleInstance
@@ -96,6 +97,64 @@ public class ConsoleInstance
 	public void println( String string, RGB color )
 	{
 		getStream( color ).println( string );
+	}
+	
+	
+	public static class Out
+	{
+		private ConsoleInstance instance;
+		
+		public Out( ConsoleInstance instance )
+		{
+			this.instance = instance;
+		}
+		
+		public void print( String string )
+		{
+			instance.print( string, ColorConstant.INFO_COLOR );
+		}
+		public void println( String string )
+		{
+			instance.println( string, ColorConstant.INFO_COLOR );
+		}
+	}
+	
+	public static class Warn
+	{
+		private ConsoleInstance instance;
+		
+		public Warn( ConsoleInstance instance )
+		{
+			this.instance = instance;
+		}
+		
+		public void print( String string )
+		{
+			instance.print( string, ColorConstant.WARNING_COLOR );
+		}
+		public void println( String string )
+		{
+			instance.println( string, ColorConstant.WARNING_COLOR );
+		}
+	}
+	
+	public static class Err
+	{
+		private ConsoleInstance instance;
+		
+		public Err( ConsoleInstance instance )
+		{
+			this.instance = instance;
+		}
+		
+		public void print( String string )
+		{
+			instance.print( string, ColorConstant.ERROR_COLOR );
+		}
+		public void println( String string )
+		{
+			instance.println( string, ColorConstant.ERROR_COLOR );
+		}
 	}
 	
 	

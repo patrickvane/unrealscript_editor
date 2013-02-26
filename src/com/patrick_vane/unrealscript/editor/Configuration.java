@@ -39,16 +39,19 @@ public class Configuration extends SourceViewerConfiguration
 			{
 				try
 				{
-					IProject project 				= UnrealScriptEditor.getActiveProject();
-					IFolder scriptFolder 			= project.getFolder( "UnrealScript" );
-					File rootFile 					= new File( scriptFolder.getLocationURI() );
-					synchronized( saveOnResourceChangesListeners )
+					IProject project 		= UnrealScriptEditor.getActiveProject();
+					IFolder scriptFolder 	= project.getFolder( "UnrealScript" );
+					File rootFile 			= new File( scriptFolder.getLocationURI() );
+					if( rootFile.exists() )
 					{
-						if( saveOnResourceChangesListeners.get(rootFile) == null )
+						synchronized( saveOnResourceChangesListeners )
 						{
-							FileChangesListener saveOnResourceChangesListener = new FileChangesListener( rootFile );
-							saveOnResourceChangesListener.start();
-							saveOnResourceChangesListeners.put( rootFile, saveOnResourceChangesListener );
+							if( saveOnResourceChangesListeners.get(rootFile) == null )
+							{
+								FileChangesListener saveOnResourceChangesListener = new FileChangesListener( project, rootFile );
+								saveOnResourceChangesListener.start();
+								saveOnResourceChangesListeners.put( rootFile, saveOnResourceChangesListener );
+							}
 						}
 					}
 				}

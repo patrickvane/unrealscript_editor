@@ -594,14 +594,12 @@ public class UnrealScriptParser
 		boolean inString = false;
 		boolean inChar = false;
 		boolean inCommentLine = false;
-		boolean inCommentBlock = false;
-		boolean inDocs = false;
+		int commentBlocksOpen = 0;
 		int stringStartCharacterPosition = 0;
 		UnrealScriptParserBracketBlock bracketBlock = new UnrealScriptParserBracketBlock();
 		char previousChar = ' ';
 		char character = ' ';
 		char nextChar = ' ';
-		char nextNextChar = ' ';
 		int skip = 0;
 		for( int i=0; i<data.length(); i++ )
 		{
@@ -614,19 +612,12 @@ public class UnrealScriptParser
 			
 			previousChar = character;
 			character = data.charAt( i );
-			nextChar = ' ';
-			nextNextChar = ' ';
-			if( i+2 < data.length() )
-			{
-				nextNextChar = data.charAt( i+2 );
+			if( i+1 < data.length() )
 				nextChar = data.charAt( i+1 );
-			}
-			else if( i+1 < data.length() )
-			{
-				nextChar = data.charAt( i+1 );
-			}
+			else
+				nextChar = '\0';
 			
-			if( !inCommentBlock && !inDocs )
+			if( commentBlocksOpen == 0 )
 			{
 				if( (character == '\n') || (character == '\r') )
 				{
@@ -665,108 +656,106 @@ public class UnrealScriptParser
 			}
 			if( !inString && !inChar )
 			{
-				if( !inCommentLine && !inCommentBlock && !inDocs )
+				if( !inCommentLine )
 				{
-					if( WhitespaceDetector.getSharedInstance().isWhitespace(character) )
+					if( commentBlocksOpen == 0 )
 					{
-						block.closeWord( characterPosition );
-						continue;
-					}
-					
-					if( character == ';' )
-					{
-						block.closeWord( characterPosition );
-						block.newLine();
+						if( WhitespaceDetector.getSharedInstance().isWhitespace(character) )
+						{
+							block.closeWord( characterPosition );
+							continue;
+						}
 						
-						bracketBlock.newLine( characterPosition );
-						continue;
-					}
-					
-					if( character == '{' )
-					{
-						bracketBlock = new UnrealScriptParserBracketBlock( bracketBlock, block.getLastCompletedWord(), '{', '}' );
+						if( character == ';' )
+						{
+							block.closeWord( characterPosition );
+							block.newLine();
+							
+							bracketBlock.newLine( characterPosition );
+							continue;
+						}
 						
-						block.closeWord( characterPosition );
-						block = new CodeBlock( block );
-						continue;
-					}
-					if( character == '}' )
-					{
-						bracketBlock.close( characterPosition, '{', '}' );
-						bracketBlock = bracketBlock.getParent();
+						if( character == '{' )
+						{
+							bracketBlock = new UnrealScriptParserBracketBlock( bracketBlock, block.getLastCompletedWord(), '{', '}' );
+							
+							block.closeWord( characterPosition );
+							block = new CodeBlock( block );
+							continue;
+						}
+						if( character == '}' )
+						{
+							bracketBlock.close( characterPosition, '{', '}' );
+							bracketBlock = bracketBlock.getParent();
+							
+							block.closeWord( characterPosition );
+							block.close();
+							block = block.getParent();
+							continue;
+						}
 						
-						block.closeWord( characterPosition );
-						block.close();
-						block = block.getParent();
-						continue;
-					}
-					
-					if( character == '(' )
-					{
-						bracketBlock = new UnrealScriptParserBracketBlock( bracketBlock, block.getLastCompletedWord(), '(', ')' );
+						if( character == '(' )
+						{
+							bracketBlock = new UnrealScriptParserBracketBlock( bracketBlock, block.getLastCompletedWord(), '(', ')' );
+							
+							block.closeWord( characterPosition );
+							block.addCharacter( characterPosition, character );
+							block.closeWord( characterPosition+1 );
+							continue;
+						}
+						if( character == ')' )
+						{
+							bracketBlock.close( characterPosition, '(', ')' );
+							bracketBlock = bracketBlock.getParent();
+							
+							block.closeWord( characterPosition );
+							block.addCharacter( characterPosition, character );
+							block.closeWord( characterPosition+1 );
+							continue;
+						}
 						
-						block.closeWord( characterPosition );
-						block.addCharacter( characterPosition, character );
-						block.closeWord( characterPosition+1 );
-						continue;
-					}
-					if( character == ')' )
-					{
-						bracketBlock.close( characterPosition, '(', ')' );
-						bracketBlock = bracketBlock.getParent();
+						if( character == '[' )
+						{
+							bracketBlock = new UnrealScriptParserBracketBlock( bracketBlock, block.getLastCompletedWord(), '[', ']' );
+							
+							block.closeWord( characterPosition );
+							block.addCharacter( characterPosition, character );
+							block.closeWord( characterPosition+1 );
+							continue;
+						}
+						if( character == ']' )
+						{
+							bracketBlock.close( characterPosition, '[', ']' );
+							bracketBlock = bracketBlock.getParent();
+							
+							block.closeWord( characterPosition );
+							block.addCharacter( characterPosition, character );
+							block.closeWord( characterPosition+1 );
+							continue;
+						}
 						
-						block.closeWord( characterPosition );
-						block.addCharacter( characterPosition, character );
-						block.closeWord( characterPosition+1 );
-						continue;
-					}
-					
-					if( character == '[' )
-					{
-						bracketBlock = new UnrealScriptParserBracketBlock( bracketBlock, block.getLastCompletedWord(), '[', ']' );
-						
-						block.closeWord( characterPosition );
-						block.addCharacter( characterPosition, character );
-						block.closeWord( characterPosition+1 );
-						continue;
-					}
-					if( character == ']' )
-					{
-						bracketBlock.close( characterPosition, '[', ']' );
-						bracketBlock = bracketBlock.getParent();
-						
-						block.closeWord( characterPosition );
-						block.addCharacter( characterPosition, character );
-						block.closeWord( characterPosition+1 );
-						continue;
-					}
-					
-					if( (character == '/') && (nextChar == '/') )
-					{
-						inCommentLine = true;
-						continue;
+						if( (character == '/') && (nextChar == '/') )
+						{
+							inCommentLine = true;
+							continue;
+						}
 					}
 					if( (character == '/') && (nextChar == '*') )
 					{
-						if( nextNextChar == '*' )
-							inDocs = true;
-						else 
-							inCommentBlock = true;
+						commentBlocksOpen++;
 						continue;
 					}
 				}
-				if( inDocs || inCommentBlock )
+				if( (character == '*') && (nextChar == '/') )
 				{
-					if( (character == '*') && (nextChar == '/') )
-					{
-						inDocs = false;
-						inCommentBlock = false;
-						skip = 1;
-						continue;
-					}
+					if( commentBlocksOpen <= 0 )
+						throw new CodeException( characterPosition, characterPosition+2, true, "Unexpected: */" );
+					commentBlocksOpen--;
+					skip = 1;
+					continue;
 				}
 			}
-			if( !inCommentLine && !inCommentBlock && !inDocs )
+			if( !inCommentLine && (commentBlocksOpen == 0) )
 			{
 				if( previousChar != '\\' )
 				{

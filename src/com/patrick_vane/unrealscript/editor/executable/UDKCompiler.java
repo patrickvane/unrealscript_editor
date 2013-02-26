@@ -81,6 +81,8 @@ public class UDKCompiler
 	{
 		if( project == null )
 			return;
+		if( !UnrealScriptEditor.isProjectUDK(project) )
+			return;
 		try
 		{
 			Display.getDefault().syncExec
@@ -106,6 +108,8 @@ public class UDKCompiler
 	private static void compile( final IProject project, final boolean forced, final ArrayList<String> params )
 	{
 		if( project == null )
+			return;
+		if( !UnrealScriptEditor.isProjectUDK(project) )
 			return;
 		new Thread()
 		{

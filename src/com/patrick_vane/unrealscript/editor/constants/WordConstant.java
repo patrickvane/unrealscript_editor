@@ -1,10 +1,12 @@
 package com.patrick_vane.unrealscript.editor.constants;
 
+import java.util.HashSet;
 
-public interface WordConstant
+
+public class WordConstant
 {
-	String[] KEYWORDS = new String[]
-	{ 
+	public static final String[] KEYWORDS = new String[]
+	{
 		"abstract", "always", "array", "arraycount", "assert", "auto", 
 		"automated", "bool", "break", "button", "byte", "case", "class", 
 		"coerce", "collapsecategories", "config", "const", "continue", 
@@ -27,4 +29,13 @@ public interface WordConstant
 		"travel", "true", "unreliable", "until", "var", "vect", "while", 
 		"within" 
 	};
+	
+	public static final HashSet<String> KEYWORDS_HASHSET = new HashSet<String>();
+	static
+	{
+		for( String keyword : KEYWORDS )
+		{
+			KEYWORDS_HASHSET.add( keyword );
+		}
+	}
 }

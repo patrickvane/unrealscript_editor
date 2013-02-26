@@ -119,7 +119,7 @@ public class CodeBlock implements Code
 	{
 		ArrayList<CodeWord> line = new ArrayList<CodeWord>();
 		int i = 1;
-		while( (line.size() <= 0) && (childs.size() >= i) )
+		while( ((line == null) || (line.size() <= 0)) && (childs.size() >= i) )
 		{
 			line = childs.get( childs.size()-i ).getLastLine();
 			i++;
@@ -130,7 +130,7 @@ public class CodeBlock implements Code
 	public CodeWord getLastCompletedWord()
 	{
 		ArrayList<CodeWord> lastLine = getLastLine();
-		if( lastLine.size() > 0 )
+		if( (lastLine != null) && (lastLine.size() > 0) )
 			return lastLine.get( lastLine.size() - 1 );
 		return null;
 	}

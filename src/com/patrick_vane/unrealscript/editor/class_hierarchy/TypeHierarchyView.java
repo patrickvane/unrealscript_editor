@@ -7,20 +7,21 @@ import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.part.ViewPart;
 import com.patrick_vane.unrealscript.editor.UnrealScriptEditor;
-import com.patrick_vane.unrealscript.editor.class_hierarchy.parser.UnrealScriptClass;
 import com.patrick_vane.unrealscript.editor.class_hierarchy.parser.UnrealScriptClassHierarchyParser;
+import com.patrick_vane.unrealscript.editor.class_hierarchy.parser.UnrealScriptRootClass;
 import com.patrick_vane.unrealscript.editor.constants.ProjectConstant;
 
 
 public class TypeHierarchyView extends ViewPart
 {
-	private static TreeViewer			classHierarchyViewer;
+	private static TreeViewer				classHierarchyViewer;
 	
-	private static Thread				updateThread;
+	private static Thread					updateThread;
 	
-	private static UnrealScriptClass	lastRoot;
-	private static File					lastSourceFolder;
-	private static boolean				fileChanged	= false;
+	private static UnrealScriptRootClass	lastRoot;
+	private static File						lastSourceFolder;
+	private static boolean					firstRunAfterStart = false;
+	private static boolean					fileChanged	= false;
 	
 	
 	static
@@ -32,45 +33,44 @@ public class TypeHierarchyView extends ViewPart
 			{
 				while( true )
 				{
-					if( classHierarchyViewer != null )
+					File sourceFolder = null;
+					try
 					{
-						File sourceFolder = null;
-						try
+						sourceFolder = new File( UnrealScriptEditor.getActiveProjectFile().getAbsolutePath()+"/"+ProjectConstant.subfolders.get("UnrealScript") );
+					}
+					catch( Exception e )
+					{
+					}
+					
+					if( (sourceFolder != null) && sourceFolder.exists() )
+					{
+						if( firstRunAfterStart || fileChanged || (lastRoot == null) || (lastRoot.getChilds().size() == 0) || (lastSourceFolder == null) || !lastSourceFolder.equals(sourceFolder) )
 						{
-							sourceFolder = new File( UnrealScriptEditor.getActiveProjectFile().getAbsolutePath()+"/"+ProjectConstant.subfolders.get("UnrealScript") );
-						}
-						catch( Exception e )
-						{
-						}
-						
-						if( (sourceFolder != null) && sourceFolder.exists() )
-						{
-							if( fileChanged || (lastRoot == null) || (lastRoot.getChilds().size() == 0) || (lastSourceFolder == null) || !lastSourceFolder.equals(sourceFolder) )
+							final UnrealScriptRootClass root = UnrealScriptClassHierarchyParser.parse( sourceFolder );
+							
+							lastSourceFolder = sourceFolder;
+							fileChanged = false;
+							
+							if( firstRunAfterStart || (lastRoot == null) || !lastRoot.equalsCompletely(root) )
 							{
-								lastSourceFolder = sourceFolder;
-								fileChanged = false;
+								lastRoot = root;
+								firstRunAfterStart = false;
 								
-								final UnrealScriptClass root = UnrealScriptClassHierarchyParser.parse( sourceFolder );
-								if( (lastRoot == null) || !lastRoot.equalsCompletely(root) )
-								{
-									lastRoot = root;
-									
-									Display.getDefault().syncExec
-									(
-										new Runnable()
+								Display.getDefault().syncExec
+								(
+									new Runnable()
+									{
+										@Override
+										public void run()
 										{
-											@Override
-											public void run()
+											if( classHierarchyViewer != null )
 											{
-												if( classHierarchyViewer != null )
-												{
-													classHierarchyViewer.setInput( root );
-													classHierarchyViewer.collapseAll();
-												}
+												classHierarchyViewer.setInput( root );
+												classHierarchyViewer.collapseAll();
 											}
 										}
-									);
-								}
+									}
+								);
 							}
 						}
 					}
@@ -99,6 +99,7 @@ public class TypeHierarchyView extends ViewPart
 		classHierarchyViewer.setSorter( new TypeHierarchySorter() );
 		classHierarchyViewer.addDoubleClickListener( new TypeHierarchyDoubleClickListener() );
 		classHierarchyViewer.setAutoExpandLevel( 2 );
+		firstRunAfterStart = true;
 	}
 	
 	
@@ -111,5 +112,26 @@ public class TypeHierarchyView extends ViewPart
 	public static void fileChanged()
 	{
 		fileChanged = true;
+	}
+	
+	public static UnrealScriptRootClass getRoot()
+	{
+		return lastRoot;
+	}
+	public static File getRootSourceFolder()
+	{
+		return lastSourceFolder;
+	}
+	public static boolean isRootFromThisProject()
+	{
+		try
+		{
+			File projectFolder = new File( UnrealScriptEditor.getActiveProjectFile().getAbsolutePath()+"/"+ProjectConstant.subfolders.get("UnrealScript") );
+			return projectFolder.equals( lastSourceFolder );
+		}
+		catch( Exception e )
+		{
+			return false;
+		}
 	}
 }

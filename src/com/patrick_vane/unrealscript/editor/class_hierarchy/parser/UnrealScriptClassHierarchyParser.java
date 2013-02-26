@@ -5,30 +5,30 @@ import java.io.DataInputStream;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
+import java.io.StringReader;
 import java.util.HashMap;
 
 
 public class UnrealScriptClassHierarchyParser
 {
-	public static UnrealScriptClass parse( File sourceDir )
+	public static UnrealScriptRootClass parse( File sourceDir )
 	{
 		HashMap<String,UnrealScriptParsingClass> parsingClasses = new HashMap<String,UnrealScriptParsingClass>();
 		parse( parsingClasses, sourceDir );
 		
-		UnrealScriptClass root = new UnrealScriptClass( null, "root", sourceDir );
-		HashMap<String,UnrealScriptClass> classes = new HashMap<String,UnrealScriptClass>();
+		UnrealScriptRootClass root = new UnrealScriptRootClass( null, "root", sourceDir );
 		for( UnrealScriptParsingClass parsedClass : parsingClasses.values() )
 		{
-			parse( root, parsingClasses, classes, parsedClass );
+			parse( root, parsingClasses, parsedClass );
 		}
 		
 		return root;
 	}
 	
-	private static UnrealScriptClass parse( UnrealScriptClass root, HashMap<String,UnrealScriptParsingClass> parsingClasses, HashMap<String,UnrealScriptClass> classes, UnrealScriptParsingClass parsedClass )
+	private static UnrealScriptClass parse( UnrealScriptRootClass root, HashMap<String,UnrealScriptParsingClass> parsingClasses, UnrealScriptParsingClass parsedClass )
 	{
 		String name = parsedClass.getName().toLowerCase();
-		UnrealScriptClass thisClass = classes.get( name );
+		UnrealScriptClass thisClass = root.getClass( name );
 		if( thisClass != null )
 			return thisClass;
 		
@@ -37,19 +37,18 @@ public class UnrealScriptClassHierarchyParser
 		String parentName = parsedClass.getParentName();
 		if( parentName != null )
 		{
-			String parentNameLowerCase = parentName.toLowerCase();
-			parent = classes.get( parentNameLowerCase );
+			parent = root.getClass( parentName );
 			if( parent == null )
 			{
-				UnrealScriptParsingClass parentClass = parsingClasses.get( parentNameLowerCase );
+				UnrealScriptParsingClass parentClass = parsingClasses.get( parentName.toLowerCase() );
 				if( parentClass != null )
 				{
-					parent = parse( root, parsingClasses, classes, parentClass );
+					parent = parse( root, parsingClasses, parentClass );
 				}
 				else
 				{
 					parent = new UnrealScriptClass( root, parentName, null );
-					classes.put( parentNameLowerCase, parent );
+					root.addClass( parent );
 				}
 			}
 		}
@@ -59,7 +58,7 @@ public class UnrealScriptClassHierarchyParser
 		}
 		
 		thisClass = new UnrealScriptClass( parent, parsedClass.getName(), parsedClass.getFile() );
-		classes.put( name, thisClass );
+		root.addClass( thisClass );
 		return thisClass;
 	}
 	
@@ -89,7 +88,7 @@ public class UnrealScriptClassHierarchyParser
 		}
 	}
 	
-	private static UnrealScriptParsingClass parseClass( File file )
+	public static UnrealScriptParsingClass parseClass( File file )
 	{
 		DataInputStream in = null;
 		try
@@ -158,7 +157,7 @@ public class UnrealScriptClassHierarchyParser
 								}
 								else if( !hasExtends )
 								{
-									if( dataPartLowerCase.equals("extends") )
+									if( dataPartLowerCase.equals("extends") || dataPartLowerCase.equals("expands") )
 										hasExtends = true;
 									else
 										hasClassLineEnded = true;
@@ -199,6 +198,84 @@ public class UnrealScriptClassHierarchyParser
 			catch( Exception e )
 			{
 			}
+		}
+	}
+	
+	
+	public static String getClassName( String classContent )
+	{
+		try
+		{
+			BufferedReader buffer = new BufferedReader( new StringReader(classContent) );
+			String line;
+			String name   = null;
+			boolean hasClass 	= false;
+			boolean hasClassLineEnded = false;
+			boolean inBlockCommend = false;
+			while( (line = buffer.readLine()) != null )
+			{
+				line = line.trim();
+				
+				StringBuilder builder = new StringBuilder();
+				for( int charI=0; charI<line.length(); charI++ )
+				{
+					char char1 = line.charAt( charI );
+					char char2 = ' ';
+					if( charI+1 < line.length() )
+						char2 = line.charAt( charI+1 );
+					
+					if( (char1 == '/') && (char2 == '*') )
+						inBlockCommend = true;
+					else if( (char1 == '*') && (char2 == '/') )
+						inBlockCommend = false;
+					
+					if( !inBlockCommend )
+					{
+						if( (char1 == '/') && (char2 == '/') )
+							break;
+						builder.append( char1 );
+					}
+				}
+				line = builder.toString();
+				
+				String[] data = line.split( " " );
+				if( !hasClass )
+				{
+					if( (data.length > 0) && data[0].toLowerCase().equals("class") )
+					{
+						hasClass = true;
+					}
+				}
+				if( hasClass )
+				{
+					for( int i=0; i<data.length; i++ )
+					{
+						String dataPart = data[i];
+						dataPart = dataPart.trim();
+						hasClassLineEnded = dataPart.contains( ";" );
+						if( hasClassLineEnded )
+							dataPart = dataPart.substring( 0, dataPart.indexOf(";") );
+						dataPart = dataPart.trim();
+						String dataPartLowerCase = dataPart.toLowerCase();
+						if( !dataPart.isEmpty() )
+						{
+							if( !dataPartLowerCase.equals("class") )
+							{
+								return dataPart;
+							}
+						}
+						if( hasClassLineEnded )
+							break;
+					}
+					if( hasClassLineEnded )
+						break;
+				}
+			}
+			return name;
+		}
+		catch( Exception e )
+		{
+			return null;
 		}
 	}
 }

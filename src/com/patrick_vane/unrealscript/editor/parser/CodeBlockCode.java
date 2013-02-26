@@ -95,9 +95,9 @@ public class CodeBlockCode implements Code
 	@Override
 	public ArrayList<CodeWord> getLastLine()
 	{
-		if( words.size() > 0 )
+		if( (words != null) && (words.size() > 0) )
 			return words;
-		if( lines.size() > 0 )
+		if( (lines != null) && (lines.size() > 0) )
 			return lines.get( lines.size() - 1 );
 		return new ArrayList<CodeWord>();
 	}
@@ -105,7 +105,7 @@ public class CodeBlockCode implements Code
 	public CodeWord getLastCompletedWord()
 	{
 		ArrayList<CodeWord> lastLine = getLastLine();
-		if( lastLine.size() > 0 )
+		if( (lastLine != null) && (lastLine.size() > 0) )
 			return lastLine.get( lastLine.size() - 1 );
 		return null;
 	}

@@ -9,13 +9,13 @@ public class UDKLaunchLogConsolePrintStream extends PrintStream
 {
 	private static final String		LAUNCH_LOG_TAG					= "ScriptLog: ";
 	private static final int		LAUNCH_LOG_TAG_LENGTH			= LAUNCH_LOG_TAG.length();
-	private static final String		LAUNCH_WARNING1_TAG				= "Warning: ";
+	private static final String		LAUNCH_WARNING1_TAG				= "ScriptWarning: ";
 	private static final int		LAUNCH_WARNING1_TAG_LENGTH		= LAUNCH_WARNING1_TAG.length();
-	private static final String		LAUNCH_WARNING2_TAG				= "ScriptWarning: ";
+	private static final String		LAUNCH_WARNING2_TAG				= "Warning: ";
 	private static final int		LAUNCH_WARNING2_TAG_LENGTH		= LAUNCH_WARNING2_TAG.length();
-	private static final String		LAUNCH_ERROR1_TAG				= "Error: ";
+	private static final String		LAUNCH_ERROR1_TAG				= "ScriptError: ";
 	private static final int		LAUNCH_ERROR1_TAG_LENGTH		= LAUNCH_ERROR1_TAG.length();
-	private static final String		LAUNCH_ERROR2_TAG				= "ScriptError: ";
+	private static final String		LAUNCH_ERROR2_TAG				= "Error: ";
 	private static final int		LAUNCH_ERROR2_TAG_LENGTH		= LAUNCH_ERROR2_TAG.length();
 	
 	private int						logMode							= 0;

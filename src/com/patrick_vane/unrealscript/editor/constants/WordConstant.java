@@ -8,8 +8,6 @@ public class WordConstant
 	public static final String[] KEYWORDS = new String[]
 	{
 		"abstract",
-		"add",
-		"additem",
 		"alwaysc",
 		"archetype",
 		"array",
@@ -72,7 +70,6 @@ public class WordConstant
 		"editinlineuse",
 		"edittextbox",
 		"else",
-		"empty",
 		"end",
 		"enum",
 		"enumcount",
@@ -111,8 +108,6 @@ public class WordConstant
 		"inherits",
 		"init",
 		"input",
-		"insert",
-		"insertitem",
 		"instanced",
 		"int",
 		"interface",
@@ -171,10 +166,6 @@ public class WordConstant
 		"public",
 		
 		"reliable",
-		"remove",
-		"removeindex",
-		"removeitem",
-		"replace",
 		"replication",
 		"repnotify",
 		"repretry",
@@ -217,12 +208,38 @@ public class WordConstant
 		"within"
 	};
 	
+	public static final String[] ARRAY_FUNCTIONS = new String[]
+	{
+		"add",
+		"additem",
+		
+		"empty",
+		
+		"insert",
+		"insertitem",
+		
+		"remove",
+		"removeindex",
+		"removeitem",
+		"replace",
+	};
+	
+	
 	public static final HashSet<String> KEYWORDS_HASHSET = new HashSet<String>();
 	static
 	{
 		for( String keyword : KEYWORDS )
 		{
 			KEYWORDS_HASHSET.add( keyword );
+		}
+	}
+	
+	public static final HashSet<String> ARRAY_FUNCTIONS_HASHSET = new HashSet<String>();
+	static
+	{
+		for( String function : ARRAY_FUNCTIONS )
+		{
+			ARRAY_FUNCTIONS_HASHSET.add( function );
 		}
 	}
 }

@@ -186,6 +186,7 @@ public class WordConstant
 		"skip",
 		"sort",
 		"state",
+		"static",
 		"stop",
 		"strictconfig",
 		"string",

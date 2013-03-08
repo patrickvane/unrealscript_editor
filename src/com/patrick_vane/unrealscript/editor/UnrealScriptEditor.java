@@ -1,9 +1,11 @@
 package com.patrick_vane.unrealscript.editor;
 
 import java.io.File;
+import java.io.InputStream;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Scanner;
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
@@ -24,9 +26,13 @@ import org.eclipse.jface.text.source.IVerticalRuler;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.TreeSelection;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.ui.IEditorInput;
+import org.eclipse.ui.IEditorPart;
+import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.editors.text.TextEditor;
+import org.eclipse.ui.texteditor.IDocumentProvider;
 import com.patrick_vane.unrealscript.editor.class_hierarchy.TypeHierarchyView;
 import com.patrick_vane.unrealscript.editor.class_hierarchy.parser.UnrealScriptClassHierarchyParser;
 import com.patrick_vane.unrealscript.editor.constants.ProjectConstant;
@@ -71,7 +77,15 @@ public class UnrealScriptEditor extends TextEditor
 			{
 				try
 				{
-					Thread.sleep( 2000 );
+					Thread.sleep( 1000 );
+				}
+				catch( Exception e )
+				{
+				}
+				
+				try
+				{
+					updateIsDirty();
 				}
 				catch( Exception e )
 				{
@@ -244,7 +258,7 @@ public class UnrealScriptEditor extends TextEditor
 	// markers <<
 	
 	
-	// (mostly) static methods >>
+	// this class methods >>
 		public IFile getFile()
 		{
 			if( getEditorInput() != null )
@@ -252,6 +266,39 @@ public class UnrealScriptEditor extends TextEditor
 			return null;
 		}
 		
+		@Override
+		public boolean isDirty()
+		{
+			return calculateIsDirty();
+		}
+		public boolean calculateIsDirty()
+		{
+			String currentContent = getActiveEditorContent();
+			if( currentContent == null )
+				return false;
+			String savedContent = getFileContent( getFile() );
+			if( savedContent == null )
+				return false;
+			return !savedContent.equals( currentContent );
+		}
+		public void updateIsDirty()
+		{
+			Display.getDefault().syncExec
+			( 
+				new Runnable()
+				{
+					@Override
+					public void run()
+					{
+						firePropertyChange( PROP_DIRTY );
+					}
+				}
+			);
+		}
+	// this class methods <<
+	
+	
+	// static methods >>
 		public static IWorkbenchWindow getActiveWorkbenchWindow()
 		{
 			MyRunnable runnable = new MyRunnable()
@@ -263,16 +310,6 @@ public class UnrealScriptEditor extends TextEditor
 				}
 			};
 			Display.getDefault().syncExec( runnable );
-			while( !runnable.isDone() )
-			{
-				try
-				{
-					Thread.sleep( 20 );
-				}
-				catch( Exception e )
-				{
-				}
-			}
 			if( runnable.getResult() != null )
 				return (IWorkbenchWindow) runnable.getResult();
 			return null;
@@ -291,6 +328,37 @@ public class UnrealScriptEditor extends TextEditor
 			{
 			}
 			return null;
+		}
+		public static UnrealScriptEditor getActiveEditor()
+		{
+			IWorkbenchWindow window = getActiveWorkbenchWindow();
+			if( window == null )
+				return null;
+			IWorkbenchPage page = getActiveWorkbenchWindow().getActivePage();
+			if( page == null )
+				return null;
+			IEditorPart activeEditor = page.getActiveEditor();
+			if( activeEditor instanceof UnrealScriptEditor )
+				return (UnrealScriptEditor) activeEditor;
+			return null;
+		}
+		public static IDocument getActiveEditorDocument()
+		{
+			UnrealScriptEditor activeEditor = getActiveEditor();
+			if( activeEditor == null )
+				return null;
+			IEditorInput input = activeEditor.getEditorInput();
+			IDocumentProvider provider = activeEditor.getDocumentProvider();
+			if( (input == null) || (provider == null) )
+				return null;
+			return provider.getDocument( input );
+		}
+		public static String getActiveEditorContent()
+		{
+			IDocument doc = getActiveEditorDocument();
+			if( doc == null )
+				return null;
+			return doc.get();
 		}
 		public static IProject getProject( String name )
 		{
@@ -726,12 +794,53 @@ public class UnrealScriptEditor extends TextEditor
 			}
 		}
 		
-		
 		public static String getClassName( String classContent )
 		{
 			return UnrealScriptClassHierarchyParser.getClassName( classContent );
 		}
-	// (mostly) static methods <<
+		
+		public static String getFileContent( IFile file )
+		{
+			InputStream stream = null;
+			Scanner scanner = null;
+			try
+			{
+				stream = file.getContents();
+				scanner = new Scanner( stream, "UTF-8" ).useDelimiter( "\\A" );
+				if( scanner.hasNext() )
+					return scanner.next();
+				return "";
+			}
+			catch( Exception e )
+			{
+				return "";
+			}
+			finally
+			{
+				try
+				{
+					if( stream != null )
+					{
+						stream.close();
+					}
+				}
+				catch( Exception e )
+				{
+				}
+				
+				try
+				{
+					if( scanner != null )
+					{
+						scanner.close();
+					}
+				}
+				catch( Exception e )
+				{
+				}
+			}
+		}
+	// static methods <<
 	
 	
 	@Override

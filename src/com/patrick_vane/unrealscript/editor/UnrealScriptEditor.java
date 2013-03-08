@@ -203,7 +203,7 @@ public class UnrealScriptEditor extends TextEditor
 		
 		public void addErrorMarker( final int startCharacter, final int endCharacter, final String message )
 		{
-			final IFile file = getFile();
+			final IFile file = getFile( this );
 			try
 			{
 				if( file != null )
@@ -222,7 +222,7 @@ public class UnrealScriptEditor extends TextEditor
 		}
 		public void addWarningMarker( final int startCharacter, final int endCharacter, final String message )
 		{
-			final IFile file = getFile();
+			final IFile file = getFile( this );
 			try
 			{
 				if( file != null )
@@ -242,7 +242,7 @@ public class UnrealScriptEditor extends TextEditor
 		
 		public void clearMarkers()
 		{
-			final IFile file = getFile();
+			final IFile file = getFile( this );
 			if( file != null )
 			{
 				try
@@ -259,13 +259,6 @@ public class UnrealScriptEditor extends TextEditor
 	
 	
 	// this class methods >>
-		public IFile getFile()
-		{
-			if( getEditorInput() != null )
-				return (IFile) getEditorInput().getAdapter( IFile.class );
-			return null;
-		}
-		
 		@Override
 		public boolean isDirty()
 		{
@@ -273,10 +266,10 @@ public class UnrealScriptEditor extends TextEditor
 		}
 		public boolean calculateIsDirty()
 		{
-			String currentContent = getActiveEditorContent();
+			String currentContent = getEditorContent( this );
 			if( currentContent == null )
 				return false;
-			String savedContent = getFileContent( getFile() );
+			String savedContent = getFileContent( getFile(this) );
 			if( savedContent == null )
 				return false;
 			return !savedContent.equals( currentContent );
@@ -314,21 +307,6 @@ public class UnrealScriptEditor extends TextEditor
 				return (IWorkbenchWindow) runnable.getResult();
 			return null;
 		}
-		public static IFile getActiveFile()
-		{
-			try
-			{
-				Object object = getActiveWorkbenchWindow().getActivePage().getActiveEditor().getEditorInput().getAdapter( IFile.class );
-				if( object instanceof IFile )
-				{
-					return (IFile) object;
-				}
-			}
-			catch( Exception e )
-			{
-			}
-			return null;
-		}
 		public static UnrealScriptEditor getActiveEditor()
 		{
 			IWorkbenchWindow window = getActiveWorkbenchWindow();
@@ -342,20 +320,46 @@ public class UnrealScriptEditor extends TextEditor
 				return (UnrealScriptEditor) activeEditor;
 			return null;
 		}
+		public static IFile getActiveFile()
+		{
+			return getFile( getActiveEditor() );
+		}
+		public static IFile getFile( UnrealScriptEditor editor )
+		{
+			try
+			{
+				Object object = editor.getEditorInput().getAdapter( IFile.class );
+				if( object instanceof IFile )
+				{
+					return (IFile) object;
+				}
+			}
+			catch( Exception e )
+			{
+			}
+			return null;
+		}
 		public static IDocument getActiveEditorDocument()
 		{
-			UnrealScriptEditor activeEditor = getActiveEditor();
-			if( activeEditor == null )
+			return getEditorDocument( getActiveEditor() );
+		}
+		public static IDocument getEditorDocument( UnrealScriptEditor editor )
+		{
+			if( editor == null )
 				return null;
-			IEditorInput input = activeEditor.getEditorInput();
-			IDocumentProvider provider = activeEditor.getDocumentProvider();
+			IEditorInput input = editor.getEditorInput();
+			IDocumentProvider provider = editor.getDocumentProvider();
 			if( (input == null) || (provider == null) )
 				return null;
 			return provider.getDocument( input );
 		}
 		public static String getActiveEditorContent()
 		{
-			IDocument doc = getActiveEditorDocument();
+			return getEditorContent( getActiveEditor() );
+		}
+		public static String getEditorContent( UnrealScriptEditor editor )
+		{
+			IDocument doc = getEditorDocument( editor );
 			if( doc == null )
 				return null;
 			return doc.get();

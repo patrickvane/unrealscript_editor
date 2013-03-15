@@ -638,8 +638,11 @@ public class UnrealScriptParser
 						if( isInDefaultProperties )
 						{
 							block.closeWord( characterPosition );
-							block.newLine();
-							bracketBlock.newLine( characterPosition );
+							if( bracketBlock.getDepth() <= 1 )
+							{
+								block.newLine();
+								bracketBlock.newLine( characterPosition );
+							}
 						}
 						if( (character == '\n') && (nextChar == '\r') )
 							skip = 1;

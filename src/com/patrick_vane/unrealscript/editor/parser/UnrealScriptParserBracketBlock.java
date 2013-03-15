@@ -60,6 +60,17 @@ class UnrealScriptParserBracketBlock
 	{
 		return parent;
 	}
+	public int getDepth()
+	{
+		int depth = 0;
+		UnrealScriptParserBracketBlock block = parent;
+		while( block.getParent() != null )
+		{
+			depth++;
+			block = block.getParent();
+		}
+		return depth;
+	}
 	public CodeWord getKeyword()
 	{
 		return keyword;

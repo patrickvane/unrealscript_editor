@@ -9,7 +9,7 @@ import com.patrick_vane.unrealscript.editor.default_classes.KeywordDetector;
 
 public class AutoEditStrategy implements IAutoEditStrategy
 {
-	private final String[] INDENT_FUNCTIONS = new String[]{ "if", "for", "while" };
+	private final String[] INDENT_FUNCTIONS = new String[]{ "if", "for", "while", "else" };
 	
 	
 	@Override
@@ -21,15 +21,17 @@ public class AutoEditStrategy implements IAutoEditStrategy
 			boolean rightParenthese 	= command.text.equals( ")" );
 			boolean leftBracket 		= command.text.equals( "{" );
 			boolean rightBracket 		= command.text.equals( "}" );
-			boolean rightChevron 		= command.text.equals( ">" );
 			boolean newline 			= (command.text.equals("\n") || command.text.equals("\r\n") || command.text.equals("\n\r"));
-			if( !rightSquareBracket && !rightParenthese && !leftBracket && !rightBracket && !rightChevron && !newline )
+			if( !rightSquareBracket && !rightParenthese && !leftBracket && !rightBracket && !newline )
 				return;
+			
+			int caretOffset = 0;
 			
 			int currentLine = document.getLineOfOffset( command.offset );
 			String indent = getIntend( document, currentLine );
 			String line = getLine( document, currentLine );
 			String lineTrimmed = line.trim();
+			
 			String linetextBeforeCommand = getLine( document, currentLine, command.offset );
 			String openStringChar = getStringOpenChar( linetextBeforeCommand );
 			boolean inOpenString = (openStringChar != null);
@@ -52,46 +54,68 @@ public class AutoEditStrategy implements IAutoEditStrategy
 				}
 				if( rightSquareBracket )
 				{
-					setIndendOfLine( document, command, currentLine, getIndentOfFirstLineOpenChar(document, command.offset, '[', ']') );
-					configureCaret( command );
+					String foundIndent = getIndentOfFirstLineOpenChar( document, command.offset, '[', ']' );
+					if( foundIndent != null )
+					{
+						setIndendOfLine( document, command, currentLine, foundIndent );
+						configureCaret( command );
+					}
 					return;
 				}
 				if( rightParenthese )
 				{
-					setIndendOfLine( document, command, currentLine, getIndentOfFirstLineOpenChar(document, command.offset, '(', ')') );
-					configureCaret( command );
+					String foundIndent = getIndentOfFirstLineOpenChar( document, command.offset, '(', ')' );
+					if( foundIndent != null )
+					{
+						setIndendOfLine( document, command, currentLine, foundIndent );
+						configureCaret( command );
+					}
 					return;
 				}
 				if( rightBracket )
 				{
-					setIndendOfLine( document, command, currentLine, getIndentOfFirstLineOpenChar(document, command.offset, '{', '}') );
-					configureCaret( command );
-					return;
-				}
-				if( rightChevron )
-				{
-					setIndendOfLine( document, command, currentLine, getIndentOfFirstLineOpenChar(document, command.offset, '<', '>') );
-					configureCaret( command );
+					String foundIndent = getIndentOfFirstLineOpenChar( document, command.offset, '{', '}' );
+					if( foundIndent != null )
+					{
+						setIndendOfLine( document, command, currentLine, foundIndent );
+						configureCaret( command );
+					}
 					return;
 				}
 			}
 			if( newline )
 			{
 				if( inOpenString )
-					command.text = openStringChar+";" + command.text;
+				{
+					command.text = "\\n"+openStringChar+" $ \n" + indent+openStringChar;
+					configureCaret( command );
+					return;
+				}
 				else if( lineTrimmed.endsWith("[") )
 					indent = increaseIndend( indent );
 				else if( lineTrimmed.endsWith("(") )
 					indent = increaseIndend( indent );
-				else if( lineTrimmed.endsWith("{") )
-					indent = increaseIndend( indent );
 				else if( lineTrimmed.endsWith("<") )
 					indent = increaseIndend( indent );
+				else if( lineTrimmed.endsWith("{") )
+				{
+					if( countCharacters(document, '{') > countCharacters(document, '}') )
+					{
+						String increasedIndent = increaseIndend( indent );
+						command.text = "\n" + increasedIndent + "\n" + indent + "}";
+						indent = "";
+						caretOffset -= (increasedIndent.length() + 1);
+					}
+					else
+					{
+						indent = increaseIndend( indent );
+					}
+				}
 				else if( lineTrimmed.endsWith(";") )
 				{
 					for( String string : INDENT_FUNCTIONS )
 					{
-						String testIndent = getIndentOfFirstLineContainingStringBeforeChars( document, command.offset-1, string, ';', '{', '}' );
+						String testIndent = getIndentOfFirstLineContainingStringBeforeChars( document, command.offset-2, string, ';', '{', '}' );
 						if( testIndent != null )
 						{
 							indent = decreaseIndend( indent );
@@ -113,6 +137,7 @@ public class AutoEditStrategy implements IAutoEditStrategy
 				}
 				command.text += indent;
 				configureCaret( command );
+				command.caretOffset += caretOffset;
 				return;
 			}
 		}
@@ -143,6 +168,11 @@ public class AutoEditStrategy implements IAutoEditStrategy
 			return document.get( start, whiteSpaceEnd - start );
 		}
 		return "";
+	}
+	
+	private static String getIndendOfLine( String line )
+	{
+		return line.substring( 0, getEndOfWhiteSpace(line) );
 	}
 	
 	private static void setIndendOfLine( IDocument document, DocumentCommand command, int line, String indent ) throws BadLocationException
@@ -197,8 +227,7 @@ public class AutoEditStrategy implements IAutoEditStrategy
 		if( currentLine > -1 )
 		{
 			int start = document.getLineOffset( currentLine );
-			int end = document.getLineLength( currentLine )-1 + start;
-			return document.get( start, end-start-1 );
+			return document.get( start, document.getLineLength(currentLine) );
 		}
 		return "";
 	}
@@ -227,6 +256,132 @@ public class AutoEditStrategy implements IAutoEditStrategy
 		}
 		return end;
 	}
+	private static int getEndOfWhiteSpace( String line )
+	{
+		for( int i=0; i<line.length(); i++ )
+		{
+			char c = line.charAt( i );
+			if( (c != ' ') && (c != '\t') )
+				return i;
+		}
+		return line.length();
+	}
+	
+	private static String getCode( String code )
+	{
+		StringBuilder builder = new StringBuilder();
+		boolean stringOpen = false;
+		boolean charOpen   = false;
+		int docsOpen = 0;
+		boolean previousWasSlash = false;
+		boolean previousWasStar  = false;
+		boolean skipTillNewline  = false;
+		for( int i=0; i<code.length(); i++ )
+		{
+			char c = code.charAt( i );
+			
+			if( skipTillNewline )
+			{
+				if( (c != '\n') && (c != '\r') )
+					continue;
+				skipTillNewline = false;
+			}
+			
+			if( stringOpen )
+			{
+				if( c == '"' )
+					stringOpen = false;
+			}
+			else if( charOpen )
+			{
+				if( c == '\'' )
+					charOpen = false;
+			}
+			else
+			{
+				if( docsOpen <= 0 )
+				{
+					if( c == '"' )
+						stringOpen = true;
+					else if( c == '\'' )
+						charOpen = true;
+					builder.append( c );
+				}
+				
+				if( c == '/' )
+				{
+					if( previousWasStar )
+					{
+						docsOpen--;
+						previousWasSlash = false;
+						previousWasStar  = false;
+						continue;
+					}
+					if( previousWasSlash )
+					{
+						skipTillNewline  = true;
+						builder.append( '\n' );
+						previousWasSlash = false;
+						previousWasStar  = false;
+						continue;
+					}
+				}
+				else if( c == '*' )
+				{
+					if( previousWasSlash )
+					{
+						docsOpen++;
+						previousWasSlash = false;
+						previousWasStar  = false;
+						continue;
+					}
+				}
+				
+				previousWasSlash = (c == '/');
+				previousWasStar  = (c == '*');
+			}
+		}
+		return builder.toString();
+	}
+	private static String getCodeLine( String code, int offset )
+	{
+		while( offset > 0 )
+		{
+			char character = code.charAt( offset );
+			if( (character == '\n') || (character == '\r') )
+			{
+				offset++;
+				break;
+			}
+			offset--;
+		}
+		
+		StringBuffer buffer = new StringBuffer();
+		while( offset < code.length() )
+		{
+			char character = code.charAt( offset );
+			if( (character == '\n') || (character == '\r') )
+			{
+				break;
+			}
+			buffer.append( character );
+			offset++;
+		}
+		
+		return buffer.toString();
+	}
+	
+	private static int countCharacters( IDocument document, char character )
+	{
+		int count = 0;
+		String content = getCode( document.get() );
+		for( int i=0; i<content.length(); i++ )
+		{
+			if( content.charAt(i) == character )
+				count++;
+		}
+		return count;
+	}
 	
 	private static String getStringOpenChar( String line )
 	{
@@ -250,21 +405,40 @@ public class AutoEditStrategy implements IAutoEditStrategy
 	
 	private static String getIndentOfFirstLineOpenChar( IDocument document, int from, char open, char close ) throws BadLocationException
 	{
-		int numOpen = 0;
-		from--;
-		while( from >= 0 )
+		String content 		= getCode( document.get(0, from) );
+		int numOpen 		= 0;
+		int bracket 		= 0;
+		int squareBracket 	= 0;
+		int parenthese 		= 0;
+		for( int i=content.length()-1; i>=0; i-- )
 		{
-			char c = document.getChar( from );
+			char c = content.charAt( i );
 			
 			if( c == open )
-				numOpen ++;
+				numOpen++;
 			else if( c == close )
 				numOpen--;
+			else if( c == '{' )
+				bracket++;
+			else if( c == '}' )
+				bracket--;
+			else if( c == '[' )
+				squareBracket++;
+			else if( c == ']' )
+				squareBracket--;
+			else if( c == '(' )
+				parenthese++;
+			else if( c == ')' )
+				parenthese--;
 			
 			if( numOpen >= 1 )
-				return getIntend( document, document.getLineOfOffset(from) );
-			
-			from--;
+				return getIndendOfLine( getCodeLine(content, i) );
+			else if( bracket >= 1 )
+				return null;
+			else if( squareBracket >= 1 )
+				return null;
+			else if( parenthese >= 1 )
+				return null;
 		}
 		return "";
 	}
@@ -272,7 +446,6 @@ public class AutoEditStrategy implements IAutoEditStrategy
 	private static String getIndentOfFirstLineContainingStringBeforeChars( IDocument document, int from, String lookFor, char... beforeChars ) throws BadLocationException
 	{
 		int lookForLength = lookFor.length();
-		from--;
 		while( from > lookForLength )
 		{
 			char c = document.getChar( from );

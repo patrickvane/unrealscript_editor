@@ -103,6 +103,12 @@
                   icon="icons/buttons/import.png"
                   style="push"
                   tooltip="Import Project">
+               <visibleWhen
+                     checkEnabled="true">
+                  <reference
+                        definitionId="patrick_vane_unrealscript_editor.editors.perspective.definition.isUDKPerspectiveActive">
+                  </reference>
+               </visibleWhen>
             </command>
             <command
                   commandId="patrick_vane_unrealscript_editor.editors.command.compiler_settings"
@@ -143,7 +149,7 @@
             <command
                   commandId="patrick_vane_unrealscript_editor.editors.command.run_game"
                   icon="icons/buttons/game.png"
-                  style="push"
+                  style="pulldown"
                   tooltip="Run Game">
                <visibleWhen
                      checkEnabled="true">
@@ -211,7 +217,7 @@
             <command
                   commandId="patrick_vane_unrealscript_editor.editors.command.run_game"
                   icon="icons/buttons/game.png"
-                  style="push"
+                  style="pulldown"
                   tooltip="Run Game">
                <visibleWhen
                      checkEnabled="true">

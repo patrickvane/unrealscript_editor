@@ -13,11 +13,6 @@ import com.patrick_vane.unrealscript.editor.popups.UDKCompilerSettingsPopup;
 
 public class CompilerSettings extends AbstractHandler
 {
-	public CompilerSettings()
-	{
-	}
-	
-	
 	@Override
 	public Object execute( ExecutionEvent event ) throws ExecutionException
 	{

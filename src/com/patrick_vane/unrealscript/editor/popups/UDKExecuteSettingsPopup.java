@@ -10,12 +10,12 @@ import javax.swing.JTextField;
 import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
-import java.util.Arrays;
 import java.util.HashMap;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import com.patrick_vane.unrealscript.editor.UnrealScriptEditor;
 import com.patrick_vane.unrealscript.editor.UnrealScriptID;
+import com.patrick_vane.unrealscript.editor.default_classes.HashMapOrderer;
 import com.patrick_vane.unrealscript.editor.default_classes.MySerializer;
 import com.patrick_vane.unrealscript.editor.executable.Profile;
 
@@ -106,7 +106,7 @@ public class UDKExecuteSettingsPopup extends ExtendablePopup
 			profiles = new HashMap<String,Profile>();
 			profiles.put( "Default", new Profile() );
 		}
-		profiles = orderHashMap( profiles );
+		profiles = HashMapOrderer.orderHashMap( profiles );
 		
 		
 		JLabel labelProfile = new JLabel( "Profile:" );
@@ -195,19 +195,6 @@ public class UDKExecuteSettingsPopup extends ExtendablePopup
 	}
 	
 	
-	private static HashMap<String,Profile> orderHashMap( HashMap<String,Profile> map )
-	{
-		HashMap<String,Profile> newMap = new HashMap<String,Profile>();
-		String[] keys = map.keySet().toArray( new String[0] );
-		Arrays.sort( keys );
-		for( String key : keys )
-		{
-			newMap.put( key, map.get(key) );
-		}
-		return newMap;
-	}
-	
-	
 	private Profile saveCurrentProfile()
 	{
 		return saveProfile( (String) dropdownProfile.getSelectedItem() );
@@ -225,7 +212,7 @@ public class UDKExecuteSettingsPopup extends ExtendablePopup
 	private Profile saveProfile( Profile profile, String profileName )
 	{
 		profiles.put( profileName, profile );
-		profiles = orderHashMap( profiles );
+		profiles = HashMapOrderer.orderHashMap( profiles );
 		
 		String selectedProfile = (String) dropdownProfile.getSelectedItem();
 		

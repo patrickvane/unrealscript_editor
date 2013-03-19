@@ -45,7 +45,7 @@ public class UDKEditor
 				try
 				{
 					map = project.getPersistentProperty( UnrealScriptID.PROPERTY_GAME_MAP );
-					if( map.contains(".") )
+					if( (map != null) && map.contains(".") )
 						map = map.substring( map.indexOf(".")+1 );
 				}
 				catch( Exception e )

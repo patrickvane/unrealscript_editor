@@ -11,14 +11,8 @@ import com.patrick_vane.unrealscript.editor.UnrealScriptEditor;
 import com.patrick_vane.unrealscript.editor.popups.UDKExecuteSettingsPopup;
 
 
-
 public class ExecuterSettings extends AbstractHandler
 {
-	public ExecuterSettings()
-	{
-	}
-	
-	
 	@Override
 	public Object execute( ExecutionEvent event ) throws ExecutionException
 	{

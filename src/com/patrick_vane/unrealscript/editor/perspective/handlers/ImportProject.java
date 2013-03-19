@@ -22,11 +22,6 @@ import com.patrick_vane.unrealscript.editor.popups.UDKImportProject;
 
 public class ImportProject extends AbstractHandler
 {
-	public ImportProject()
-	{
-	}
-	
-	
 	@Override
 	public Object execute( ExecutionEvent event ) throws ExecutionException
 	{

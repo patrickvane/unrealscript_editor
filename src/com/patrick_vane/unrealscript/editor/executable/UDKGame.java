@@ -53,8 +53,8 @@ public class UDKGame
 				boolean disableStartupVideos;
 				try
 				{
-					map  = project.getPersistentProperty( UnrealScriptID.PROPERTY_GAME_MAP );
-					if( map.contains(".") )
+					map = project.getPersistentProperty( UnrealScriptID.PROPERTY_GAME_MAP );
+					if( (map != null) && map.contains(".") )
 						map = map.substring( map.indexOf(".")+1 );
 					mode = project.getPersistentProperty( UnrealScriptID.PROPERTY_GAME_MODE );
 					extraArgs = project.getPersistentProperty( UnrealScriptID.PROPERTY_EXTRA_EXECUTE_ARGUMENTS );

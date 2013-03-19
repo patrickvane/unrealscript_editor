@@ -70,13 +70,13 @@ public class UDKCompilerSettingsPopup extends ExtendablePopup
 		getContentPane().add( buttonFullRebuild );
 		
 		buttonSave = new JButton( "Save" );
-		buttonSave.setToolTipText( "Save and Close" );
+		buttonSave.setToolTipText( "Save and close" );
 		buttonSave.setBounds( 18, 131, 99, 23 );
 		buttonSave.addActionListener( listenerSave );
 		getContentPane().add( buttonSave );
 		
 		buttonCancel = new JButton( "Cancel" );
-		buttonCancel.setToolTipText( "Close without Saving" );
+		buttonCancel.setToolTipText( "Close without saving" );
 		buttonCancel.setBounds( 18, 161, 99, 23 );
 		buttonCancel.addActionListener( listenerCancel );
 		getContentPane().add( buttonCancel );

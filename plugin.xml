@@ -16,6 +16,8 @@
    </extension>
    
    
+   
+   
    <extension
 	      id="patrick_vane_unrealscript_editor.markers.problem"
 	      name="UnrealScript Syntax Problem"
@@ -298,6 +300,24 @@
             id="com.patrick_vane.unrealscript.editor.views.UDK"
             name="UDK">
       </category>
+   </extension>
+   <extension
+         point="org.eclipse.ui.workbench.texteditor.hyperlinkDetectors">
+      <hyperlinkDetector
+            activate="true"
+            class="com.patrick_vane.unrealscript.editor.hyperlink_ctrl.HyperlinkDetector"
+            id="com.patrick_vane.unrealscript.editor.hyperlink_ctrl.detector"
+            modifierKeys="Ctrl"
+            name="com.patrick_vane.unrealscript.editor.hyperlink_ctrl.detector"
+            targetId="com.patrick_vane.unrealscript.editor.hyperlink_ctrl.targets">
+      </hyperlinkDetector>
+   </extension>
+   <extension
+         point="org.eclipse.ui.workbench.texteditor.hyperlinkDetectorTargets">
+      <target
+            id="com.patrick_vane.unrealscript.editor.hyperlink_ctrl.targets"
+            name="com.patrick_vane.unrealscript.editor.hyperlink_ctrl.targets">
+      </target>
    </extension>
    
    

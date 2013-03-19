@@ -1,12 +1,14 @@
 package com.patrick_vane.unrealscript.editor.class_hierarchy;
 
 import java.io.File;
+import java.util.HashMap;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.part.ViewPart;
 import com.patrick_vane.unrealscript.editor.UnrealScriptEditor;
+import com.patrick_vane.unrealscript.editor.class_hierarchy.parser.UnrealScriptClass;
 import com.patrick_vane.unrealscript.editor.class_hierarchy.parser.UnrealScriptClassHierarchyParser;
 import com.patrick_vane.unrealscript.editor.class_hierarchy.parser.UnrealScriptRootClass;
 import com.patrick_vane.unrealscript.editor.constants.ProjectConstant;
@@ -14,14 +16,15 @@ import com.patrick_vane.unrealscript.editor.constants.ProjectConstant;
 
 public class TypeHierarchyView extends ViewPart
 {
-	private static TreeViewer				classHierarchyViewer;
+	private static TreeViewer							classHierarchyViewer;
 	
-	private static Thread					updateThread;
+	private static Thread								updateThread;
 	
-	private static UnrealScriptRootClass	lastRoot;
-	private static File						lastSourceFolder;
-	private static boolean					firstRunAfterStart = false;
-	private static boolean					fileChanged	= false;
+	private static UnrealScriptRootClass				lastRoot;
+	private static HashMap<String,UnrealScriptClass>	lastClasses = new HashMap<String,UnrealScriptClass>();
+	private static File									lastSourceFolder;
+	private static boolean								firstRunAfterStart = false;
+	private static boolean								fileChanged	= false;
 	
 	
 	static
@@ -55,6 +58,8 @@ public class TypeHierarchyView extends ViewPart
 							{
 								lastRoot = root;
 								firstRunAfterStart = false;
+								
+								setClassesHashSet( root );
 								
 								Display.getDefault().syncExec
 								(
@@ -90,6 +95,24 @@ public class TypeHierarchyView extends ViewPart
 	}
 	
 	
+	private static void setClassesHashSet( UnrealScriptRootClass unrealscriptRootClass )
+	{
+		lastClasses.clear();
+		for( UnrealScriptClass child : unrealscriptRootClass.getChilds() )
+		{
+			addToClassesHashSet( child );
+		}
+	}
+	private static void addToClassesHashSet( UnrealScriptClass unrealscriptClass )
+	{
+		lastClasses.put( unrealscriptClass.getName(), unrealscriptClass );
+		for( UnrealScriptClass child : unrealscriptClass.getChilds() )
+		{
+			addToClassesHashSet( child );
+		}
+	}
+	
+	
 	@Override
 	public void createPartControl( Composite parent )
 	{
@@ -117,6 +140,10 @@ public class TypeHierarchyView extends ViewPart
 	public static UnrealScriptRootClass getRoot()
 	{
 		return lastRoot;
+	}
+	public static HashMap<String,UnrealScriptClass> getClasses()
+	{
+		return lastClasses;
 	}
 	public static File getRootSourceFolder()
 	{

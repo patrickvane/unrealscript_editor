@@ -8,6 +8,7 @@ import org.eclipse.jface.text.IAutoEditStrategy;
 import org.eclipse.jface.text.ITextDoubleClickStrategy;
 import org.eclipse.jface.text.ITextHover;
 import org.eclipse.jface.text.contentassist.IContentAssistant;
+import org.eclipse.jface.text.hyperlink.IHyperlinkDetector;
 import org.eclipse.jface.text.presentation.IPresentationReconciler;
 import org.eclipse.jface.text.source.DefaultAnnotationHover;
 import org.eclipse.jface.text.source.IAnnotationHover;
@@ -18,12 +19,14 @@ import com.patrick_vane.unrealscript.editor.default_classes.DoubleClickStrategy;
 import com.patrick_vane.unrealscript.editor.extra.AutoEditStrategy;
 import com.patrick_vane.unrealscript.editor.extra.ContentAssistant;
 import com.patrick_vane.unrealscript.editor.extra.TextHover;
+import com.patrick_vane.unrealscript.editor.hyperlink_ctrl.HyperlinkDetector;
 import com.patrick_vane.unrealscript.editor.syntaxcolor.UnrealScriptSyntaxColor;
 
 
 public class Configuration extends SourceViewerConfiguration
 {
 	private DoubleClickStrategy	doubleClickStrategy;
+	private HyperlinkDetector[] hyperlinkDetectors;
 	
 	private static HashMap<File,FileChangesListener> saveOnResourceChangesListeners = new HashMap<File,FileChangesListener>();
 	
@@ -31,6 +34,7 @@ public class Configuration extends SourceViewerConfiguration
 	public Configuration()
 	{
 		doubleClickStrategy = new DoubleClickStrategy();
+		hyperlinkDetectors  = new HyperlinkDetector[]{ new HyperlinkDetector() };
 		
 		new Thread()
 		{
@@ -74,10 +78,16 @@ public class Configuration extends SourceViewerConfiguration
 	{
 		return TagConstant.TAGS;
 	}
+	
 	@Override
 	public ITextDoubleClickStrategy getDoubleClickStrategy( ISourceViewer sourceViewer, String contentType )
 	{
 		return doubleClickStrategy;
+	}
+	@Override
+	public IHyperlinkDetector[] getHyperlinkDetectors( ISourceViewer sourceViewer )
+	{
+		return hyperlinkDetectors;
 	}
 	
 	@Override

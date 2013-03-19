@@ -5,6 +5,7 @@ import org.eclipse.core.resources.IProject;
 import com.patrick_vane.unrealscript.editor.UnrealScriptEditor;
 import com.patrick_vane.unrealscript.editor.UnrealScriptID;
 import com.patrick_vane.unrealscript.editor.console.UDKLaunchLogConsole;
+import com.patrick_vane.unrealscript.editor.default_classes.StringSplitter;
 
 
 public class UDKGame
@@ -47,12 +48,16 @@ public class UDKGame
 				
 				String map;
 				String mode;
+				String extraArgs;
 				boolean disableSound;
 				boolean disableStartupVideos;
 				try
 				{
 					map  = project.getPersistentProperty( UnrealScriptID.PROPERTY_GAME_MAP );
+					if( map.contains(".") )
+						map = map.substring( map.indexOf(".")+1 );
 					mode = project.getPersistentProperty( UnrealScriptID.PROPERTY_GAME_MODE );
+					extraArgs = project.getPersistentProperty( UnrealScriptID.PROPERTY_EXTRA_EXECUTE_ARGUMENTS );
 					disableSound = Boolean.parseBoolean( project.getPersistentProperty(UnrealScriptID.PROPERTY_DISABLE_SOUND) );
 					disableStartupVideos = Boolean.parseBoolean( project.getPersistentProperty(UnrealScriptID.PROPERTY_DISABLE_STARTUP_VIDEOS) );
 				}
@@ -60,6 +65,7 @@ public class UDKGame
 				{
 					map = null;
 					mode = null;
+					extraArgs = null;
 					disableSound = false;
 					disableStartupVideos = false;
 					e.printStackTrace();
@@ -68,17 +74,22 @@ public class UDKGame
 					map = "ExampleMap";
 				if( mode == null )
 					mode = "UTGame.UTDeathmatch";
+				if( extraArgs == null )
+					extraArgs = "";
 				if( !map.endsWith(".udk") )
 					map = map+".udk";
 				
 				params.add( 0, map+"?game="+mode );
 				if( disableSound )
-				{
 					params.add( "-nosound" );
-				}
 				if( disableStartupVideos )
-				{
 					params.add( "-nomoviestartup" );
+				
+				if( extraArgs.length() > 0 )
+				{
+					String[] extraArgsArray = StringSplitter.splitCommandlineLike( extraArgs );
+					for( String extraArg : extraArgsArray )
+						params.add( extraArg );
 				}
 				
 				UDKLaunchLogConsole.clear();

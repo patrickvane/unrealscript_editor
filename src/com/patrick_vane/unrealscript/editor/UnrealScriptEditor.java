@@ -5,19 +5,26 @@ import java.io.InputStream;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Collection;
+import java.util.Collections;
+import java.util.HashMap;
 import java.util.Scanner;
+import org.eclipse.core.filesystem.EFS;
+import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.core.resources.IContainer;
 import org.eclipse.core.resources.IFile;
 import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IMarker;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.resources.IResource;
+import org.eclipse.core.resources.IWorkspace;
 import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.IWorkspaceRunnable;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.core.runtime.Path;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.source.AnnotationRulerColumn;
 import org.eclipse.jface.text.source.CompositeRuler;
@@ -32,14 +39,19 @@ import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.editors.text.TextEditor;
+import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.texteditor.IDocumentProvider;
 import com.patrick_vane.unrealscript.editor.class_hierarchy.TypeHierarchyView;
+import com.patrick_vane.unrealscript.editor.class_hierarchy.parser.UnrealScriptClass;
 import com.patrick_vane.unrealscript.editor.class_hierarchy.parser.UnrealScriptClassHierarchyParser;
 import com.patrick_vane.unrealscript.editor.constants.ProjectConstant;
 import com.patrick_vane.unrealscript.editor.default_classes.DocumentProvider;
 import com.patrick_vane.unrealscript.editor.default_classes.MyRunnable;
 import com.patrick_vane.unrealscript.editor.default_classes.MyStream;
+import com.patrick_vane.unrealscript.editor.default_classes.WhitespaceDetector;
 import com.patrick_vane.unrealscript.editor.parser.CodeException;
+import com.patrick_vane.unrealscript.editor.parser.UnrealScriptAttributeParser;
+import com.patrick_vane.unrealscript.editor.parser.UnrealScriptAttributes;
 import com.patrick_vane.unrealscript.editor.parser.UnrealScriptParser;
 
 
@@ -98,39 +110,6 @@ public class UnrealScriptEditor extends TextEditor
 				catch( Exception e )
 				{
 				}
-				
-				//TODO: create outline view
-				// remove vvvvv
-				/*try
-				{
-					String data = getSourceViewer().getDocument().get();
-					String className = getClassName( data );
-					
-					if( TypeHierarchyView.isRootFromThisProject() )
-					{
-						UnrealScriptClass thisClass = TypeHierarchyView.getRoot().getClass( className );
-						if( thisClass != null )
-						{
-							CodeBlock thisCode = UnrealScriptParser.parse( thisClass.getFile() );
-							ArrayList<CodeAttribute> thisAttributes = UnrealScriptParser.getAttributes( thisCode );
-							for( CodeAttribute attribute : thisAttributes )
-								System.out.println( attribute );
-							
-							UnrealScriptClass parentClass = thisClass.getParent();
-							while( parentClass.getParent() != null )
-							{
-								CodeBlock parentCode = UnrealScriptParser.parse( parentClass.getFile() );
-								ArrayList<CodeAttribute> parentAttributes = UnrealScriptParser.getAttributes( parentCode );
-								for( CodeAttribute attribute : parentAttributes )
-									System.out.println( attribute );
-								parentClass = parentClass.getParent();
-							}
-						}
-					}
-				}
-				catch( Exception e )
-				{
-				}*/
 			}
 		}
 	};
@@ -292,6 +271,105 @@ public class UnrealScriptEditor extends TextEditor
 	
 	
 	// static methods >>
+		public static void openFile( final File file )
+		{
+			openFile( file, 0, 0 );
+		}
+		public static void openFile( final File file, final int startChar, final int endChar )
+		{
+			if( (file != null) && file.exists() )
+			{
+				Display.getDefault().syncExec
+				(
+					new Runnable()
+					{
+						@Override
+						public void run()
+						{
+							IWorkbenchPage pageTmp = null;
+							try
+							{
+								pageTmp = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage();
+							}
+							catch( Exception e )
+							{
+							}
+							final IWorkbenchPage page = pageTmp;
+							
+							if( page != null )
+							{
+								try
+								{
+									IFileStore fileStore = EFS.getLocalFileSystem().getStore( file.toURI() );
+									final IEditorPart openedFile = IDE.openEditorOnFileStore( page, fileStore );
+									if( openedFile != null )
+									{
+										new Thread()
+										{
+											@Override
+											public void run()
+											{
+												try
+												{
+													Thread.sleep( 200 );
+												}
+												catch( Exception e )
+												{
+												}
+												
+												Display.getDefault().syncExec
+												(
+													new Runnable()
+													{
+														@Override
+														public void run()
+														{
+															try
+															{
+																page.activate( openedFile );
+																HashMap map = new HashMap();
+																map.put( IMarker.CHAR_START, startChar );
+																map.put( IMarker.CHAR_END, endChar );
+																IMarker marker = getActiveFile().createMarker( IMarker.TEXT );
+																marker.setAttributes( map );
+																IDE.openEditor( page, marker );
+																marker.delete();
+															}
+															catch( Exception e )
+															{
+																e.printStackTrace();
+															}
+														}
+													}
+												);
+											}
+										}.start();
+									}
+								}
+								catch( Exception e )
+								{
+								}
+							}
+						}
+					}
+				);
+			}
+		}
+		public static IFile fileToIFile( final File file )
+		{
+			try
+			{
+				IWorkspace workspace = ResourcesPlugin.getWorkspace();
+				IPath location = Path.fromOSString( file.getAbsolutePath() );
+				return workspace.getRoot().getFileForLocation( location );
+			}
+			catch( Exception e )
+			{
+				e.printStackTrace();
+				return null;
+			}
+		}
+		
 		public static IWorkbenchWindow getActiveWorkbenchWindow()
 		{
 			MyRunnable runnable = new MyRunnable()
@@ -339,6 +417,69 @@ public class UnrealScriptEditor extends TextEditor
 			}
 			return null;
 		}
+		public static UnrealScriptClass getActiveUnrealScriptClass()
+		{
+			return getUnrealScriptClass( getActiveClassName() );
+		}
+		public static UnrealScriptClass getUnrealScriptClass( IFile file )
+		{
+			if( TypeHierarchyView.isRootFromThisProject() )
+			{
+				try
+				{
+					return TypeHierarchyView.getClasses().get( file.getName().replaceAll(".uc", "") );
+				}
+				catch( Exception e )
+				{
+				}
+			}
+			return null;
+		}
+		public static UnrealScriptClass getUnrealScriptClass( File file )
+		{
+			if( TypeHierarchyView.isRootFromThisProject() )
+			{
+				try
+				{
+					return TypeHierarchyView.getClasses().get( file.getName().replaceAll(".uc", "") );
+				}
+				catch( Exception e )
+				{
+				}
+			}
+			return null;
+		}
+		public static UnrealScriptClass getUnrealScriptClass( String name )
+		{
+			if( TypeHierarchyView.isRootFromThisProject() )
+			{
+				try
+				{
+					return TypeHierarchyView.getClasses().get( name.replaceAll(".uc", "") );
+				}
+				catch( Exception e )
+				{
+				}
+			}
+			return null;
+		}
+		public static UnrealScriptAttributes getActiveUnrealScriptAttributes()
+		{
+			return getUnrealScriptAttributes( getActiveClassName() );
+		}
+		public static UnrealScriptAttributes getUnrealScriptAttributes( String className )
+		{
+			return UnrealScriptAttributeParser.parseAttributes( className );
+		}
+		public static String getActiveClassName()
+		{
+			return getClassName( getActiveEditorContent() );
+		}
+		public static String getClassName( String classContent )
+		{
+			return UnrealScriptClassHierarchyParser.getClassName( classContent );
+		}
+		
 		public static IDocument getActiveEditorDocument()
 		{
 			return getEditorDocument( getActiveEditor() );
@@ -415,6 +556,7 @@ public class UnrealScriptEditor extends TextEditor
 				return null;
 			}
 		}
+		
 		public static IProject getSelectedProject() throws Exception
 		{
 			return getSelectedProject( getActiveWorkbenchWindow() );
@@ -753,6 +895,137 @@ public class UnrealScriptEditor extends TextEditor
 			}
 		}
 		
+		private static final String PACKAGE_FOLDER_TEXT;
+		static
+		{
+			String packageFolderText = ProjectConstant.subfolders.get( "UnrealScript" );
+			if( packageFolderText == null )
+				packageFolderText = "Development/Src";
+			PACKAGE_FOLDER_TEXT = packageFolderText;
+		}
+		public static String getPackageName( File file )
+		{
+			try
+			{
+				return getPackageName( file.getAbsolutePath() );
+			}
+			catch( Exception e )
+			{
+				return null;
+			}
+		}
+		public static String getPackageName( String filePath )
+		{
+			try
+			{
+				String path = filePath.replaceAll( "\\\\", "/" );
+				String packageName = path.substring( path.indexOf(PACKAGE_FOLDER_TEXT)+PACKAGE_FOLDER_TEXT.length()+1 );
+				return packageName.substring( 0, packageName.indexOf("/") );
+			}
+			catch( Exception e )
+			{
+				return null;
+			}
+		}
+		
+		public static String getFolderName( File file )
+		{
+			try
+			{
+				return getFolderName( file.getAbsolutePath() );
+			}
+			catch( Exception e )
+			{
+				return null;
+			}
+		}
+		public static String getFolderName( String filePath )
+		{
+			try
+			{
+				String path = filePath.replaceAll( "\\\\", "/" );
+				String[] parts = path.split( "/" );
+				return parts[parts.length-2];
+			}
+			catch( Exception e )
+			{
+				return null;
+			}
+		}
+		
+		
+		public static UnrealScriptClass[] getSubClasses( String unrealscriptClassName )
+		{
+			return getSubClasses( getUnrealScriptClass(unrealscriptClassName) );
+		}
+		public static UnrealScriptClass[] getSubClasses( String unrealscriptClassName, boolean addCurrentToo )
+		{
+			return getSubClasses( getUnrealScriptClass(unrealscriptClassName), addCurrentToo );
+		}
+		
+		public static UnrealScriptClass[] getSubClasses( UnrealScriptClass unrealscriptClass )
+		{
+			return getSubClasses( unrealscriptClass, false );
+		}
+		public static UnrealScriptClass[] getSubClasses( UnrealScriptClass unrealscriptClass, boolean addCurrentToo )
+		{
+			UnrealScriptClass[] classes = null;
+			
+			try
+			{
+				ArrayList<UnrealScriptClass> unrealscriptClasses = new ArrayList<UnrealScriptClass>();
+				if( addCurrentToo && (unrealscriptClass != null) )
+					unrealscriptClasses.add( unrealscriptClass );
+				getSubClassesRecursive( unrealscriptClasses, unrealscriptClass );
+				classes = unrealscriptClasses.toArray( new UnrealScriptClass[0] );
+			}
+			catch( Exception e )
+			{
+				classes = null;
+			}
+			
+			if( classes == null )
+			{
+				ArrayList<UnrealScriptClass> unrealscriptClasses = new ArrayList<UnrealScriptClass>();
+				if( addCurrentToo && (unrealscriptClass != null) )
+					unrealscriptClasses.add( unrealscriptClass );
+				classes = unrealscriptClasses.toArray( new UnrealScriptClass[0] );
+			}
+			return classes;
+		}
+		private static void getSubClassesRecursive( ArrayList<UnrealScriptClass> classes, UnrealScriptClass unrealscriptClass ) throws Exception
+		{
+			if( unrealscriptClass != null )
+			{
+				for( UnrealScriptClass subclass : unrealscriptClass.getChilds() )
+				{
+					classes.add( subclass );
+					getSubClassesRecursive( classes, subclass );
+				}
+			}
+		}
+		
+		
+		public static String[] getClassesNames( UnrealScriptClass[] unrealscriptClasses )
+		{
+			ArrayList<String> names = new ArrayList<String>();
+			for( UnrealScriptClass unrealscriptClass : unrealscriptClasses )
+			{
+				names.add( unrealscriptClass.getName() );
+			}
+			return names.toArray( new String[0] );
+		}
+		public static String[] getClassesAndPackageNames( UnrealScriptClass[] unrealscriptClasses )
+		{
+			ArrayList<String> names = new ArrayList<String>();
+			for( UnrealScriptClass unrealscriptClass : unrealscriptClasses )
+			{
+				names.add( getPackageName(unrealscriptClass.getFile())+"."+unrealscriptClass.getName() );
+			}
+			Collections.sort( names );
+			return names.toArray( new String[0] );
+		}
+		
 		
 		public static String[] getMapNames( IProject project )
 		{
@@ -762,6 +1035,7 @@ public class UnrealScriptEditor extends TextEditor
 			{
 				ArrayList<String> names = new ArrayList<String>();
 				getMapNamesRecursive( names, new File(getProjectFile(project), ProjectConstant.subfolders.get("Maps")) );
+				Collections.sort( names );
 				maps = names.toArray( new String[0] );
 			}
 			catch( Exception e )
@@ -770,7 +1044,7 @@ public class UnrealScriptEditor extends TextEditor
 			}
 			
 			if( (maps == null) || (maps.length == 0) )
-				maps = new String[]{ "ExampleMap", "EpicCitadel", "DM-Deck" };
+				maps = new String[]{ "EpicCitadel", "ExampleMap", "DM-Deck" };
 			return maps;
 		}
 		private static void getMapNamesRecursive( ArrayList<String> names, File file ) throws Exception
@@ -792,15 +1066,10 @@ public class UnrealScriptEditor extends TextEditor
 				{
 					if( file.getAbsolutePath().endsWith(".udk") )
 					{
-						names.add( file.getName() );
+						names.add( getFolderName(file)+"."+file.getName().replaceAll(".udk", "") );
 					}
 				}
 			}
-		}
-		
-		public static String getClassName( String classContent )
-		{
-			return UnrealScriptClassHierarchyParser.getClassName( classContent );
 		}
 		
 		public static String getFileContent( IFile file )
@@ -843,6 +1112,136 @@ public class UnrealScriptEditor extends TextEditor
 				{
 				}
 			}
+		}
+		
+		public static String getCode( String text )
+		{
+			StringBuilder builder = new StringBuilder();
+			boolean stringOpen = false;
+			boolean charOpen   = false;
+			int docsOpen = 0;
+			boolean previousWasSlash = false;
+			boolean previousWasStar  = false;
+			boolean skipTillNewline  = false;
+			for( int i=0; i<text.length(); i++ )
+			{
+				char c = text.charAt( i );
+				
+				if( skipTillNewline )
+				{
+					if( (c != '\n') && (c != '\r') )
+						continue;
+					skipTillNewline = false;
+				}
+				
+				if( stringOpen )
+				{
+					if( c == '"' )
+						stringOpen = false;
+				}
+				else if( charOpen )
+				{
+					if( c == '\'' )
+						charOpen = false;
+				}
+				else
+				{
+					if( docsOpen <= 0 )
+					{
+						if( c == '"' )
+							stringOpen = true;
+						else if( c == '\'' )
+							charOpen = true;
+						builder.append( c );
+					}
+					
+					if( c == '/' )
+					{
+						if( previousWasStar )
+						{
+							docsOpen--;
+							previousWasSlash = false;
+							previousWasStar  = false;
+							continue;
+						}
+						if( previousWasSlash )
+						{
+							skipTillNewline  = true;
+							builder.append( '\n' );
+							previousWasSlash = false;
+							previousWasStar  = false;
+							continue;
+						}
+					}
+					else if( c == '*' )
+					{
+						if( previousWasSlash )
+						{
+							docsOpen++;
+							previousWasSlash = false;
+							previousWasStar  = false;
+							continue;
+						}
+					}
+					
+					previousWasSlash = (c == '/');
+					previousWasStar  = (c == '*');
+				}
+			}
+			return builder.toString();
+		}
+		public static String getCodeLine( String code, int offset )
+		{
+			while( offset > 0 )
+			{
+				char character = code.charAt( offset );
+				if( (character == '\n') || (character == '\r') )
+				{
+					offset++;
+					break;
+				}
+				offset--;
+			}
+			
+			StringBuffer buffer = new StringBuffer();
+			while( offset < code.length() )
+			{
+				char character = code.charAt( offset );
+				if( (character == '\n') || (character == '\r') )
+				{
+					break;
+				}
+				buffer.append( character );
+				offset++;
+			}
+			
+			return buffer.toString();
+		}
+		public static String[] getCodeWords( String code )
+		{
+			ArrayList<String> words = new ArrayList<String>();
+			StringBuffer buffer = new StringBuffer();
+			for( int i=0; i<code.length(); i++ )
+			{
+				char c = code.charAt( i );
+				if( WhitespaceDetector.getSharedInstance().isWhitespace(c) )
+				{
+					if( buffer.length() > 0 )
+					{
+						words.add( buffer.toString() );
+						buffer = new StringBuffer();
+					}
+				}
+				else
+				{
+					buffer.append( c );
+				}
+			}
+			if( buffer.length() > 0 )
+			{
+				words.add( buffer.toString() );
+			}
+			return words.toArray( new String[0] );
 		}
 	// static methods <<
 	

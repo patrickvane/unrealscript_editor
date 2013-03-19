@@ -1,6 +1,7 @@
 package com.patrick_vane.unrealscript.editor.parser;
 
 import java.util.ArrayList;
+import com.patrick_vane.unrealscript.editor.constants.WordConstant;
 
 
 public class CodeBlock implements Code
@@ -26,7 +27,7 @@ public class CodeBlock implements Code
 		{
 			if( parent.getLastLine().size() > 0 )
 			{
-				function = parent.getLastLine().get( 0 ).getWord().equals( "function" );
+				function = WordConstant.FUNCTION_KEYWORDS_HASHSET.contains( parent.getLastLine().get(0).getWord().toLowerCase() );
 			}
 		}
 		

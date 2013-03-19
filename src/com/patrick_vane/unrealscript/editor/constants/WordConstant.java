@@ -70,6 +70,7 @@ public class WordConstant
 		"editinlineuse",
 		"edittextbox",
 		"else",
+		"#endif",
 		"end",
 		"enum",
 		"enumcount",
@@ -99,6 +100,7 @@ public class WordConstant
 		"hidecategories",
 		"hidedropdown",
 		
+		"#if",
 		"if",
 		"ignores",
 		"immutable",
@@ -194,16 +196,19 @@ public class WordConstant
 		"super",
 		"switch",
 		
+		"template",
 		"transient",
 		"travel",
 		"true",
 		
+		"ubool",
 		"unreliable",
 		"until",
 		
 		"var",
 		"vect",
 		"virtual",
+		"void",
 		
 		"while",
 		"within"
@@ -242,5 +247,15 @@ public class WordConstant
 		{
 			ARRAY_FUNCTIONS_HASHSET.add( function );
 		}
+	}
+	
+	public static final HashSet<String> FUNCTION_KEYWORDS_HASHSET = new HashSet<String>();
+	static
+	{
+		FUNCTION_KEYWORDS_HASHSET.add( "function" );
+		FUNCTION_KEYWORDS_HASHSET.add( "event" );
+		FUNCTION_KEYWORDS_HASHSET.add( "delegate" );
+		FUNCTION_KEYWORDS_HASHSET.add( "virtual" );
+		FUNCTION_KEYWORDS_HASHSET.add( "template" );
 	}
 }

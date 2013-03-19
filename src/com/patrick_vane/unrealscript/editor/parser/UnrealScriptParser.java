@@ -1,12 +1,11 @@
 package com.patrick_vane.unrealscript.editor.parser;
 
 import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
-import java.nio.charset.Charset;
-import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.Collections;
-import java.util.List;
+import com.patrick_vane.unrealscript.editor.constants.WordConstant;
 import com.patrick_vane.unrealscript.editor.default_classes.KeywordDetector;
 import com.patrick_vane.unrealscript.editor.default_classes.WhitespaceDetector;
 
@@ -97,19 +96,23 @@ public class UnrealScriptParser
 	}
 	
 	
-	public static ArrayList<CodeAttribute> getAttributes( CodeBlock code )
+	public static ArrayList<CodeAttribute> getAttributes( String className, CodeBlock code )
 	{
 		ArrayList<CodeAttribute> attributes = new ArrayList<CodeAttribute>();
 		for( Code child : code.getChilds() )
 		{
 			if( child instanceof CodeBlockCode )
 			{
-				attributes.addAll( getAttributes((CodeBlockCode)child) );
+				attributes.addAll( getAttributes(className, (CodeBlockCode)child) );
+			}
+			else if( child instanceof CodeBlock )
+			{
+				attributes.addAll( getAttributes(className, (CodeBlock)child) );
 			}
 		}
 		return attributes;
 	}
-	public static ArrayList<CodeAttribute> getAttributes( CodeBlockCode code )
+	public static ArrayList<CodeAttribute> getAttributes( String className, CodeBlockCode code )
 	{
 		ArrayList<CodeAttribute> attributes = new ArrayList<CodeAttribute>();
 		
@@ -120,7 +123,7 @@ public class UnrealScriptParser
 			
 			if( line.get(0).getWord().equalsIgnoreCase("var") )
 			{
-				ArrayList<String> names = new ArrayList<String>();
+				ArrayList<CodeWord> names = new ArrayList<CodeWord>();
 				String type = "";
 				ArrayList<String> modifiers = new ArrayList<String>();
 				int i;
@@ -134,8 +137,8 @@ public class UnrealScriptParser
 						boolean comma = true;
 						for( i=line.size()-1; i>=1; i-- )
 						{
-							String word = line.get(i).getWord();
-							char firstChar = word.charAt( 0 );
+							CodeWord word = line.get( i );
+							char firstChar = word.getWord().charAt( 0 );
 							
 							if( !comma && (firstChar != ',') )
 								break;
@@ -314,7 +317,8 @@ public class UnrealScriptParser
 				
 				for( int n=names.size()-1; n>=0; n-- )
 				{
-					attributes.add( new CodeAttributeVariable(modifiers, type, names.get(n)) );
+					CodeWord word = names.get( n );
+					attributes.add( new CodeAttributeVariable(modifiers, type, word.getWord(), className, word.getFirstCharacterPosition(), word.getLastCharacterPosition()) );
 				}
 			}
 			else
@@ -322,7 +326,7 @@ public class UnrealScriptParser
 				boolean function = false;
 				for( int i=0; i<line.size(); i++ )
 				{
-					if( line.get(i).getWord().equalsIgnoreCase("function") )
+					if( WordConstant.FUNCTION_KEYWORDS_HASHSET.contains(line.get(i).getWord().toLowerCase()) )
 					{
 						function = true;
 						break;
@@ -332,14 +336,14 @@ public class UnrealScriptParser
 				if( function )
 				{
 					ArrayList<CodeAttributeVariable> parameters = new ArrayList<CodeAttributeVariable>();
-					String name = "";
+					CodeWord name = null;
 					String type = "";
 					ArrayList<String> modifiers = new ArrayList<String>();
 					int i;
 					
 					// parse parameters >>
 						{
-							String variableName = null;
+							CodeWord variableName = null;
 							ArrayList<String> variableModifiers = new ArrayList<String>();
 							String variableType = "";
 							boolean gotType = false;
@@ -351,8 +355,8 @@ public class UnrealScriptParser
 							int chevrons 		= 0;
 							for( i=line.size()-2; i>=0; i-- )
 							{
-								String word = line.get(i).getWord();
-								char firstChar = word.charAt( 0 );
+								CodeWord word = line.get( i );
+								char firstChar = word.getWord().charAt( 0 );
 								
 								if( firstChar == '<' )
 									chevrons++;
@@ -378,7 +382,7 @@ public class UnrealScriptParser
 										if( variableName != null )
 										{
 											// add parameter >>
-												parameters.add( new CodeAttributeVariable(variableModifiers, variableType, variableName) );
+												parameters.add( new CodeAttributeVariable(variableModifiers, variableType, variableName.getWord(), className, variableName.getFirstCharacterPosition(), variableName.getLastCharacterPosition()) );
 												variableModifiers = new ArrayList<String>();
 												variableName = null;
 												variableType = "";
@@ -411,11 +415,11 @@ public class UnrealScriptParser
 								
 								if( !gotType )
 								{
-									variableType = word + variableType;
+									variableType = word.getWord() + variableType;
 								}
 								else
 								{
-									modifierWord = word + modifierWord;
+									modifierWord = word.getWord() + modifierWord;
 								}
 								
 								if( brackets != 0 )
@@ -450,7 +454,7 @@ public class UnrealScriptParser
 						{
 							if( i >= 0 )
 							{
-								name = line.get(i).getWord();
+								name = line.get( i );
 								i--;
 							}
 						}
@@ -467,7 +471,7 @@ public class UnrealScriptParser
 								String word = line.get(i).getWord();
 								char firstChar = word.charAt( 0 );
 								
-								if( word.toLowerCase().equals("function") )
+								if( WordConstant.FUNCTION_KEYWORDS_HASHSET.contains(word.toLowerCase()) )
 									break;
 								
 								if( firstChar == '<' )
@@ -518,7 +522,7 @@ public class UnrealScriptParser
 								String word = line.get(j).getWord();
 								char firstChar = word.charAt( 0 );
 								
-								if( word.toLowerCase().equals("function") )
+								if( WordConstant.FUNCTION_KEYWORDS_HASHSET.contains(word.toLowerCase()) )
 									continue;
 								
 								modifier += word;
@@ -555,8 +559,8 @@ public class UnrealScriptParser
 						}
 					// parse variable modifiers <<
 					
-					if( name.length() > 0 )
-						attributes.add( new CodeAttributeFunction(modifiers, type, name, parameters) );
+					if( name != null )
+						attributes.add( new CodeAttributeFunction(modifiers, type, name.getWord(), parameters, className, name.getFirstCharacterPosition(), name.getLastCharacterPosition()) );
 				}
 			}
 		}
@@ -566,22 +570,69 @@ public class UnrealScriptParser
 	
 	
 	
+	public static CodeWord[] getWords( Code code )
+	{
+		ArrayList<CodeWord> words = new ArrayList<CodeWord>();
+		getWords( words, code );
+		return words.toArray( new CodeWord[0] );
+	}
+	private static void getWords( ArrayList<CodeWord> words, Code code )
+	{
+		if( code instanceof CodeBlock )
+		{
+			CodeBlock block = (CodeBlock) code;
+			for( Code part : block.getChilds() )
+			{
+				getWords( words, part );
+			}
+		}
+		else if( code instanceof CodeBlockCode )
+		{
+			CodeBlockCode block = (CodeBlockCode) code;
+			ArrayList<ArrayList<CodeWord>> blockWords = block.getLines();
+			for( ArrayList<CodeWord> line : blockWords )
+			{
+				for( CodeWord word : line )
+				{
+					words.add( word );
+				}
+			}
+		}
+	}
+	
+	
 	public static CodeBlock parse( File file ) throws CodeException, IOException
 	{
 		if( file == null )
 			return parse( "" );
-		List<String> lines = Files.readAllLines( file.toPath(), Charset.defaultCharset() );
-		StringBuilder builder = new StringBuilder();
-		boolean first = true;
-		for( String line : lines )
+		
+		StringBuilder buffer = new StringBuilder();
+		FileInputStream inputStream = null;
+		try
 		{
-			if( !first )
-				builder.append( "\n" );
-			else
-				first = false;
-			builder.append( line );
+			inputStream = new FileInputStream( file );
+			char current;
+			while( inputStream.available() > 0 )
+			{
+				current = (char) inputStream.read();
+				buffer.append( current );
+			}
 		}
-		return parse( builder.toString() );
+		finally
+		{
+			try
+			{
+				if( inputStream != null )
+				{
+					inputStream.close();
+				}
+			}
+			catch( Exception e )
+			{
+			}
+		}
+		
+		return parse( buffer.toString() );
 	}
 	
 	public static CodeBlock parse( String data ) throws CodeException
@@ -762,37 +813,43 @@ public class UnrealScriptParser
 			{
 				if( previousChar != '\\' )
 				{
-					if( character == '"' )
+					if( !inChar )
 					{
-						if( inString )
+						if( character == '"' )
 						{
-							block.addCharacter( characterPosition, character );
-							block.closeWord( characterPosition+1 );
+							if( inString )
+							{
+								block.addCharacter( characterPosition, character );
+								block.closeWord( characterPosition+1 );
+							}
+							else
+							{
+								stringStartCharacterPosition = characterPosition;
+								block.closeWord( characterPosition );
+								block.addCharacter( characterPosition, character );
+							}
+							inString = !inString;
+							continue;
 						}
-						else
-						{
-							stringStartCharacterPosition = characterPosition;
-							block.closeWord( characterPosition );
-							block.addCharacter( characterPosition, character );
-						}
-						inString = !inString;
-						continue;
 					}
-					if( character == '\'' )
+					if( !inString )
 					{
-						if( inChar )
+						if( character == '\'' )
 						{
-							block.addCharacter( characterPosition, character );
-							block.closeWord( characterPosition+1 );
+							if( inChar )
+							{
+								block.addCharacter( characterPosition, character );
+								block.closeWord( characterPosition+1 );
+							}
+							else
+							{
+								stringStartCharacterPosition = characterPosition;
+								block.closeWord( characterPosition );
+								block.addCharacter( characterPosition, character );
+							}
+							inChar = !inChar;
+							continue;
 						}
-						else
-						{
-							stringStartCharacterPosition = characterPosition;
-							block.closeWord( characterPosition );
-							block.addCharacter( characterPosition, character );
-						}
-						inChar = !inChar;
-						continue;
 					}
 				}
 				
@@ -816,5 +873,63 @@ public class UnrealScriptParser
 		block.close();
 		
 		return root;
+	}
+	
+	
+	
+	public static CodeWord[] parsePartWords( String data, int startCharPosition )
+	{
+		ArrayList<CodeWord> words = new ArrayList<CodeWord>();
+		
+		CodeWord word = null;
+		for( int i=0; i<data.length(); i++ )
+		{
+			char c = data.charAt( i );
+			
+			if( WhitespaceDetector.getSharedInstance().isWhitespace(c) )
+			{
+				if( word != null )
+				{
+					word.close( i+startCharPosition );
+					word = null;
+				}
+				continue;
+			}
+			
+			if( word != null )
+			{
+				if( !KeywordDetector.getSharedInstance().isWordPart(c) )
+				{
+					word.close( i+startCharPosition );
+					word = null;
+				}
+			}
+			
+			if( word == null )
+			{
+				word = new CodeWord( i+startCharPosition );
+				words.add( word );
+				
+				word.addCharacter( c );
+				
+				if( !KeywordDetector.getSharedInstance().isWordStart(c) )
+				{
+					word.close( i+startCharPosition + 1 );
+					word = null;
+				}
+			}
+			else
+			{
+				word.addCharacter( c );
+			}
+		}
+		
+		if( word != null )
+		{
+			word.close( data.length()+startCharPosition );
+			word = null;
+		}
+		
+		return words.toArray( new CodeWord[0] );
 	}
 }

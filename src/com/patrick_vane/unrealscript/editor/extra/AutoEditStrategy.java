@@ -4,6 +4,7 @@ import org.eclipse.jface.text.BadLocationException;
 import org.eclipse.jface.text.DocumentCommand;
 import org.eclipse.jface.text.IAutoEditStrategy;
 import org.eclipse.jface.text.IDocument;
+import com.patrick_vane.unrealscript.editor.UnrealScriptEditor;
 import com.patrick_vane.unrealscript.editor.default_classes.KeywordDetector;
 
 
@@ -267,114 +268,10 @@ public class AutoEditStrategy implements IAutoEditStrategy
 		return line.length();
 	}
 	
-	private static String getCode( String code )
-	{
-		StringBuilder builder = new StringBuilder();
-		boolean stringOpen = false;
-		boolean charOpen   = false;
-		int docsOpen = 0;
-		boolean previousWasSlash = false;
-		boolean previousWasStar  = false;
-		boolean skipTillNewline  = false;
-		for( int i=0; i<code.length(); i++ )
-		{
-			char c = code.charAt( i );
-			
-			if( skipTillNewline )
-			{
-				if( (c != '\n') && (c != '\r') )
-					continue;
-				skipTillNewline = false;
-			}
-			
-			if( stringOpen )
-			{
-				if( c == '"' )
-					stringOpen = false;
-			}
-			else if( charOpen )
-			{
-				if( c == '\'' )
-					charOpen = false;
-			}
-			else
-			{
-				if( docsOpen <= 0 )
-				{
-					if( c == '"' )
-						stringOpen = true;
-					else if( c == '\'' )
-						charOpen = true;
-					builder.append( c );
-				}
-				
-				if( c == '/' )
-				{
-					if( previousWasStar )
-					{
-						docsOpen--;
-						previousWasSlash = false;
-						previousWasStar  = false;
-						continue;
-					}
-					if( previousWasSlash )
-					{
-						skipTillNewline  = true;
-						builder.append( '\n' );
-						previousWasSlash = false;
-						previousWasStar  = false;
-						continue;
-					}
-				}
-				else if( c == '*' )
-				{
-					if( previousWasSlash )
-					{
-						docsOpen++;
-						previousWasSlash = false;
-						previousWasStar  = false;
-						continue;
-					}
-				}
-				
-				previousWasSlash = (c == '/');
-				previousWasStar  = (c == '*');
-			}
-		}
-		return builder.toString();
-	}
-	private static String getCodeLine( String code, int offset )
-	{
-		while( offset > 0 )
-		{
-			char character = code.charAt( offset );
-			if( (character == '\n') || (character == '\r') )
-			{
-				offset++;
-				break;
-			}
-			offset--;
-		}
-		
-		StringBuffer buffer = new StringBuffer();
-		while( offset < code.length() )
-		{
-			char character = code.charAt( offset );
-			if( (character == '\n') || (character == '\r') )
-			{
-				break;
-			}
-			buffer.append( character );
-			offset++;
-		}
-		
-		return buffer.toString();
-	}
-	
 	private static int countCharacters( IDocument document, char character )
 	{
 		int count = 0;
-		String content = getCode( document.get() );
+		String content = UnrealScriptEditor.getCode( document.get() );
 		for( int i=0; i<content.length(); i++ )
 		{
 			if( content.charAt(i) == character )
@@ -405,7 +302,7 @@ public class AutoEditStrategy implements IAutoEditStrategy
 	
 	private static String getIndentOfFirstLineOpenChar( IDocument document, int from, char open, char close ) throws BadLocationException
 	{
-		String content 		= getCode( document.get(0, from) );
+		String content 		= UnrealScriptEditor.getCode( document.get(0, from) );
 		int numOpen 		= 0;
 		int bracket 		= 0;
 		int squareBracket 	= 0;
@@ -432,7 +329,7 @@ public class AutoEditStrategy implements IAutoEditStrategy
 				parenthese--;
 			
 			if( numOpen >= 1 )
-				return getIndendOfLine( getCodeLine(content, i) );
+				return getIndendOfLine( UnrealScriptEditor.getCodeLine(content, i) );
 			else if( bracket >= 1 )
 				return null;
 			else if( squareBracket >= 1 )

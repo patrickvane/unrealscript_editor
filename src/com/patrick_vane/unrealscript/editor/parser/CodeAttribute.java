@@ -3,13 +3,68 @@ package com.patrick_vane.unrealscript.editor.parser;
 import java.util.ArrayList;
 
 
-public interface CodeAttribute
+public abstract class CodeAttribute
 {
-	/** Is function or variable? */
-	public boolean isFunction();
+	private final String className;
+	private final int firstCharacterPosition;
+	private final int lastCharacterPosition;
 	
-	public ArrayList<String> getModifiers();
-	public String getType();
-	public String getName();
-	public ArrayList<CodeAttributeVariable> getParameters();
+	private final boolean isFunction;
+	
+	private final ArrayList<String> modifiers;
+	private final String type;
+	private final String name;
+	private final ArrayList<CodeAttributeVariable> parameters;
+	
+	
+	public CodeAttribute( String className, int firstCharacterPosition, int lastCharacterPosition, boolean isFunction, ArrayList<String> modifiers, String type, String name, ArrayList<CodeAttributeVariable> parameters )
+	{
+		this.className = className;
+		this.firstCharacterPosition = firstCharacterPosition;
+		this.lastCharacterPosition = lastCharacterPosition;
+		
+		this.isFunction = isFunction;
+		
+		this.modifiers = modifiers;
+		this.type = type;
+		this.name = name;
+		this.parameters = parameters;
+	}
+	
+	
+	public String getClassName()
+	{
+		return className;
+	}
+	public int getFirstCharacterPosition()
+	{
+		return firstCharacterPosition;
+	}
+	public int getLastCharacterPosition()
+	{
+		return lastCharacterPosition;
+	}
+	
+	/** Is function or variable? */
+	public boolean isFunction()
+	{
+		return isFunction;
+	}
+	
+	public ArrayList<String> getModifiers()
+	{
+		return modifiers;
+	}
+	public String getType()
+	{
+		return type;
+	}
+	public String getName()
+	{
+		return name;
+	}
+	public ArrayList<CodeAttributeVariable> getParameters()
+	{
+		return parameters;
+	}
 }

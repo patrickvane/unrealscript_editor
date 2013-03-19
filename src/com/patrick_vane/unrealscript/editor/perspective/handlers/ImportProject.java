@@ -17,6 +17,7 @@ import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.handlers.HandlerUtil;
 import com.patrick_vane.unrealscript.editor.UnrealScriptID;
 import com.patrick_vane.unrealscript.editor.constants.ProjectConstant;
+import com.patrick_vane.unrealscript.editor.executable.Profile;
 import com.patrick_vane.unrealscript.editor.popups.UDKImportProject;
 
 
@@ -135,6 +136,19 @@ public class ImportProject extends AbstractHandler
 		{
 			MessageDialog.openError( window.getShell(), "Error", "Can't make project: "+e.getMessage() );
 		}
+		
+		try
+		{
+			project.setPersistentProperty( UnrealScriptID.PROPERTY_GAME_MAP, Profile.DEFAULT_MAP );
+			project.setPersistentProperty( UnrealScriptID.PROPERTY_GAME_MODE, Profile.DEFAULT_MODE );
+			project.setPersistentProperty( UnrealScriptID.PROPERTY_EXTRA_EXECUTE_ARGUMENTS, Profile.DEFAULT_EXTRA_ARGS );
+			project.setPersistentProperty( UnrealScriptID.PROPERTY_DISABLE_SOUND, Boolean.toString(Profile.DEFAULT_DISABLE_SOUND) );
+			project.setPersistentProperty( UnrealScriptID.PROPERTY_DISABLE_STARTUP_VIDEOS, Boolean.toString(Profile.DEFAULT_DISABLE_STARTUP_VIDEOS) );
+		}
+		catch( Exception e )
+		{
+		}
+		
 		return null;
 	}
 }

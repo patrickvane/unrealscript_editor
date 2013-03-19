@@ -66,18 +66,18 @@ public class UDKGame
 					map = null;
 					mode = null;
 					extraArgs = null;
-					disableSound = false;
-					disableStartupVideos = false;
+					disableSound = Profile.DEFAULT_DISABLE_SOUND;
+					disableStartupVideos = Profile.DEFAULT_DISABLE_STARTUP_VIDEOS;
 					e.printStackTrace();
 				}
 				if( map == null )
-					map = "ExampleMap";
-				if( mode == null )
-					mode = "UTGame.UTDeathmatch";
-				if( extraArgs == null )
-					extraArgs = "";
+					map = Profile.DEFAULT_MAP;
 				if( !map.endsWith(".udk") )
 					map = map+".udk";
+				if( mode == null )
+					mode = Profile.DEFAULT_MODE;
+				if( extraArgs == null )
+					extraArgs = Profile.DEFAULT_EXTRA_ARGS;
 				
 				params.add( 0, map+"?game="+mode );
 				if( disableSound )

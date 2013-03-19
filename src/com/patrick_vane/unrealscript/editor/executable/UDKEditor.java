@@ -54,7 +54,7 @@ public class UDKEditor
 					e.printStackTrace();
 				}
 				if( map == null )
-					map = "ExampleMap";
+					map = Profile.DEFAULT_MAP;
 				if( !map.endsWith(".udk") )
 					map = map+".udk";
 				

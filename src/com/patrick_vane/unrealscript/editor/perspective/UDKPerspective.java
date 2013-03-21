@@ -6,6 +6,7 @@ import org.eclipse.ui.IPerspectiveDescriptor;
 import org.eclipse.ui.IPerspectiveFactory;
 import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.console.IConsoleConstants;
+import com.patrick_vane.unrealscript.editor.UnrealScriptEditor;
 import com.patrick_vane.unrealscript.editor.UnrealScriptID;
 
 
@@ -14,6 +15,8 @@ public class UDKPerspective implements IPerspectiveFactory
 	@Override
 	public void createInitialLayout( IPageLayout layout )
 	{
+		UnrealScriptEditor.initStaticClasses();
+		
 		IFolderLayout left = layout.createFolder( "left", IPageLayout.LEFT, 0.25f, layout.getEditorArea() );
 		left.addView( UnrealScriptID.VIEW_NAVIGATOR );
 		left.addView( UnrealScriptID.VIEW_TYPE_HIERARCHY );
@@ -27,6 +30,8 @@ public class UDKPerspective implements IPerspectiveFactory
 	
 	public static boolean isActive()
 	{
+		UnrealScriptEditor.initStaticClasses();
+		
 		try
 		{
 			IPerspectiveDescriptor perspective = PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().getPerspective();

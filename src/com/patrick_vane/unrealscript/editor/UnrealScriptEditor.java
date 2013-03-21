@@ -57,6 +57,9 @@ import com.patrick_vane.unrealscript.editor.parser.UnrealScriptParser;
 
 public class UnrealScriptEditor extends TextEditor
 {
+	private static boolean firstInitStaticClassesCall = true;
+	
+	
 	public UnrealScriptEditor()
 	{
 		super();
@@ -66,7 +69,7 @@ public class UnrealScriptEditor extends TextEditor
 		
 		initializeSourceViewer();
 		updateMarkersThread.start();
-		TypeHierarchyView.fileChanged();
+		initStaticClasses();
 		
 		try
 		{
@@ -74,6 +77,15 @@ public class UnrealScriptEditor extends TextEditor
 		}
 		catch( Exception e )
 		{
+		}
+	}
+	
+	public static void initStaticClasses()
+	{
+		if( firstInitStaticClassesCall )
+		{
+			firstInitStaticClassesCall = false;
+			TypeHierarchyView.init();
 		}
 	}
 	
@@ -550,6 +562,17 @@ public class UnrealScriptEditor extends TextEditor
 			try
 			{
 				return getProjectFile( getActiveProject() );
+			}
+			catch( Exception e )
+			{
+				return null;
+			}
+		}
+		public static File getSelectedOrActiveProjectFile()
+		{
+			try
+			{
+				return getProjectFile( getSelectedOrActiveProject() );
 			}
 			catch( Exception e )
 			{

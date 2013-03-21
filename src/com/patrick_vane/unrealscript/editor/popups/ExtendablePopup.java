@@ -10,6 +10,7 @@ import org.eclipse.core.runtime.CoreException;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.ui.IWorkbenchWindow;
+import com.patrick_vane.unrealscript.editor.UnrealScriptEditor;
 
 
 public class ExtendablePopup extends JDialog
@@ -27,6 +28,8 @@ public class ExtendablePopup extends JDialog
 	
 	public ExtendablePopup( String title, int width, int height )
 	{
+		UnrealScriptEditor.initStaticClasses();
+		
 		setTitle( title );
 		setType( Type.NORMAL );
 		setAlwaysOnTop( true );

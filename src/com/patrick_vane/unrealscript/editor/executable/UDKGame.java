@@ -170,8 +170,7 @@ public class UDKGame
 			{
 				UDKCompiler.saveAndWaitForCompiles( project );
 				UDKLaunchLogConsole.clear();
-				int response = UnrealScriptEditor.runUDK( project, server, UDKLaunchLogConsole.getFilteringOutputStream(), UDKLaunchLogConsole.getFilteringOutputStream(), params );
-				UDKLaunchLogConsole.getPrintStream().println( "Exit Value: "+response );
+				UnrealScriptEditor.runUDK( project, server, UDKLaunchLogConsole.getFilteringOutputStream(), UDKLaunchLogConsole.getFilteringOutputStream(), params );
 			}
 		}.start();
 	}

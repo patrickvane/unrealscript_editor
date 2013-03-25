@@ -166,8 +166,7 @@ public class UDKCompiler
 					params.add( "-stripsource" );
 				
 				UnrealScriptCompilerConsole.clear();
-				int response = UnrealScriptEditor.runUDK( project, false, UnrealScriptCompilerConsole.getPrintStream(ColorConstant.INFO_COLOR), UnrealScriptCompilerConsole.getPrintStream(ColorConstant.ERROR_COLOR), params );
-				UnrealScriptCompilerConsole.getPrintStream().println( "Exit Value: "+response );
+				UnrealScriptEditor.runUDK( project, false, UnrealScriptCompilerConsole.getPrintStream(ColorConstant.INFO_COLOR), UnrealScriptCompilerConsole.getPrintStream(ColorConstant.ERROR_COLOR), params );
 				
 				ArrayList<String> newParams;
 				synchronized( compilingProjects )

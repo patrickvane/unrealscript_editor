@@ -840,12 +840,12 @@ public class UnrealScriptEditor extends TextEditor
 		 * -1 = failed (inside java)<br>
 		 *  1+ = process failed, number represents an error code<br>
 		 */
-		public static int runUDK( final IProject project, PrintStream output, PrintStream error, final String... params )
+		public static int runUDK( final IProject project, boolean exe, PrintStream output, PrintStream error, final String... params )
 		{
 			ArrayList<String> collection = new ArrayList<String>();
 			for( String param : params )
 				collection.add( param );
-			return runUDK( project, output, error, collection );
+			return runUDK( project, exe, output, error, collection );
 		}
 		/** 
 		 * Returns the exit value:<br>
@@ -853,12 +853,12 @@ public class UnrealScriptEditor extends TextEditor
 		 * -1 = failed (inside java)<br>
 		 *  1+ = process failed, number represents an error code<br>
 		 */
-		public static int runUDK( final IProject project, PrintStream output, PrintStream error, final Collection<String> params )
+		public static int runUDK( final IProject project, boolean exe, PrintStream output, PrintStream error, final Collection<String> params )
 		{
 			ArrayList<String> collection = new ArrayList<String>();
 			for( String param : params )
 				collection.add( param );
-			return runUDK( project, output, error, collection );
+			return runUDK( project, exe, output, error, collection );
 		}
 		/** 
 		 * Returns the exit value:<br>
@@ -866,7 +866,7 @@ public class UnrealScriptEditor extends TextEditor
 		 * -1 = failed (inside java)<br>
 		 *  1+ = process failed, number represents an error code<br>
 		 */
-		public static int runUDK( final IProject project, PrintStream output, PrintStream error, final ArrayList<String> params )
+		public static int runUDK( final IProject project, boolean exe, PrintStream output, PrintStream error, final ArrayList<String> params )
 		{
 			if( output == null )
 				output = System.out;
@@ -892,7 +892,11 @@ public class UnrealScriptEditor extends TextEditor
 				e.printStackTrace( error );
 			}
 			String binFolder = root+"Binaries/"+(bit64?"Win64":"Win32")+"/";
-			String executablePath = binFolder+"UDK.com";
+			String executablePath = binFolder;
+			if( exe )
+				executablePath += "UDK.exe";
+			else
+				executablePath += "UDK.com";
 			
 			File bin = new File( binFolder );
 			File executable = new File( executablePath );
@@ -907,8 +911,11 @@ public class UnrealScriptEditor extends TextEditor
 			{
 				output.println( "Running: "+params.toString() );
 				Process process = Runtime.getRuntime().exec( params.toArray(new String[0]), null, bin );
-				MyStream.copy( process.getInputStream(), output );
-				MyStream.copy( process.getErrorStream(), error  );
+				if( !params.contains("server") )
+				{
+					MyStream.copy( process.getInputStream(), output );
+					MyStream.copy( process.getErrorStream(), error  );
+				}
 				return process.waitFor();
 			}
 			catch( Exception e )

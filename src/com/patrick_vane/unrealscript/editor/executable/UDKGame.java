@@ -121,12 +121,37 @@ public class UDKGame
 			if( disableStartupVideos )
 				params.add( "-nomoviestartup" );
 			
+			boolean serverTmp = false;
 			if( extraArgs.length() > 0 )
 			{
 				String[] extraArgsArray = StringSplitter.splitCommandlineLike( extraArgs );
 				for( String extraArg : extraArgsArray )
-					params.add( extraArg );
+				{
+					if( !serverTmp && "server".equalsIgnoreCase(extraArg) )
+					{
+						params.add( 0, extraArg );
+						serverTmp = true;
+						
+						ArrayList<String> removeParams = new ArrayList<String>();
+						for( String param : params )
+						{
+							if( param.toLowerCase().startsWith("-windowed") )
+							{
+								removeParams.add( param );
+							}
+						}
+						for( String param : removeParams )
+						{
+							params.remove( param );
+						}
+					}
+					else
+					{
+						params.add( extraArg );
+					}
+				}
 			}
+			final boolean server = serverTmp;
 		// add params <<
 		
 		new Thread()
@@ -136,7 +161,8 @@ public class UDKGame
 			{
 				UDKCompiler.saveAndWaitForCompiles( project );
 				UDKLaunchLogConsole.clear();
-				UnrealScriptEditor.runUDK( project, UDKLaunchLogConsole.getFilteringOutputStream(), UDKLaunchLogConsole.getFilteringOutputStream(), params );
+				int response = UnrealScriptEditor.runUDK( project, server, UDKLaunchLogConsole.getFilteringOutputStream(), UDKLaunchLogConsole.getFilteringOutputStream(), params );
+				UDKLaunchLogConsole.getPrintStream().println( "Exit Value: "+response );
 			}
 		}.start();
 	}

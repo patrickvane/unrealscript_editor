@@ -103,7 +103,7 @@ public class UDKEditor
 			public void run()
 			{
 				UDKCompiler.saveAndWaitForCompiles( project );
-				UnrealScriptEditor.runUDK( project, null, null, params );
+				UnrealScriptEditor.runUDK( project, false, null, null, params );
 			}
 		}.start();
 	}

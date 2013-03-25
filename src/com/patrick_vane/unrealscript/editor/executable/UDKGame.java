@@ -5,6 +5,7 @@ import org.eclipse.core.resources.IProject;
 import com.patrick_vane.unrealscript.editor.UnrealScriptEditor;
 import com.patrick_vane.unrealscript.editor.UnrealScriptID;
 import com.patrick_vane.unrealscript.editor.console.UDKLaunchLogConsole;
+import com.patrick_vane.unrealscript.editor.default_classes.MyUrlChecker;
 import com.patrick_vane.unrealscript.editor.default_classes.StringSplitter;
 
 
@@ -122,33 +123,41 @@ public class UDKGame
 				params.add( "-nomoviestartup" );
 			
 			boolean serverTmp = false;
+			boolean ip = false;
 			if( extraArgs.length() > 0 )
 			{
 				String[] extraArgsArray = StringSplitter.splitCommandlineLike( extraArgs );
 				for( String extraArg : extraArgsArray )
 				{
-					if( !serverTmp && "server".equalsIgnoreCase(extraArg) )
+					if( !serverTmp && !ip )
 					{
-						params.add( 0, extraArg );
-						serverTmp = true;
-						
-						ArrayList<String> removeParams = new ArrayList<String>();
-						for( String param : params )
+						if( extraArg.equalsIgnoreCase("server") )
 						{
-							if( param.toLowerCase().startsWith("-windowed") )
+							params.add( 0, extraArg );
+							serverTmp = true;
+							
+							ArrayList<String> removeParams = new ArrayList<String>();
+							for( String param : params )
 							{
-								removeParams.add( param );
+								if( param.toLowerCase().startsWith("-windowed") )
+								{
+									removeParams.add( param );
+								}
 							}
+							for( String param : removeParams )
+							{
+								params.remove( param );
+							}
+							continue;
 						}
-						for( String param : removeParams )
+						if( MyUrlChecker.isURL(extraArg) )
 						{
-							params.remove( param );
+							params.add( 0, extraArg );
+							ip = true;
+							continue;
 						}
 					}
-					else
-					{
-						params.add( extraArg );
-					}
+					params.add( extraArg );
 				}
 			}
 			final boolean server = serverTmp;

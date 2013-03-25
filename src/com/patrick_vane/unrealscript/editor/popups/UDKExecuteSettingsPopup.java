@@ -15,7 +15,7 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import com.patrick_vane.unrealscript.editor.UnrealScriptEditor;
 import com.patrick_vane.unrealscript.editor.UnrealScriptID;
-import com.patrick_vane.unrealscript.editor.default_classes.HashMapOrderer;
+import com.patrick_vane.unrealscript.editor.default_classes.MyArraySorter;
 import com.patrick_vane.unrealscript.editor.default_classes.MySerializer;
 import com.patrick_vane.unrealscript.editor.executable.Profile;
 
@@ -106,7 +106,6 @@ public class UDKExecuteSettingsPopup extends ExtendablePopup
 			profiles = new HashMap<String,Profile>();
 			profiles.put( "Default", new Profile() );
 		}
-		profiles = HashMapOrderer.orderHashMap( profiles );
 		
 		
 		JLabel labelProfile = new JLabel( "Profile:" );
@@ -114,7 +113,7 @@ public class UDKExecuteSettingsPopup extends ExtendablePopup
 		getContentPane().add( labelProfile );
 		
 		dropdownProfile = new JComboBox();
-		dropdownProfile.setModel( new DefaultComboBoxModel(profiles.keySet().toArray(new String[0])) );
+		dropdownProfile.setModel( new DefaultComboBoxModel(MyArraySorter.sort(profiles.keySet().toArray(new String[0]))) );
 		dropdownProfile.setEditable( true );
 		dropdownProfile.setToolTipText( "Settings profile" );
 		dropdownProfile.setBounds( 86, 25, 198, 20 );
@@ -212,7 +211,6 @@ public class UDKExecuteSettingsPopup extends ExtendablePopup
 	private Profile saveProfile( Profile profile, String profileName )
 	{
 		profiles.put( profileName, profile );
-		profiles = HashMapOrderer.orderHashMap( profiles );
 		
 		String selectedProfile = (String) dropdownProfile.getSelectedItem();
 		

@@ -11,7 +11,7 @@ import org.eclipse.jface.action.IAction;
 import org.eclipse.swt.widgets.Menu;
 import com.patrick_vane.unrealscript.editor.UnrealScriptEditor;
 import com.patrick_vane.unrealscript.editor.UnrealScriptID;
-import com.patrick_vane.unrealscript.editor.default_classes.HashMapOrderer;
+import com.patrick_vane.unrealscript.editor.default_classes.MyArraySorter;
 import com.patrick_vane.unrealscript.editor.default_classes.MySerializer;
 import com.patrick_vane.unrealscript.editor.executable.Profile;
 import com.patrick_vane.unrealscript.editor.executable.UDKEditor;
@@ -36,7 +36,7 @@ public class RunEditorContributionItem extends ContributionItem
 		final IProject project = projectTmp;
 		final HashMap<String,Profile> profiles = profilesTmp;
 		
-		for( final Entry<String,Profile> entry : profiles.entrySet() )
+		for( final Entry<String,Profile> entry : MyArraySorter.sort(profiles).entrySet() )
 		{
 			addActionToMenu
 			(
@@ -101,7 +101,6 @@ public class RunEditorContributionItem extends ContributionItem
 			profiles = new HashMap<String,Profile>();
 			profiles.put( "Default", new Profile() );
 		}
-		profiles = HashMapOrderer.orderHashMap( profiles );
 		
 		return profiles;
 	}

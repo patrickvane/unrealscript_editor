@@ -1,6 +1,9 @@
 package com.patrick_vane.unrealscript.editor.default_classes;
 
-import org.eclipse.jface.text.*;
+import org.eclipse.jface.text.BadLocationException;
+import org.eclipse.jface.text.IDocument;
+import org.eclipse.jface.text.ITextDoubleClickStrategy;
+import org.eclipse.jface.text.ITextViewer;
 
 
 public class DoubleClickStrategy implements ITextDoubleClickStrategy

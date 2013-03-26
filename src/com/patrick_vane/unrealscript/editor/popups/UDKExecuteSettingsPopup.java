@@ -216,7 +216,7 @@ public class UDKExecuteSettingsPopup extends ExtendablePopup
 		
 		dropdownProfile.removeActionListener( listenerChangeProfile );
 			dropdownProfile.removeAllItems();
-			for( String key : profiles.keySet() )
+			for( String key : MyArraySorter.sort(profiles).keySet() )
 			{
 				dropdownProfile.addItem( key );
 			}

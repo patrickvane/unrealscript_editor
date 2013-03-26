@@ -74,8 +74,6 @@ public class UDKGame
 		try
 		{
 			map = project.getPersistentProperty( UnrealScriptID.PROPERTY_GAME_MAP );
-			if( (map != null) && map.contains(".") )
-				map = map.substring( map.indexOf(".")+1 );
 			mode = project.getPersistentProperty( UnrealScriptID.PROPERTY_GAME_MODE );
 			extraArgs = project.getPersistentProperty( UnrealScriptID.PROPERTY_EXTRA_EXECUTE_ARGUMENTS );
 			disableSound = Boolean.parseBoolean( project.getPersistentProperty(UnrealScriptID.PROPERTY_DISABLE_SOUND) );
@@ -109,8 +107,14 @@ public class UDKGame
 		// add params >>
 			if( map == null )
 				map = Profile.DEFAULT_MAP;
-			if( !map.endsWith(".udk") )
-				map = map+".udk";
+			while( (map != null) && map.endsWith(".udk") )
+				map = map.substring( 0, map.length()-4 );
+			if( (map != null) && map.contains(".") )
+				map = map.substring( map.lastIndexOf(".")+1 );
+			if( map == null )
+				map = Profile.DEFAULT_MAP;
+			map += ".udk";
+			
 			if( mode == null )
 				mode = Profile.DEFAULT_MODE;
 			if( extraArgs == null )

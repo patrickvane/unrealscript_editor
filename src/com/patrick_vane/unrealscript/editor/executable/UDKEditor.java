@@ -64,8 +64,6 @@ public class UDKEditor
 		try
 		{
 			map = project.getPersistentProperty( UnrealScriptID.PROPERTY_GAME_MAP );
-			if( (map != null) && map.contains(".") )
-				map = map.substring( map.indexOf(".")+1 );
 		}
 		catch( Exception e )
 		{
@@ -92,8 +90,13 @@ public class UDKEditor
 		// add params >>
 			if( map == null )
 				map = Profile.DEFAULT_MAP;
-			if( !map.endsWith(".udk") )
-				map = map+".udk";
+			while( (map != null) && map.endsWith(".udk") )
+				map = map.substring( 0, map.length()-4 );
+			if( (map != null) && map.contains(".") )
+				map = map.substring( map.lastIndexOf(".")+1 );
+			if( map == null )
+				map = Profile.DEFAULT_MAP;
+			map += ".udk";
 			params.add( 1, map );
 		// add params <<
 		

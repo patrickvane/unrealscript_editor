@@ -5,6 +5,8 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.HashMap;
+import com.patrick_vane.unrealscript.editor.class_hierarchy.parser.UnrealScriptClass;
 import com.patrick_vane.unrealscript.editor.constants.WordConstant;
 import com.patrick_vane.unrealscript.editor.default_classes.KeywordDetector;
 import com.patrick_vane.unrealscript.editor.default_classes.WhitespaceDetector;
@@ -95,6 +97,33 @@ public class UnrealScriptParser
 		}
 	}
 	
+	
+	private static final HashMap<String,AttributesCache> attributesCache = new HashMap<String,AttributesCache>();
+	private static class AttributesCache
+	{
+		public final CodeBlock code;
+		public final ArrayList<CodeAttribute> attributes;
+		public AttributesCache( CodeBlock code, ArrayList<CodeAttribute> attributes )
+		{
+			this.code = code;
+			this.attributes = attributes;
+		}
+	}
+	
+	public static ArrayList<CodeAttribute> getAttributesOfClass( UnrealScriptClass unrealscriptClass ) throws CodeException, IOException
+	{
+		CodeBlock code = UnrealScriptParser.parse( unrealscriptClass.getFile() );
+		if( code == null )
+			return null;
+		
+		AttributesCache cache = attributesCache.get( unrealscriptClass.getName() );
+		if( (cache != null) && code.equals(cache.code) )
+			return cache.attributes;
+		
+		ArrayList<CodeAttribute> attributes = getAttributes( unrealscriptClass.getName(), code );
+		attributesCache.put( unrealscriptClass.getName(), new AttributesCache(code, attributes) );
+		return attributes;
+	}
 	
 	public static ArrayList<CodeAttribute> getAttributes( String className, CodeBlock code )
 	{
@@ -601,6 +630,18 @@ public class UnrealScriptParser
 	}
 	
 	
+	private static final HashMap<String,ParseCache> parseCache = new HashMap<String,ParseCache>();
+	private static class ParseCache
+	{
+		public final String data;
+		public final CodeBlock code;
+		public ParseCache( String data, CodeBlock code )
+		{
+			this.data = data;
+			this.code = code;
+		}
+	}
+	
 	public static CodeBlock parse( File file ) throws CodeException, IOException
 	{
 		if( file == null )
@@ -632,7 +673,18 @@ public class UnrealScriptParser
 			}
 		}
 		
-		return parse( buffer.toString() );
+		String data = buffer.toString();
+		buffer = null;
+		if( data == null )
+			return new CodeBlock( null );
+		
+		ParseCache cache = parseCache.get( file.getAbsolutePath() );
+		if( (cache != null) && data.equals(cache.data) )
+			return cache.code;
+		
+		CodeBlock code = parse( data );
+		parseCache.put( file.getAbsolutePath(), new ParseCache(data, code) );
+		return code;
 	}
 	
 	public static CodeBlock parse( String data ) throws CodeException

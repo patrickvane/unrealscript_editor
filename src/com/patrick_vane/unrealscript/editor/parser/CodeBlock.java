@@ -198,4 +198,37 @@ public class CodeBlock implements Code
 		}
 		return -1;
 	}
+	
+	
+	@Override
+	public int hashCode()
+	{
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((childs == null) ? 0 : childs.hashCode());
+		result = prime * result + (function ? 1231 : 1237);
+		return result;
+	}
+	
+	@Override
+	public boolean equals( Object obj )
+	{
+		if( this == obj )
+			return true;
+		if( obj == null )
+			return false;
+		if( getClass() != obj.getClass() )
+			return false;
+		CodeBlock other = (CodeBlock) obj;
+		if( childs == null )
+		{
+			if( other.childs != null )
+				return false;
+		}
+		else if( !childs.equals( other.childs ) )
+			return false;
+		if( function != other.function )
+			return false;
+		return true;
+	}
 }

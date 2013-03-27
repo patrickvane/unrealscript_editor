@@ -132,6 +132,7 @@ public class UDKExecuteSettingsPopup extends ExtendablePopup
 		dropdownMap.setToolTipText( "A map from the UDKGame/Content/Maps/ folder" );
 		dropdownMap.setBounds( 67, 70, 217, 20 );
 		dropdownMap.setSelectedItem( map );
+		dropdownMap.setFont( new Font(dropdownMap.getFont().getFontName(), dropdownMap.getFont().getStyle(), (int) Math.round(dropdownMap.getFont().getSize()*0.75)) );
 		getContentPane().add( dropdownMap );
 		
 		

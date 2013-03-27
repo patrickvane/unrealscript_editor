@@ -630,6 +630,18 @@ public class UnrealScriptParser
 	}
 	
 	
+	private static final HashMap<String,FileCache> fileCache = new HashMap<String,FileCache>();
+	private static class FileCache
+	{
+		public final long lastModified;
+		public final String data;
+		public FileCache( long lastChangedTime, String data )
+		{
+			this.lastModified = lastChangedTime;
+			this.data = data;
+		}
+	}
+	
 	private static final HashMap<String,ParseCache> parseCache = new HashMap<String,ParseCache>();
 	private static class ParseCache
 	{
@@ -647,36 +659,45 @@ public class UnrealScriptParser
 		if( file == null )
 			return parse( "" );
 		
-		StringBuilder buffer = new StringBuilder();
-		FileInputStream inputStream = null;
-		try
+		String data = null;
+		
+		FileCache fCache = fileCache.get( file.getAbsolutePath() );
+		if( (fCache != null) && (file.lastModified() == fCache.lastModified) )
+			data = fCache.data;
+		
+		if( data == null )
 		{
-			inputStream = new FileInputStream( file );
-			char current;
-			while( inputStream.available() > 0 )
-			{
-				current = (char) inputStream.read();
-				buffer.append( current );
-			}
-		}
-		finally
-		{
+			StringBuilder buffer = new StringBuilder();
+			FileInputStream inputStream = null;
 			try
 			{
-				if( inputStream != null )
+				inputStream = new FileInputStream( file );
+				char current;
+				while( inputStream.available() > 0 )
 				{
-					inputStream.close();
+					current = (char) inputStream.read();
+					buffer.append( current );
 				}
 			}
-			catch( Exception e )
+			finally
 			{
+				try
+				{
+					if( inputStream != null )
+					{
+						inputStream.close();
+					}
+				}
+				catch( Exception e )
+				{
+				}
 			}
+			data = buffer.toString();
+			fileCache.put( file.getAbsolutePath(), new FileCache(file.lastModified(), data) );
 		}
 		
-		String data = buffer.toString();
-		buffer = null;
 		if( data == null )
-			return new CodeBlock( null );
+			return parse( "" );
 		
 		ParseCache cache = parseCache.get( file.getAbsolutePath() );
 		if( (cache != null) && data.equals(cache.data) )

@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
@@ -21,10 +22,12 @@ import org.eclipse.core.resources.IWorkspaceRoot;
 import org.eclipse.core.resources.IWorkspaceRunnable;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.FileLocator;
 import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.source.AnnotationRulerColumn;
 import org.eclipse.jface.text.source.CompositeRuler;
@@ -41,6 +44,8 @@ import org.eclipse.ui.PlatformUI;
 import org.eclipse.ui.editors.text.TextEditor;
 import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.texteditor.IDocumentProvider;
+import org.osgi.framework.Bundle;
+import org.osgi.framework.FrameworkUtil;
 import com.patrick_vane.unrealscript.editor.class_hierarchy.TypeHierarchyView;
 import com.patrick_vane.unrealscript.editor.class_hierarchy.parser.UnrealScriptClass;
 import com.patrick_vane.unrealscript.editor.class_hierarchy.parser.UnrealScriptClassHierarchyParser;
@@ -49,6 +54,7 @@ import com.patrick_vane.unrealscript.editor.default_classes.DocumentProvider;
 import com.patrick_vane.unrealscript.editor.default_classes.MyRunnable;
 import com.patrick_vane.unrealscript.editor.default_classes.MyStream;
 import com.patrick_vane.unrealscript.editor.default_classes.WhitespaceDetector;
+import com.patrick_vane.unrealscript.editor.outline.OutlineLabelProvider;
 import com.patrick_vane.unrealscript.editor.parser.CodeException;
 import com.patrick_vane.unrealscript.editor.parser.UnrealScriptAttributeParser;
 import com.patrick_vane.unrealscript.editor.parser.UnrealScriptAttributes;
@@ -1351,6 +1357,18 @@ public class UnrealScriptEditor extends TextEditor
 				words.add( buffer.toString() );
 			}
 			return words.toArray( new String[0] );
+		}
+		
+		public static ImageDescriptor getImageDescriptor( String file )
+		{
+			Bundle bundle = FrameworkUtil.getBundle( OutlineLabelProvider.class );
+			URL url = FileLocator.find( bundle, new Path("icons/" + file), null );
+			return ImageDescriptor.createFromURL( url );
+		}
+		
+		public static IWorkspaceRoot getRoot()
+		{
+			return ResourcesPlugin.getWorkspace().getRoot();
 		}
 	// static methods <<
 	

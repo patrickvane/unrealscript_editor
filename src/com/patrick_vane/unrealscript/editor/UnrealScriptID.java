@@ -23,6 +23,8 @@ public class UnrealScriptID
 	public static final String			COMMAND_RUN_GAME							= "patrick_vane_unrealscript_editor.editors.command.run_game";
 	
 	public static final QualifiedName	PROPERTY_FIRST_RUN							= new QualifiedName( PROPERTIES, "first_run" );
+	public static final QualifiedName	PROPERTY_SORT_ALPHABETIC					= new QualifiedName( PROPERTIES, "sort_alphabetic" );
+	public static final QualifiedName	PROPERTY_HIDE_VARIABLES						= new QualifiedName( PROPERTIES, "hide_variables" );
 	public static final QualifiedName	PROPERTY_IS_UDK_IMPORT						= new QualifiedName( PROPERTIES, "is_udk_import" );
 	public static final QualifiedName	PROPERTY_EXECUTE_SETTINGS_PROFILES			= new QualifiedName( PROPERTIES, "execute_settings_profiles" );
 	public static final QualifiedName	PROPERTY_SELECTED_EXECUTE_SETTINGS_PROFILE	= new QualifiedName( PROPERTIES, "selected_execute_settings_profile" );

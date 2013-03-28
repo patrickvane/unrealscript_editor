@@ -92,7 +92,7 @@ public class Configuration extends SourceViewerConfiguration
 		TypeHierarchyView.fileChanged();
 		if( outlineContentPage != null )
 		{
-			outlineContentPage.fileChanged();
+			outlineContentPage.update();
 		}
 	}
 	

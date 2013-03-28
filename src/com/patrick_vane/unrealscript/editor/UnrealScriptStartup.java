@@ -1,6 +1,5 @@
 package com.patrick_vane.unrealscript.editor;
 
-import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IStartup;
 import org.eclipse.ui.PlatformUI;
@@ -25,9 +24,9 @@ public class UnrealScriptStartup implements IStartup
 						{
 							try
 							{
-								if( ResourcesPlugin.getWorkspace().getRoot().getPersistentProperty(UnrealScriptID.PROPERTY_FIRST_RUN) != null )
+								if( UnrealScriptEditor.getRoot().getPersistentProperty(UnrealScriptID.PROPERTY_FIRST_RUN) != null )
 									return;
-								ResourcesPlugin.getWorkspace().getRoot().setPersistentProperty( UnrealScriptID.PROPERTY_FIRST_RUN, "true" );
+								UnrealScriptEditor.getRoot().setPersistentProperty( UnrealScriptID.PROPERTY_FIRST_RUN, "true" );
 							}
 							catch( Exception e )
 							{

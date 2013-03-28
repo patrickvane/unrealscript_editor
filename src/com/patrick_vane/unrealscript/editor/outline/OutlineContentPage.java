@@ -4,9 +4,12 @@ import org.eclipse.core.resources.IFile;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.ui.IActionBars;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.views.contentoutline.ContentOutlinePage;
 import com.patrick_vane.unrealscript.editor.UnrealScriptEditor;
+import com.patrick_vane.unrealscript.editor.outline.actions.ToggleSortAction;
+import com.patrick_vane.unrealscript.editor.outline.actions.ToggleVariablesAction;
 import com.patrick_vane.unrealscript.editor.parser.UnrealScriptAttributes;
 
 
@@ -29,7 +32,7 @@ public class OutlineContentPage extends ContentOutlinePage
 				{
 					if( runThread && file.equals(UnrealScriptEditor.getActiveIFile()) )
 					{
-						fileChanged();
+						update();
 					}
 				}
 				catch( Exception e )
@@ -57,7 +60,7 @@ public class OutlineContentPage extends ContentOutlinePage
 	}
 	
 	
-	public void fileChanged()
+	public void update()
 	{
 		try
 		{
@@ -103,6 +106,15 @@ public class OutlineContentPage extends ContentOutlinePage
 		
 		runThread = true;
 		thread.start();
+	}
+	
+	@Override
+	public void setActionBars( IActionBars actionBars )
+	{
+	    actionBars.getToolBarManager().add( new ToggleSortAction(this) );
+	    actionBars.getToolBarManager().add( new ToggleVariablesAction(this) );
+	    actionBars.getToolBarManager().update( false );       
+	    actionBars.updateActionBars();      
 	}
 	
 	

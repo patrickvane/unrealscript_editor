@@ -1,9 +1,5 @@
 package com.patrick_vane.unrealscript.editor.class_hierarchy;
 
-import java.net.URL;
-import org.eclipse.core.runtime.FileLocator;
-import org.eclipse.core.runtime.Path;
-import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.viewers.IFontProvider;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.swt.SWT;
@@ -11,8 +7,7 @@ import org.eclipse.swt.graphics.Font;
 import org.eclipse.swt.graphics.FontData;
 import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Display;
-import org.osgi.framework.Bundle;
-import org.osgi.framework.FrameworkUtil;
+import com.patrick_vane.unrealscript.editor.UnrealScriptEditor;
 import com.patrick_vane.unrealscript.editor.class_hierarchy.parser.UnrealScriptClass;
 
 
@@ -78,9 +73,6 @@ public class TypeHierarchyLabelProvider extends LabelProvider implements IFontPr
 	
 	private static Image getImage( String file )
 	{
-		Bundle bundle = FrameworkUtil.getBundle( TypeHierarchyLabelProvider.class );
-		URL url = FileLocator.find( bundle, new Path("icons/" + file), null );
-		ImageDescriptor image = ImageDescriptor.createFromURL( url );
-		return image.createImage();
+		return UnrealScriptEditor.getImageDescriptor( file ).createImage();
 	}
 }

@@ -2,10 +2,12 @@ package com.patrick_vane.unrealscript.editor.class_hierarchy;
 
 import java.io.File;
 import java.util.HashMap;
+import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
+import org.eclipse.swt.widgets.Tree;
 import org.eclipse.ui.part.ViewPart;
 import com.patrick_vane.unrealscript.editor.UnrealScriptEditor;
 import com.patrick_vane.unrealscript.editor.class_hierarchy.parser.UnrealScriptClass;
@@ -66,8 +68,38 @@ public class TypeHierarchyView extends ViewPart
 									{
 										if( classHierarchyViewer != null )
 										{
+											Tree control = null;
+											int horizontal = 0;
+											int vertical = 0;
+											if( classHierarchyViewer.getControl() instanceof Tree )
+											{
+												control = (Tree) classHierarchyViewer.getControl();
+												if( control != null )
+												{
+													if( control.getHorizontalBar() != null )
+														horizontal = control.getHorizontalBar().getSelection();
+													if( control.getVerticalBar() != null )
+														vertical = control.getVerticalBar().getSelection();
+												}
+											}
+											
+											Object[] expanded = classHierarchyViewer.getExpandedElements();
+											ISelection selection = classHierarchyViewer.getSelection();
+											
 											classHierarchyViewer.setInput( root );
 											classHierarchyViewer.collapseAll();
+											classHierarchyViewer.refresh( true );
+											
+											classHierarchyViewer.setExpandedElements( expanded );
+											classHierarchyViewer.setSelection( selection );
+											
+											if( control != null )
+											{
+												if( control.getHorizontalBar() != null )
+													control.getHorizontalBar().setSelection( horizontal );
+												if( control.getVerticalBar() != null )
+													control.getVerticalBar().setSelection( vertical );
+											}
 										}
 									}
 								}

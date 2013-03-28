@@ -95,4 +95,34 @@ public class UnrealScriptAttributes
 		}
 		return null;
 	}
+	
+	
+	@Override
+	public int hashCode()
+	{
+		final int prime = 31;
+		int result = 1;
+		result = prime * result + ((attributesArray == null) ? 0 : attributesArray.hashCode());
+		return result;
+	}
+	
+	@Override
+	public boolean equals( Object obj )
+	{
+		if( this == obj )
+			return true;
+		if( obj == null )
+			return false;
+		if( getClass() != obj.getClass() )
+			return false;
+		UnrealScriptAttributes other = (UnrealScriptAttributes) obj;
+		if( attributesArray == null )
+		{
+			if( other.attributesArray != null )
+				return false;
+		}
+		else if( !attributesArray.equals( other.attributesArray ) )
+			return false;
+		return true;
+	}
 }

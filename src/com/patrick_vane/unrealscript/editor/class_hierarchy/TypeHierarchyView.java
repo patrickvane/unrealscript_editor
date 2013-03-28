@@ -121,7 +121,7 @@ public class TypeHierarchyView extends ViewPart
 		classHierarchyViewer.setLabelProvider( new TypeHierarchyLabelProvider() );
 		classHierarchyViewer.setSorter( new TypeHierarchySorter() );
 		classHierarchyViewer.addDoubleClickListener( new TypeHierarchyDoubleClickListener() );
-		classHierarchyViewer.setAutoExpandLevel( 2 );
+		classHierarchyViewer.setAutoExpandLevel( 0 );
 		firstRunAfterStart = true;
 	}
 	

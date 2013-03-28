@@ -6,6 +6,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.InputStreamReader;
 import java.io.StringReader;
+import java.util.ArrayList;
 import java.util.HashMap;
 
 
@@ -16,7 +17,7 @@ public class UnrealScriptClassHierarchyParser
 		HashMap<String,UnrealScriptParsingClass> parsingClasses = new HashMap<String,UnrealScriptParsingClass>();
 		parse( parsingClasses, sourceDir );
 		
-		UnrealScriptRootClass root = new UnrealScriptRootClass( null, "root", sourceDir );
+		UnrealScriptRootClass root = new UnrealScriptRootClass( null, "root", new ArrayList<String>(), sourceDir );
 		for( UnrealScriptParsingClass parsedClass : parsingClasses.values() )
 		{
 			parse( root, parsingClasses, parsedClass );
@@ -47,7 +48,7 @@ public class UnrealScriptClassHierarchyParser
 				}
 				else
 				{
-					parent = new UnrealScriptClass( root, parentName, null );
+					parent = new UnrealScriptClass( root, parentName, new ArrayList<String>(), null );
 					root.addClass( parent );
 				}
 			}
@@ -57,7 +58,7 @@ public class UnrealScriptClassHierarchyParser
 			parent = root;
 		}
 		
-		thisClass = new UnrealScriptClass( parent, parsedClass.getName(), parsedClass.getFile() );
+		thisClass = new UnrealScriptClass( parent, parsedClass.getName(), parsedClass.getKeywords(), parsedClass.getFile() );
 		root.addClass( thisClass );
 		return thisClass;
 	}
@@ -98,6 +99,7 @@ public class UnrealScriptClassHierarchyParser
 			String line;
 			String name   = null;
 			String parent = null;
+			ArrayList<String> keywords = new ArrayList<String>();
 			boolean hasClass 	= false;
 			boolean hasExtends 	= false;
 			boolean hasClassLineEnded = false;
@@ -162,10 +164,13 @@ public class UnrealScriptClassHierarchyParser
 									else
 										hasClassLineEnded = true;
 								}
-								else
+								else if( parent == null )
 								{
 									parent = dataPart;
-									hasClassLineEnded = true;
+								}
+								else
+								{
+									keywords.add( dataPartLowerCase );
 								}
 							}
 						}
@@ -178,7 +183,7 @@ public class UnrealScriptClassHierarchyParser
 			}
 			if( name != null )
 			{
-				return new UnrealScriptParsingClass( name, parent, file );
+				return new UnrealScriptParsingClass( name, parent, keywords, file );
 			}
 			return null;
 		}

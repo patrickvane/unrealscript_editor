@@ -14,6 +14,12 @@ public class TypeHierarchySorter extends ViewerSorter
 		{
 			return ((UnrealScriptClass)e1).getName().compareTo( ((UnrealScriptClass)e2).getName() );
 		}
-		return ((UnrealScriptClass)e1).toString().compareTo( ((UnrealScriptClass)e2).toString() );
+		
+		if( e1 == null )
+			return 1;
+		if( e2 == null )
+			return -1;
+		
+		return e1.toString().compareTo( e2.toString() );
 	}
 }

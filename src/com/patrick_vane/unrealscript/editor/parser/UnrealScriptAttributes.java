@@ -6,8 +6,11 @@ import java.util.HashMap;
 
 public class UnrealScriptAttributes
 {
-	private final ArrayList<HashMap<String,CodeAttributeVariable>> variables = new ArrayList<HashMap<String,CodeAttributeVariable>>();
-	private final ArrayList<HashMap<String,CodeAttributeFunction>> functions = new ArrayList<HashMap<String,CodeAttributeFunction>>();
+	private final ArrayList<HashMap<String,CodeAttributeVariable>>	variables		= new ArrayList<HashMap<String,CodeAttributeVariable>>();
+	private final ArrayList<HashMap<String,CodeAttributeFunction>>	functions		= new ArrayList<HashMap<String,CodeAttributeFunction>>();
+	private final ArrayList<CodeAttribute>							attributesArray	= new ArrayList<CodeAttribute>();
+	private final ArrayList<CodeAttributeVariable>					variablesArray	= new ArrayList<CodeAttributeVariable>();
+	private final ArrayList<CodeAttributeFunction>					functionsArray	= new ArrayList<CodeAttributeFunction>();
 	
 	
 	public void addAttributes( ArrayList<CodeAttribute> attributes )
@@ -18,13 +21,36 @@ public class UnrealScriptAttributes
 		for( CodeAttribute attribute : attributes )
 		{
 			if( attribute instanceof CodeAttributeVariable )
-				variables.put( attribute.getName().toLowerCase(), (CodeAttributeVariable)attribute );
+			{
+				CodeAttributeVariable castedAttribute = (CodeAttributeVariable) attribute;
+				variables.put( attribute.getName().toLowerCase(), castedAttribute );
+				variablesArray.add( castedAttribute );
+			}
 			else if( attribute instanceof CodeAttributeFunction )
-				functions.put( attribute.getName().toLowerCase(), (CodeAttributeFunction)attribute );
+			{
+				CodeAttributeFunction castedAttribute = (CodeAttributeFunction) attribute;
+				functions.put( attribute.getName().toLowerCase(), castedAttribute );
+				functionsArray.add( castedAttribute );
+			}
+			attributesArray.add( attribute );
 		}
 		
 		this.variables.add( variables );
 		this.functions.add( functions );
+	}
+	
+	
+	public ArrayList<CodeAttribute> getAttributes()
+	{
+		return attributesArray;
+	}
+	public ArrayList<CodeAttributeVariable> getAttributeVariables()
+	{
+		return variablesArray;
+	}
+	public ArrayList<CodeAttributeFunction> getAttributeFunctions()
+	{
+		return functionsArray;
 	}
 	
 	

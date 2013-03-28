@@ -57,6 +57,8 @@ public abstract class CodeAttribute
 	}
 	public String getType()
 	{
+		if( type == null )
+			return "void";
 		return type;
 	}
 	public String getName()

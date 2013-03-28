@@ -1,11 +1,11 @@
 package com.patrick_vane.unrealscript.editor.parser;
 
 import java.io.File;
-import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import com.patrick_vane.unrealscript.editor.UnrealScriptEditor;
 import com.patrick_vane.unrealscript.editor.class_hierarchy.parser.UnrealScriptClass;
 import com.patrick_vane.unrealscript.editor.constants.WordConstant;
 import com.patrick_vane.unrealscript.editor.default_classes.KeywordDetector;
@@ -158,59 +158,297 @@ public class UnrealScriptParser
 				int i;
 				
 				// parse variable names >>
+				{
+					int brackets 		= 0;
+					int squareBrackets 	= 0;
+					int parentheses 	= 0;
+					int chevrons 		= 0;
+					boolean comma = true;
+					for( i=line.size()-1; i>=1; i-- )
 					{
+						CodeWord word = line.get( i );
+						char firstChar = word.getWord().charAt( 0 );
+						
+						if( !comma && (firstChar != ',') )
+							break;
+						
+						if( firstChar == '<' )
+						{
+							chevrons++;
+							continue;
+						}
+						else if( firstChar == '>' )
+						{
+							chevrons--;
+							continue;
+						}
+						else if( firstChar == '(' )
+						{
+							parentheses++;
+							continue;
+						}
+						else if( firstChar == ')' )
+						{
+							parentheses--;
+							continue;
+						}
+						else if( firstChar == '[' )
+						{
+							squareBrackets++;
+							continue;
+						}
+						else if( firstChar == ']' )
+						{
+							squareBrackets--;
+							continue;
+						}
+						else if( firstChar == '{' )
+						{
+							brackets++;
+							continue;
+						}
+						else if( firstChar == '}' )
+						{
+							brackets--;
+							continue;
+						}
+						
+						if( brackets != 0 )
+							continue;
+						if( squareBrackets != 0 )
+							continue;
+						if( parentheses != 0 )
+							continue;
+						if( chevrons != 0 )
+							continue;
+						
+						if( comma )
+						{
+							names.add( word );
+							comma = false;
+							continue;
+						}
+						else if( firstChar == ',' )
+						{
+							comma = true;
+							continue;
+						}
+						break;
+					}
+				}
+				// parse variable names <<
+				
+				// parse variable type >>
+				{
+					int brackets 		= 0;
+					int squareBrackets 	= 0;
+					int parentheses 	= 0;
+					int chevrons 		= 0;
+					boolean noBrackets = true;
+					for( ; i>=1; i-- )
+					{
+						String word = line.get(i).getWord();
+						char firstChar = word.charAt( 0 );
+						
+						type = word + type;
+						
+						if( firstChar == '<' )
+							chevrons++;
+						else if( firstChar == '>' )
+							chevrons--;
+						else if( firstChar == '(' )
+							parentheses++;
+						else if( firstChar == ')' )
+							parentheses--;
+						else if( firstChar == '[' )
+							squareBrackets++;
+						else if( firstChar == ']' )
+							squareBrackets--;
+						else if( firstChar == '{' )
+							brackets++;
+						else if( firstChar == '}' )
+							brackets--;
+						
+						if( brackets != 0 )
+						{
+							noBrackets = false;
+							continue;
+						}
+						if( squareBrackets != 0 )
+						{
+							noBrackets = false;
+							continue;
+						}
+						if( parentheses != 0 )
+						{
+							noBrackets = false;
+							continue;
+						}
+						if( chevrons != 0 )
+						{
+							noBrackets = false;
+							continue;
+						}
+						
+						if( !noBrackets )
+							noBrackets = true;
+						else
+							break;
+					}
+				}
+				// parse variable type <<
+				
+				// parse variable modifiers >>
+				{
+					int brackets 		= 0;
+					int squareBrackets 	= 0;
+					int parentheses 	= 0;
+					int chevrons 		= 0;
+					String modifier = "";
+					for( int j=1; j<i; j++ )
+					{
+						String word = line.get(j).getWord();
+						char firstChar = word.charAt( 0 );
+						
+						modifier += word;
+						
+						if( firstChar == '<' )
+							chevrons++;
+						else if( firstChar == '>' )
+							chevrons--;
+						else if( firstChar == '(' )
+							parentheses++;
+						else if( firstChar == ')' )
+							parentheses--;
+						else if( firstChar == '[' )
+							squareBrackets++;
+						else if( firstChar == ']' )
+							squareBrackets--;
+						else if( firstChar == '{' )
+							brackets++;
+						else if( firstChar == '}' )
+							brackets--;
+						
+						if( brackets != 0 )
+							continue;
+						if( squareBrackets != 0 )
+							continue;
+						if( parentheses != 0 )
+							continue;
+						if( chevrons != 0 )
+							continue;
+						
+						modifiers.add( modifier );
+						modifier = "";
+					}
+				}
+				// parse variable modifiers <<
+				
+				for( int n=names.size()-1; n>=0; n-- )
+				{
+					CodeWord word = names.get( n );
+					attributes.add( new CodeAttributeVariable(modifiers, type, word.getWord(), className, word.getFirstCharacterPosition(), word.getLastCharacterPosition()) );
+				}
+			}
+			else
+			{
+				boolean function = false;
+				for( int i=0; i<line.size(); i++ )
+				{
+					if( WordConstant.FUNCTION_KEYWORDS_HASHSET.contains(line.get(i).getWord().toLowerCase()) )
+					{
+						function = true;
+						break;
+					}
+				}
+				
+				if( function )
+				{
+					ArrayList<CodeAttributeVariable> parameters = new ArrayList<CodeAttributeVariable>();
+					CodeWord name = null;
+					String type = "";
+					ArrayList<String> modifiers = new ArrayList<String>();
+					int i;
+					
+					// parse parameters >>
+					{
+						CodeWord variableName = null;
+						ArrayList<String> variableModifiers = new ArrayList<String>();
+						String variableType = "";
+						boolean gotType = false;
+						String modifierWord = "";
+						
 						int brackets 		= 0;
 						int squareBrackets 	= 0;
 						int parentheses 	= 0;
 						int chevrons 		= 0;
-						boolean comma = true;
-						for( i=line.size()-1; i>=1; i-- )
+						for( i=line.size()-2; i>=0; i-- )
 						{
 							CodeWord word = line.get( i );
 							char firstChar = word.getWord().charAt( 0 );
 							
-							if( !comma && (firstChar != ',') )
-								break;
-							
 							if( firstChar == '<' )
-							{
 								chevrons++;
-								continue;
-							}
 							else if( firstChar == '>' )
-							{
 								chevrons--;
-								continue;
-							}
 							else if( firstChar == '(' )
-							{
 								parentheses++;
-								continue;
-							}
 							else if( firstChar == ')' )
-							{
 								parentheses--;
-								continue;
-							}
 							else if( firstChar == '[' )
-							{
 								squareBrackets++;
-								continue;
-							}
 							else if( firstChar == ']' )
-							{
 								squareBrackets--;
-								continue;
-							}
 							else if( firstChar == '{' )
-							{
 								brackets++;
+							else if( firstChar == '}' )
+								brackets--;
+							
+							if( (firstChar == ',') || (parentheses >= 1) )
+							{
+								if( (brackets == 0) && (squareBrackets == 0) && (parentheses >= 0) && (chevrons == 0) )
+								{
+									if( variableName != null )
+									{
+										// add parameter >>
+											parameters.add( new CodeAttributeVariable(variableModifiers, variableType, variableName.getWord(), className, variableName.getFirstCharacterPosition(), variableName.getLastCharacterPosition()) );
+											variableModifiers = new ArrayList<String>();
+											variableName = null;
+											variableType = "";
+											gotType = false;
+										// add parameter <<
+									}
+									
+									if( parentheses >= 1 )
+										break;
+									continue;
+								}
+							}
+							
+							if( variableName == null )
+							{
+								if( KeywordDetector.getSharedInstance().isWordStart(firstChar) )
+								{
+									variableName = word;
+								}
 								continue;
 							}
-							else if( firstChar == '}' )
+							else
 							{
-								brackets--;
-								continue;
+								if( (firstChar == '=') || (firstChar == '-') || (firstChar == '.') )
+								{
+									variableName = null;
+									continue;
+								}
+							}
+							
+							if( !gotType )
+							{
+								variableType = word.getWord() + variableType;
+							}
+							else
+							{
+								modifierWord = word.getWord() + modifierWord;
 							}
 							
 							if( brackets != 0 )
@@ -222,35 +460,48 @@ public class UnrealScriptParser
 							if( chevrons != 0 )
 								continue;
 							
-							if( comma )
+							if( !gotType )
 							{
-								names.add( word );
-								comma = false;
+								if( (variableType.length() > 0) && KeywordDetector.getSharedInstance().isWordStart(variableType.charAt(0)) )
+								{
+									gotType = true;
+								}
 								continue;
 							}
-							else if( firstChar == ',' )
+							else
 							{
-								comma = true;
-								continue;
+								variableModifiers.add( modifierWord );
+								modifierWord = "";
 							}
-							break;
+						}
+						i--;
+						Collections.reverse( parameters );
+					}
+					// parse parameters <<
+					
+					// parse name >>
+					{
+						if( i >= 0 )
+						{
+							name = line.get( i );
+							i--;
 						}
 					}
-				// parse variable names <<
-				
-				// parse variable type >>
+					// parse name <<
+					
+					// parse return type >>
 					{
 						int brackets 		= 0;
 						int squareBrackets 	= 0;
 						int parentheses 	= 0;
 						int chevrons 		= 0;
-						boolean noBrackets = true;
-						for( ; i>=1; i-- )
+						for( ; i>=0; i-- )
 						{
 							String word = line.get(i).getWord();
 							char firstChar = word.charAt( 0 );
 							
-							type = word + type;
+							if( WordConstant.FUNCTION_KEYWORDS_HASHSET.contains(word.toLowerCase()) )
+								break;
 							
 							if( firstChar == '<' )
 								chevrons++;
@@ -269,46 +520,39 @@ public class UnrealScriptParser
 							else if( firstChar == '}' )
 								brackets--;
 							
-							if( brackets != 0 )
-							{
-								noBrackets = false;
-								continue;
-							}
-							if( squareBrackets != 0 )
-							{
-								noBrackets = false;
-								continue;
-							}
-							if( parentheses != 0 )
-							{
-								noBrackets = false;
-								continue;
-							}
-							if( chevrons != 0 )
-							{
-								noBrackets = false;
-								continue;
-							}
+							type = word + type;
 							
-							if( !noBrackets )
-								noBrackets = true;
-							else
-								break;
+							if( brackets != 0 )
+								continue;
+							if( squareBrackets != 0 )
+								continue;
+							if( parentheses != 0 )
+								continue;
+							if( chevrons != 0 )
+								continue;
+							
+							break;
 						}
+						
+						if( type.length() == 0 )
+							type = "void";
 					}
-				// parse variable type <<
-				
-				// parse variable modifiers >>
+					// parse return type <<
+					
+					// parse variable modifiers >>
 					{
 						int brackets 		= 0;
 						int squareBrackets 	= 0;
 						int parentheses 	= 0;
 						int chevrons 		= 0;
 						String modifier = "";
-						for( int j=1; j<i; j++ )
+						for( int j=0; j<i; j++ )
 						{
 							String word = line.get(j).getWord();
 							char firstChar = word.charAt( 0 );
+							
+							if( WordConstant.FUNCTION_KEYWORDS_HASHSET.contains(word.toLowerCase()) )
+								continue;
 							
 							modifier += word;
 							
@@ -342,250 +586,6 @@ public class UnrealScriptParser
 							modifier = "";
 						}
 					}
-				// parse variable modifiers <<
-				
-				for( int n=names.size()-1; n>=0; n-- )
-				{
-					CodeWord word = names.get( n );
-					attributes.add( new CodeAttributeVariable(modifiers, type, word.getWord(), className, word.getFirstCharacterPosition(), word.getLastCharacterPosition()) );
-				}
-			}
-			else
-			{
-				boolean function = false;
-				for( int i=0; i<line.size(); i++ )
-				{
-					if( WordConstant.FUNCTION_KEYWORDS_HASHSET.contains(line.get(i).getWord().toLowerCase()) )
-					{
-						function = true;
-						break;
-					}
-				}
-				
-				if( function )
-				{
-					ArrayList<CodeAttributeVariable> parameters = new ArrayList<CodeAttributeVariable>();
-					CodeWord name = null;
-					String type = "";
-					ArrayList<String> modifiers = new ArrayList<String>();
-					int i;
-					
-					// parse parameters >>
-						{
-							CodeWord variableName = null;
-							ArrayList<String> variableModifiers = new ArrayList<String>();
-							String variableType = "";
-							boolean gotType = false;
-							String modifierWord = "";
-							
-							int brackets 		= 0;
-							int squareBrackets 	= 0;
-							int parentheses 	= 0;
-							int chevrons 		= 0;
-							for( i=line.size()-2; i>=0; i-- )
-							{
-								CodeWord word = line.get( i );
-								char firstChar = word.getWord().charAt( 0 );
-								
-								if( firstChar == '<' )
-									chevrons++;
-								else if( firstChar == '>' )
-									chevrons--;
-								else if( firstChar == '(' )
-									parentheses++;
-								else if( firstChar == ')' )
-									parentheses--;
-								else if( firstChar == '[' )
-									squareBrackets++;
-								else if( firstChar == ']' )
-									squareBrackets--;
-								else if( firstChar == '{' )
-									brackets++;
-								else if( firstChar == '}' )
-									brackets--;
-								
-								if( (firstChar == ',') || (parentheses >= 1) )
-								{
-									if( (brackets == 0) && (squareBrackets == 0) && (parentheses >= 0) && (chevrons == 0) )
-									{
-										if( variableName != null )
-										{
-											// add parameter >>
-												parameters.add( new CodeAttributeVariable(variableModifiers, variableType, variableName.getWord(), className, variableName.getFirstCharacterPosition(), variableName.getLastCharacterPosition()) );
-												variableModifiers = new ArrayList<String>();
-												variableName = null;
-												variableType = "";
-												gotType = false;
-											// add parameter <<
-										}
-										
-										if( parentheses >= 1 )
-											break;
-										continue;
-									}
-								}
-								
-								if( variableName == null )
-								{
-									if( KeywordDetector.getSharedInstance().isWordStart(firstChar) )
-									{
-										variableName = word;
-									}
-									continue;
-								}
-								else
-								{
-									if( (firstChar == '=') || (firstChar == '-') || (firstChar == '.') )
-									{
-										variableName = null;
-										continue;
-									}
-								}
-								
-								if( !gotType )
-								{
-									variableType = word.getWord() + variableType;
-								}
-								else
-								{
-									modifierWord = word.getWord() + modifierWord;
-								}
-								
-								if( brackets != 0 )
-									continue;
-								if( squareBrackets != 0 )
-									continue;
-								if( parentheses != 0 )
-									continue;
-								if( chevrons != 0 )
-									continue;
-								
-								if( !gotType )
-								{
-									if( (variableType.length() > 0) && KeywordDetector.getSharedInstance().isWordStart(variableType.charAt(0)) )
-									{
-										gotType = true;
-									}
-									continue;
-								}
-								else
-								{
-									variableModifiers.add( modifierWord );
-									modifierWord = "";
-								}
-							}
-							i--;
-							Collections.reverse( parameters );
-						}
-					// parse parameters <<
-					
-					// parse name >>
-						{
-							if( i >= 0 )
-							{
-								name = line.get( i );
-								i--;
-							}
-						}
-					// parse name <<
-					
-					// parse return type >>
-						{
-							int brackets 		= 0;
-							int squareBrackets 	= 0;
-							int parentheses 	= 0;
-							int chevrons 		= 0;
-							for( ; i>=0; i-- )
-							{
-								String word = line.get(i).getWord();
-								char firstChar = word.charAt( 0 );
-								
-								if( WordConstant.FUNCTION_KEYWORDS_HASHSET.contains(word.toLowerCase()) )
-									break;
-								
-								if( firstChar == '<' )
-									chevrons++;
-								else if( firstChar == '>' )
-									chevrons--;
-								else if( firstChar == '(' )
-									parentheses++;
-								else if( firstChar == ')' )
-									parentheses--;
-								else if( firstChar == '[' )
-									squareBrackets++;
-								else if( firstChar == ']' )
-									squareBrackets--;
-								else if( firstChar == '{' )
-									brackets++;
-								else if( firstChar == '}' )
-									brackets--;
-								
-								type = word + type;
-								
-								if( brackets != 0 )
-									continue;
-								if( squareBrackets != 0 )
-									continue;
-								if( parentheses != 0 )
-									continue;
-								if( chevrons != 0 )
-									continue;
-								
-								break;
-							}
-							
-							if( type.length() == 0 )
-								type = "void";
-						}
-					// parse return type <<
-					
-					// parse variable modifiers >>
-						{
-							int brackets 		= 0;
-							int squareBrackets 	= 0;
-							int parentheses 	= 0;
-							int chevrons 		= 0;
-							String modifier = "";
-							for( int j=0; j<i; j++ )
-							{
-								String word = line.get(j).getWord();
-								char firstChar = word.charAt( 0 );
-								
-								if( WordConstant.FUNCTION_KEYWORDS_HASHSET.contains(word.toLowerCase()) )
-									continue;
-								
-								modifier += word;
-								
-								if( firstChar == '<' )
-									chevrons++;
-								else if( firstChar == '>' )
-									chevrons--;
-								else if( firstChar == '(' )
-									parentheses++;
-								else if( firstChar == ')' )
-									parentheses--;
-								else if( firstChar == '[' )
-									squareBrackets++;
-								else if( firstChar == ']' )
-									squareBrackets--;
-								else if( firstChar == '{' )
-									brackets++;
-								else if( firstChar == '}' )
-									brackets--;
-								
-								if( brackets != 0 )
-									continue;
-								if( squareBrackets != 0 )
-									continue;
-								if( parentheses != 0 )
-									continue;
-								if( chevrons != 0 )
-									continue;
-								
-								modifiers.add( modifier );
-								modifier = "";
-							}
-						}
 					// parse variable modifiers <<
 					
 					if( name != null )
@@ -630,18 +630,6 @@ public class UnrealScriptParser
 	}
 	
 	
-	private static final HashMap<String,FileCache> fileCache = new HashMap<String,FileCache>();
-	private static class FileCache
-	{
-		public final long lastModified;
-		public final String data;
-		public FileCache( long lastChangedTime, String data )
-		{
-			this.lastModified = lastChangedTime;
-			this.data = data;
-		}
-	}
-	
 	private static final HashMap<String,ParseCache> parseCache = new HashMap<String,ParseCache>();
 	private static class ParseCache
 	{
@@ -656,45 +644,7 @@ public class UnrealScriptParser
 	
 	public static CodeBlock parse( File file ) throws CodeException, IOException
 	{
-		if( file == null )
-			return parse( "" );
-		
-		String data = null;
-		
-		FileCache fCache = fileCache.get( file.getAbsolutePath() );
-		if( (fCache != null) && (file.lastModified() == fCache.lastModified) )
-			data = fCache.data;
-		
-		if( data == null )
-		{
-			StringBuilder buffer = new StringBuilder();
-			FileInputStream inputStream = null;
-			try
-			{
-				inputStream = new FileInputStream( file );
-				char current;
-				while( inputStream.available() > 0 )
-				{
-					current = (char) inputStream.read();
-					buffer.append( current );
-				}
-			}
-			finally
-			{
-				try
-				{
-					if( inputStream != null )
-					{
-						inputStream.close();
-					}
-				}
-				catch( Exception e )
-				{
-				}
-			}
-			data = buffer.toString();
-			fileCache.put( file.getAbsolutePath(), new FileCache(file.lastModified(), data) );
-		}
+		String data = UnrealScriptEditor.getFileContent( file );
 		
 		if( data == null )
 			return parse( "" );

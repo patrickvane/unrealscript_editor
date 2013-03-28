@@ -47,7 +47,7 @@ public class HyperlinkDetector extends MyAbstractHyperlinkDetector
 		{
 			if( System.currentTimeMillis()-lastTime >= 3000 )
 			{
-				lastAttributes = UnrealScriptEditor.getActiveUnrealScriptAttributes();
+				lastAttributes = UnrealScriptEditor.getActiveUnrealScriptAttributesWithParents();
 				lastTime = System.currentTimeMillis();
 			}
 			

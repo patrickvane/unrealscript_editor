@@ -9,14 +9,16 @@ public class UnrealScriptClass
 	private final UnrealScriptClass 			parent;
 	private final ArrayList<UnrealScriptClass> 	childs = new ArrayList<UnrealScriptClass>();
 	private final String 						name;
+	private final ArrayList<String>				keywords;
 	private final File 							file;
 	
 	
-	public UnrealScriptClass( UnrealScriptClass parent, String name, File file )
+	public UnrealScriptClass( UnrealScriptClass parent, String name, ArrayList<String> keywords, File file )
 	{
-		this.parent = parent;
-		this.name 	= name;
-		this.file 	= file;
+		this.parent 	= parent;
+		this.name 		= name;
+		this.keywords 	= keywords;
+		this.file 		= file;
 		
 		if( parent != null )
 		{
@@ -42,6 +44,10 @@ public class UnrealScriptClass
 	public ArrayList<UnrealScriptClass> getChilds()
 	{
 		return childs;
+	}
+	public ArrayList<String> getKeywords()
+	{
+		return keywords;
 	}
 	public File getFile()
 	{
@@ -99,6 +105,32 @@ public class UnrealScriptClass
 		}
 		
 		return true;
+	}
+	
+	
+	public boolean isPlaceable()
+	{
+		if( getKeywords().contains("placeable") )
+			return true;
+		if( getKeywords().contains("notplaceable") )
+			return false;
+		
+		UnrealScriptClass parentClass = getParent();
+		while( parentClass != null )
+		{
+			if( parentClass.getKeywords().contains("placeable") )
+				return true;
+			if( parentClass.getKeywords().contains("notplaceable") )
+				return false;
+			parentClass = parentClass.getParent();
+		}
+		
+		return false;
+	}
+	
+	public boolean isAbstract()
+	{
+		return getKeywords().contains( "abstract" );
 	}
 	
 	

@@ -1,11 +1,12 @@
-package com.patrick_vane.unrealscript.editor.class_hierarchy;
+package com.patrick_vane.unrealscript.editor.outline;
 
 import org.eclipse.jface.viewers.ITreeContentProvider;
 import org.eclipse.jface.viewers.Viewer;
-import com.patrick_vane.unrealscript.editor.class_hierarchy.parser.UnrealScriptClass;
+import com.patrick_vane.unrealscript.editor.parser.CodeAttribute;
+import com.patrick_vane.unrealscript.editor.parser.UnrealScriptAttributes;
 
 
-public class TypeHierarchyContentProvider implements ITreeContentProvider
+public class OutlineContentProvider implements ITreeContentProvider
 {
 	@Override
 	public void inputChanged( Viewer viewer, Object oldInput, Object newInput )
@@ -25,9 +26,9 @@ public class TypeHierarchyContentProvider implements ITreeContentProvider
 	@Override
 	public boolean hasChildren( Object element )
 	{
-		if( element instanceof UnrealScriptClass )
+		if( element instanceof UnrealScriptAttributes )
 		{
-			return (((UnrealScriptClass)element).getChilds().size() > 0);
+			return (((UnrealScriptAttributes)element).getAttributes().size() > 0);
 		}
 		return false;
 	}
@@ -35,9 +36,9 @@ public class TypeHierarchyContentProvider implements ITreeContentProvider
 	@Override
 	public Object[] getChildren( Object element )
 	{
-		if( element instanceof UnrealScriptClass )
+		if( element instanceof UnrealScriptAttributes )
 		{
-			return ((UnrealScriptClass)element).getChilds().toArray( new UnrealScriptClass[0] );
+			return ((UnrealScriptAttributes)element).getAttributes().toArray( new CodeAttribute[0] );
 		}
 		return new Object[0];
 	}
@@ -45,10 +46,6 @@ public class TypeHierarchyContentProvider implements ITreeContentProvider
 	@Override
 	public Object getParent( Object element )
 	{
-		if( element instanceof UnrealScriptClass )
-		{
-			return ((UnrealScriptClass)element).getParent();
-		}
 		return null;
 	}
 	

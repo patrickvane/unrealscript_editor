@@ -1,19 +1,22 @@
 package com.patrick_vane.unrealscript.editor.class_hierarchy.parser;
 
 import java.io.File;
+import java.util.ArrayList;
 
 
 class UnrealScriptParsingClass
 {
-	private final String 	name;
-	private final String 	parentName;
-	private final File 		file;
+	private final String			name;
+	private final String			parentName;
+	private final ArrayList<String>	keywords;
+	private final File				file;
 	
 	
-	public UnrealScriptParsingClass( String name, String parentName, File file )
+	public UnrealScriptParsingClass( String name, String parentName, ArrayList<String> keywords, File file )
 	{
 		this.name 		= name;
 		this.parentName = parentName;
+		this.keywords 	= keywords;
 		this.file 		= file;
 	}
 	
@@ -25,6 +28,10 @@ class UnrealScriptParsingClass
 	public String getParentName()
 	{
 		return parentName;
+	}
+	public ArrayList<String> getKeywords()
+	{
+		return keywords;
 	}
 	public File getFile()
 	{

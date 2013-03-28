@@ -1,13 +1,13 @@
 package com.patrick_vane.unrealscript.editor;
 
 import java.io.File;
-import java.io.InputStream;
+import java.io.FileInputStream;
+import java.io.IOException;
 import java.io.PrintStream;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
-import java.util.Scanner;
 import org.eclipse.core.filesystem.EFS;
 import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.core.resources.IContainer;
@@ -59,12 +59,15 @@ public class UnrealScriptEditor extends TextEditor
 {
 	private static boolean firstInitStaticClassesCall = true;
 	
+	private final Configuration configuration;
+	
 	
 	public UnrealScriptEditor()
 	{
 		super();
 		
-		setSourceViewerConfiguration( new Configuration() );
+		configuration = new Configuration();
+		setSourceViewerConfiguration( configuration );
 		setDocumentProvider( new DocumentProvider() );
 		
 		initializeSourceViewer();
@@ -194,7 +197,7 @@ public class UnrealScriptEditor extends TextEditor
 		
 		public void addErrorMarker( final int startCharacter, final int endCharacter, final String message )
 		{
-			final IFile file = getFile( this );
+			final IFile file = getIFile( this );
 			try
 			{
 				if( file != null )
@@ -213,7 +216,7 @@ public class UnrealScriptEditor extends TextEditor
 		}
 		public void addWarningMarker( final int startCharacter, final int endCharacter, final String message )
 		{
-			final IFile file = getFile( this );
+			final IFile file = getIFile( this );
 			try
 			{
 				if( file != null )
@@ -233,7 +236,7 @@ public class UnrealScriptEditor extends TextEditor
 		
 		public void clearMarkers()
 		{
-			final IFile file = getFile( this );
+			final IFile file = getIFile( this );
 			if( file != null )
 			{
 				try
@@ -257,13 +260,22 @@ public class UnrealScriptEditor extends TextEditor
 		}
 		public boolean calculateIsDirty()
 		{
-			String currentContent = getEditorContent( this );
-			if( currentContent == null )
-				return false;
-			String savedContent = getFileContent( getFile(this) );
-			if( savedContent == null )
-				return false;
-			return !savedContent.equals( currentContent );
+			try
+			{
+				String currentContent = getEditorContent( this );
+				if( currentContent == null )
+					return false;
+				
+				String savedContent = getFileContent( getIFile(this) );
+				if( savedContent == null )
+					return false;
+				
+				return !savedContent.equals( currentContent );
+			}
+			catch( Exception e )
+			{
+			}
+			return false;
 		}
 		public void updateIsDirty()
 		{
@@ -278,6 +290,15 @@ public class UnrealScriptEditor extends TextEditor
 					}
 				}
 			);
+		}
+		
+		@Override
+		public Object getAdapter( Class required ) // redirected to the Configuration class
+		{
+			Object adapter = configuration.getAdapter( this, required );
+			if( adapter != null )
+				return adapter;
+			return super.getAdapter( required );
 		}
 	// this class methods <<
 	
@@ -342,7 +363,7 @@ public class UnrealScriptEditor extends TextEditor
 																HashMap map = new HashMap();
 																map.put( IMarker.CHAR_START, startChar );
 																map.put( IMarker.CHAR_END, endChar );
-																IMarker marker = getActiveFile().createMarker( IMarker.TEXT );
+																IMarker marker = getActiveIFile().createMarker( IMarker.TEXT );
 																marker.setAttributes( map );
 																IDE.openEditor( page, marker );
 																marker.delete();
@@ -410,11 +431,11 @@ public class UnrealScriptEditor extends TextEditor
 				return (UnrealScriptEditor) activeEditor;
 			return null;
 		}
-		public static IFile getActiveFile()
+		public static IFile getActiveIFile()
 		{
-			return getFile( getActiveEditor() );
+			return getIFile( getActiveEditor() );
 		}
-		public static IFile getFile( UnrealScriptEditor editor )
+		public static IFile getIFile( UnrealScriptEditor editor )
 		{
 			try
 			{
@@ -429,6 +450,26 @@ public class UnrealScriptEditor extends TextEditor
 			}
 			return null;
 		}
+		public static File getActiveFile()
+		{
+			return getFile( getActiveEditor() );
+		}
+		public static File getFile( UnrealScriptEditor editor )
+		{
+			return getFile( getIFile(editor) );
+		}
+		public static File getFile( IFile file )
+		{
+			try
+			{
+				return file.getRawLocation().toFile();
+			}
+			catch( Exception e )
+			{
+			}
+			return null;
+		}
+		
 		public static UnrealScriptClass getActiveUnrealScriptClass()
 		{
 			return getUnrealScriptClass( getActiveClassName() );
@@ -475,17 +516,34 @@ public class UnrealScriptEditor extends TextEditor
 			}
 			return null;
 		}
+		
 		public static UnrealScriptAttributes getActiveUnrealScriptAttributes()
 		{
 			return getUnrealScriptAttributes( getActiveClassName() );
 		}
 		public static UnrealScriptAttributes getUnrealScriptAttributes( String className )
 		{
-			return UnrealScriptAttributeParser.parseAttributes( className );
+			return UnrealScriptAttributeParser.parseAttributesOfClass( className );
+		}
+		public static UnrealScriptAttributes getActiveUnrealScriptAttributesWithParents()
+		{
+			return getUnrealScriptAttributesWithParents( getActiveClassName() );
+		}
+		public static UnrealScriptAttributes getUnrealScriptAttributesWithParents( String className )
+		{
+			return UnrealScriptAttributeParser.parseAttributesOfClassAndParents( className );
 		}
 		public static String getActiveClassName()
 		{
 			return getClassName( getActiveEditorContent() );
+		}
+		public static String getClassName( File file ) throws IOException
+		{
+			return getClassName( getFileContent(file) );
+		}
+		public static String getClassName( IFile file ) throws IOException
+		{
+			return getClassName( getFileContent(file) );
 		}
 		public static String getClassName( String classContent )
 		{
@@ -544,7 +602,7 @@ public class UnrealScriptEditor extends TextEditor
 		{
 			try
 			{
-				IFile file = getActiveFile();
+				IFile file = getActiveIFile();
 				IContainer project = file.getProject();
 				while( project.getParent().getParent() != null )
 				{
@@ -1102,46 +1160,67 @@ public class UnrealScriptEditor extends TextEditor
 			}
 		}
 		
-		public static String getFileContent( IFile file )
+		private static final HashMap<String,FileCache> fileCache = new HashMap<String,FileCache>();
+		private static class FileCache
 		{
-			InputStream stream = null;
-			Scanner scanner = null;
-			try
+			public final long lastModified;
+			public final String data;
+			public FileCache( long lastChangedTime, String data )
 			{
-				stream = file.getContents();
-				scanner = new Scanner( stream, "UTF-8" ).useDelimiter( "\\A" );
-				if( scanner.hasNext() )
-					return scanner.next();
-				return "";
+				this.lastModified = lastChangedTime;
+				this.data = data;
 			}
-			catch( Exception e )
-			{
+		}
+		public static String getFileContent( IFile file ) throws IOException
+		{
+			return getFileContent( getFile(file) );
+		}
+		public static String getFileContent( File file ) throws IOException
+		{
+			if( file == null )
 				return "";
-			}
-			finally
+			
+			String data = null;
+			
+			FileCache fCache = fileCache.get( file.getAbsolutePath() );
+			if( (fCache != null) && (file.lastModified() == fCache.lastModified) )
+				data = fCache.data;
+			
+			if( data == null )
 			{
+				StringBuilder buffer = new StringBuilder();
+				FileInputStream inputStream = null;
 				try
 				{
-					if( stream != null )
+					inputStream = new FileInputStream( file );
+					char current;
+					while( inputStream.available() > 0 )
 					{
-						stream.close();
+						current = (char) inputStream.read();
+						buffer.append( current );
 					}
 				}
-				catch( Exception e )
+				finally
 				{
-				}
-				
-				try
-				{
-					if( scanner != null )
+					try
 					{
-						scanner.close();
+						if( inputStream != null )
+						{
+							inputStream.close();
+						}
+					}
+					catch( Exception e )
+					{
 					}
 				}
-				catch( Exception e )
-				{
-				}
+				data = buffer.toString();
+				fileCache.put( file.getAbsolutePath(), new FileCache(file.lastModified(), data) );
 			}
+			
+			if( data == null )
+				data = "";
+			
+			return data;
 		}
 		
 		public static String getCode( String text )

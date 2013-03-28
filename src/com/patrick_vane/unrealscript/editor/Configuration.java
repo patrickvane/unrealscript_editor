@@ -14,19 +14,23 @@ import org.eclipse.jface.text.source.DefaultAnnotationHover;
 import org.eclipse.jface.text.source.IAnnotationHover;
 import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.jface.text.source.SourceViewerConfiguration;
+import org.eclipse.ui.views.contentoutline.IContentOutlinePage;
+import com.patrick_vane.unrealscript.editor.class_hierarchy.TypeHierarchyView;
 import com.patrick_vane.unrealscript.editor.constants.TagConstant;
 import com.patrick_vane.unrealscript.editor.default_classes.DoubleClickStrategy;
 import com.patrick_vane.unrealscript.editor.extra.AutoEditStrategy;
 import com.patrick_vane.unrealscript.editor.extra.ContentAssistant;
 import com.patrick_vane.unrealscript.editor.extra.TextHover;
 import com.patrick_vane.unrealscript.editor.hyperlink_ctrl.HyperlinkDetector;
+import com.patrick_vane.unrealscript.editor.outline.OutlineContentPage;
 import com.patrick_vane.unrealscript.editor.syntaxcolor.UnrealScriptSyntaxColor;
 
 
 public class Configuration extends SourceViewerConfiguration
 {
-	private DoubleClickStrategy	doubleClickStrategy;
 	private HyperlinkDetector[] hyperlinkDetectors;
+	private DoubleClickStrategy	doubleClickStrategy;
+	private OutlineContentPage	outlineContentPage;
 	
 	private static HashMap<File,FileChangesListener> saveOnResourceChangesListeners = new HashMap<File,FileChangesListener>();
 	
@@ -36,6 +40,7 @@ public class Configuration extends SourceViewerConfiguration
 		doubleClickStrategy = new DoubleClickStrategy();
 		hyperlinkDetectors  = new HyperlinkDetector[]{ new HyperlinkDetector() };
 		
+		final Configuration THIS = this;
 		new Thread()
 		{
 			@Override
@@ -52,7 +57,7 @@ public class Configuration extends SourceViewerConfiguration
 						{
 							if( saveOnResourceChangesListeners.get(rootFile) == null )
 							{
-								FileChangesListener saveOnResourceChangesListener = new FileChangesListener( project, rootFile );
+								FileChangesListener saveOnResourceChangesListener = new FileChangesListener( THIS, project, rootFile );
 								saveOnResourceChangesListener.start();
 								saveOnResourceChangesListeners.put( rootFile, saveOnResourceChangesListener );
 							}
@@ -65,6 +70,30 @@ public class Configuration extends SourceViewerConfiguration
 				}
 			}
 		}.start();
+	}
+	
+	
+	public Object getAdapter( UnrealScriptEditor editor, Class required )
+	{
+		if( IContentOutlinePage.class.equals(required) )
+		{
+			if( outlineContentPage == null )
+			{
+				outlineContentPage = new OutlineContentPage( UnrealScriptEditor.getIFile(editor), editor.getEditorInput() );
+			}
+			return outlineContentPage;
+		}
+		return null;
+	}
+	
+	
+	public void fileChanged()
+	{
+		TypeHierarchyView.fileChanged();
+		if( outlineContentPage != null )
+		{
+			outlineContentPage.fileChanged();
+		}
 	}
 	
 	

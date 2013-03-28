@@ -14,10 +14,12 @@ public class ToggleVariablesAction extends Action
 	
 	public ToggleVariablesAction( OutlineContentPage page )
 	{
+		super( "Hide Variables", AS_CHECK_BOX );
+		setImageDescriptor( UnrealScriptEditor.getImageDescriptor("outline/button_hide_variables.gif") );
+		
 		this.page = page;
 		
-		setDescription( "Toggle Variables" );
-		setImageDescriptor( UnrealScriptEditor.getImageDescriptor("outline/button_hide_variables.gif") );
+		setChecked( areVariablesHidden() );
 	}
 	
 	
@@ -26,7 +28,7 @@ public class ToggleVariablesAction extends Action
 	{
 		try
 		{
-			UnrealScriptEditor.getRoot().setPersistentProperty( UnrealScriptID.PROPERTY_HIDE_VARIABLES, Boolean.toString(!isChecked()) );
+			UnrealScriptEditor.getRoot().setPersistentProperty( UnrealScriptID.PROPERTY_HIDE_VARIABLES, Boolean.toString(!areVariablesHidden()) );
 			page.update();
 		}
 		catch( CoreException e )
@@ -35,8 +37,7 @@ public class ToggleVariablesAction extends Action
 	}
 	
 	
-	@Override
-	public boolean isChecked()
+	public boolean areVariablesHidden()
 	{
 		try
 		{

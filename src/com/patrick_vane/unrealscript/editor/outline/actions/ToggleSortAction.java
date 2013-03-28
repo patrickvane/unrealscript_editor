@@ -14,10 +14,12 @@ public class ToggleSortAction extends Action
 	
 	public ToggleSortAction( OutlineContentPage page )
 	{
+		super( "Sort", AS_CHECK_BOX );
+		setImageDescriptor( UnrealScriptEditor.getImageDescriptor("outline/button_sort.gif") );
+		
 		this.page = page;
 		
-		setDescription( "Toggle Alphabetic Sorting" );
-		setImageDescriptor( UnrealScriptEditor.getImageDescriptor("outline/button_sort.gif") );
+		setChecked( isSortOn() );
 	}
 	
 	
@@ -26,7 +28,7 @@ public class ToggleSortAction extends Action
 	{
 		try
 		{
-			UnrealScriptEditor.getRoot().setPersistentProperty( UnrealScriptID.PROPERTY_SORT_ALPHABETIC, Boolean.toString(!isChecked()) );
+			UnrealScriptEditor.getRoot().setPersistentProperty( UnrealScriptID.PROPERTY_SORT_ALPHABETIC, Boolean.toString(!isSortOn()) );
 			page.update();
 		}
 		catch( CoreException e )
@@ -35,8 +37,7 @@ public class ToggleSortAction extends Action
 	}
 	
 	
-	@Override
-	public boolean isChecked()
+	public boolean isSortOn()
 	{
 		try
 		{

@@ -13,7 +13,7 @@ public class OutlineSorter extends ViewerSorter
 	@Override
 	public int compare( Viewer viewer, Object e1, Object e2 )
 	{
-		if( isSortingOff() )
+		if( !isSortOn() )
 			return 0;
 		
 		if( (e1 instanceof CodeAttribute) && (e2 instanceof CodeAttribute) )
@@ -36,7 +36,7 @@ public class OutlineSorter extends ViewerSorter
 	}
 	
 	
-	private static boolean isSortingOff()
+	private static boolean isSortOn()
 	{
 		try
 		{

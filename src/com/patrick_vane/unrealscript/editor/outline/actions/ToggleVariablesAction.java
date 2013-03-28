@@ -29,7 +29,7 @@ public class ToggleVariablesAction extends Action
 		try
 		{
 			UnrealScriptEditor.getRoot().setPersistentProperty( UnrealScriptID.PROPERTY_HIDE_VARIABLES, Boolean.toString(!areVariablesHidden()) );
-			page.update();
+			page.update( true );
 		}
 		catch( CoreException e )
 		{

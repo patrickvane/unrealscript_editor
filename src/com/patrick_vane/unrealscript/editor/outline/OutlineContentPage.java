@@ -64,10 +64,14 @@ public class OutlineContentPage extends ContentOutlinePage
 	
 	public void update()
 	{
+		update( false );
+	}
+	public void update( boolean forced )
+	{
 		try
 		{
 			final UnrealScriptAttributes attributes = UnrealScriptEditor.getUnrealScriptAttributes( UnrealScriptEditor.getClassName(file) );
-			if( (lastAttributes == null) || !lastAttributes.equals(attributes) )
+			if( forced || (lastAttributes == null) || !lastAttributes.equals(attributes) )
 			{
 				lastAttributes = attributes;
 				

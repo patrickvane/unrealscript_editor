@@ -29,7 +29,7 @@ public class ToggleSortAction extends Action
 		try
 		{
 			UnrealScriptEditor.getRoot().setPersistentProperty( UnrealScriptID.PROPERTY_SORT_ALPHABETIC, Boolean.toString(!isSortOn()) );
-			page.update();
+			page.update( true );
 		}
 		catch( CoreException e )
 		{

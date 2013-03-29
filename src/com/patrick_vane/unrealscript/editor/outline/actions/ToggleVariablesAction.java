@@ -19,6 +19,12 @@ public class ToggleVariablesAction extends Action
 		
 		this.page = page;
 		
+		update();
+	}
+	
+	
+	public void update()
+	{
 		setChecked( areVariablesHidden() );
 	}
 	

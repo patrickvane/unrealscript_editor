@@ -24,7 +24,7 @@ public class OutlineSorter extends ViewerSorter
 			
 			if( !isSortOn() )
 				return 0;
-			return a1.getName().compareTo( a2.getName() );
+			return a1.getName().toLowerCase().compareTo( a2.getName().toLowerCase() );
 		}
 		
 		if( !isSortOn() )
@@ -35,7 +35,7 @@ public class OutlineSorter extends ViewerSorter
 		if( e2 == null )
 			return -1;
 		
-		return e1.toString().compareTo( e2.toString() );
+		return e1.toString().toLowerCase().compareTo( e2.toString().toLowerCase() );
 	}
 	
 	

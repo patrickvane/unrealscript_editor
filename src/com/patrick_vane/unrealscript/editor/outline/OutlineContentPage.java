@@ -22,7 +22,11 @@ public class OutlineContentPage extends ContentOutlinePage
 	private IFile file;
 	private UnrealScriptAttributes lastAttributes;
 	
+	private ToggleSortAction actionToggleSort;
+	private ToggleVariablesAction actionToggleVariables;
+	
 	private boolean runThread = true;
+	private boolean lastWasThis = false;
 	private Thread thread = new Thread()
 	{
 		@Override
@@ -32,9 +36,16 @@ public class OutlineContentPage extends ContentOutlinePage
 			{
 				try
 				{
-					if( runThread && file.equals(UnrealScriptEditor.getActiveIFile()) )
+					if( runThread )
 					{
-						update();
+						if( file.equals(UnrealScriptEditor.getActiveIFile()) )
+						{
+							update();
+						}
+						else
+						{
+							lastWasThis = false;
+						}
 					}
 				}
 				catch( Exception e )
@@ -43,7 +54,7 @@ public class OutlineContentPage extends ContentOutlinePage
 				
 				try
 				{
-					Thread.sleep( 2000 );
+					Thread.sleep( 1000 );
 				}
 				catch( Exception e )
 				{
@@ -68,12 +79,18 @@ public class OutlineContentPage extends ContentOutlinePage
 	}
 	public void update( boolean forced )
 	{
+		if( actionToggleSort != null )
+			actionToggleSort.update();
+		if( actionToggleVariables != null )
+			actionToggleVariables.update();
+		
 		try
 		{
 			final UnrealScriptAttributes attributes = UnrealScriptEditor.getUnrealScriptAttributes( UnrealScriptEditor.getClassName(file) );
-			if( forced || (lastAttributes == null) || !lastAttributes.equals(attributes) )
+			if( forced || !lastWasThis || (lastAttributes == null) || !lastAttributes.equals(attributes) )
 			{
 				lastAttributes = attributes;
+				lastWasThis = true;
 				
 				Display.getDefault().syncExec
 				(
@@ -153,8 +170,11 @@ public class OutlineContentPage extends ContentOutlinePage
 	@Override
 	public void setActionBars( IActionBars actionBars )
 	{
-	    actionBars.getToolBarManager().add( new ToggleSortAction(this) );
-	    actionBars.getToolBarManager().add( new ToggleVariablesAction(this) );
+		actionToggleSort = new ToggleSortAction( this );
+		actionToggleVariables = new ToggleVariablesAction( this );
+		
+	    actionBars.getToolBarManager().add( actionToggleSort );
+	    actionBars.getToolBarManager().add( actionToggleVariables );
 	    actionBars.getToolBarManager().update( false );       
 	    actionBars.updateActionBars();      
 	}

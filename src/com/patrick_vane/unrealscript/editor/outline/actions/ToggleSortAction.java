@@ -19,6 +19,12 @@ public class ToggleSortAction extends Action
 		
 		this.page = page;
 		
+		update();
+	}
+	
+	
+	public void update()
+	{
 		setChecked( isSortOn() );
 	}
 	

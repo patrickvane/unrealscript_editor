@@ -671,9 +671,11 @@ public class UnrealScriptParser
 		int commentBlocksOpen = 0;
 		int stringStartCharacterPosition = 0;
 		UnrealScriptParserBracketBlock bracketBlock = new UnrealScriptParserBracketBlock();
+		@SuppressWarnings( "unused" )
 		char previousChar = ' ';
 		char character = ' ';
 		char nextChar = ' ';
+		int backslashes = 0;
 		int skip = 0;
 		for( int i=0; i<data.length(); i++ )
 		{
@@ -834,7 +836,7 @@ public class UnrealScriptParser
 			}
 			if( !inCommentLine && (commentBlocksOpen == 0) )
 			{
-				if( previousChar != '\\' )
+				if( backslashes%2 == 0 )
 				{
 					if( !inChar )
 					{
@@ -874,6 +876,15 @@ public class UnrealScriptParser
 							continue;
 						}
 					}
+				}
+				
+				if( character == '\\' )
+				{
+					backslashes++;
+				}
+				else
+				{
+					backslashes = 0;
 				}
 				
 				if( (!block.isNewWordOpen() && KeywordDetector.getSharedInstance().isWordStart(character)) || (block.isNewWordOpen() && KeywordDetector.getSharedInstance().isWordPart(character)) )

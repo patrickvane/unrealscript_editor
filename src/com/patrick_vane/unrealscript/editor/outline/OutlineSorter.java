@@ -13,9 +13,6 @@ public class OutlineSorter extends ViewerSorter
 	@Override
 	public int compare( Viewer viewer, Object e1, Object e2 )
 	{
-		if( !isSortOn() )
-			return 0;
-		
 		if( (e1 instanceof CodeAttribute) && (e2 instanceof CodeAttribute) )
 		{
 			CodeAttribute a1 = (CodeAttribute) e1;
@@ -24,8 +21,14 @@ public class OutlineSorter extends ViewerSorter
 				return -1;
 			if( a1.isFunction() && !a2.isFunction() )
 				return 1;
+			
+			if( !isSortOn() )
+				return 0;
 			return a1.getName().compareTo( a2.getName() );
 		}
+		
+		if( !isSortOn() )
+			return 0;
 		
 		if( e1 == null )
 			return 1;

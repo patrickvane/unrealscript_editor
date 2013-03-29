@@ -137,7 +137,7 @@ public class TypeHierarchyView extends ViewPart
 	}
 	private static void addToClassesHashSet( UnrealScriptClass unrealscriptClass )
 	{
-		lastClasses.put( unrealscriptClass.getName(), unrealscriptClass );
+		lastClasses.put( unrealscriptClass.getName().toLowerCase(), unrealscriptClass );
 		for( UnrealScriptClass child : unrealscriptClass.getChilds() )
 		{
 			addToClassesHashSet( child );

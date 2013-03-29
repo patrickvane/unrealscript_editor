@@ -486,7 +486,7 @@ public class UnrealScriptEditor extends TextEditor
 			{
 				try
 				{
-					return TypeHierarchyView.getClasses().get( file.getName().replaceAll(".uc", "") );
+					return TypeHierarchyView.getClasses().get( file.getName().toLowerCase().replaceAll(".uc", "") );
 				}
 				catch( Exception e )
 				{
@@ -500,7 +500,7 @@ public class UnrealScriptEditor extends TextEditor
 			{
 				try
 				{
-					return TypeHierarchyView.getClasses().get( file.getName().replaceAll(".uc", "") );
+					return TypeHierarchyView.getClasses().get( file.getName().toLowerCase().replaceAll(".uc", "") );
 				}
 				catch( Exception e )
 				{
@@ -514,7 +514,7 @@ public class UnrealScriptEditor extends TextEditor
 			{
 				try
 				{
-					return TypeHierarchyView.getClasses().get( name.replaceAll(".uc", "") );
+					return TypeHierarchyView.getClasses().get( name.toLowerCase().replaceAll(".uc", "") );
 				}
 				catch( Exception e )
 				{

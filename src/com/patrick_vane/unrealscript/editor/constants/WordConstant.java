@@ -7,6 +7,13 @@ public class WordConstant
 {
 	public static final String[] KEYWORDS = new String[]
 	{
+		"#if",
+		"#elif",
+		"#else",
+		"#end",
+		"#include",
+		"#define",
+		
 		"abstract",
 		"alwaysc",
 		"archetype",
@@ -81,6 +88,7 @@ public class WordConstant
 		"export",
 		"exportstructs",
 		"extends",
+		"explicit",
 		
 		"false",
 		"filtereditoronly",
@@ -92,6 +100,7 @@ public class WordConstant
 		"foreach",
 		"fromc",
 		"function",
+		"forceinline",
 		
 		"global",
 		"globalconfig",

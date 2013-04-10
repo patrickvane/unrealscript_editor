@@ -54,6 +54,7 @@ public class WordConstant
 		"dontautocollapsecategories",
 		"dontcollapsecategories",
 		"dontsortcategories",
+		"double",
 		"dllbind",
 		"dllimport",
 		"duplicatetransient",

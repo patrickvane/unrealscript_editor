@@ -350,7 +350,7 @@ public class UnrealScriptEditor extends TextEditor
 											{
 												try
 												{
-													Thread.sleep( 200 );
+													Thread.sleep( 500 );
 												}
 												catch( Exception e )
 												{

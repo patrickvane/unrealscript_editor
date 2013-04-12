@@ -7,6 +7,7 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.jface.text.IAutoEditStrategy;
 import org.eclipse.jface.text.ITextDoubleClickStrategy;
 import org.eclipse.jface.text.ITextHover;
+import org.eclipse.jface.text.IUndoManager;
 import org.eclipse.jface.text.contentassist.IContentAssistant;
 import org.eclipse.jface.text.hyperlink.IHyperlinkDetector;
 import org.eclipse.jface.text.presentation.IPresentationReconciler;
@@ -28,6 +29,8 @@ import com.patrick_vane.unrealscript.editor.syntaxcolor.UnrealScriptSyntaxColor;
 
 public class Configuration extends SourceViewerConfiguration
 {
+	private final UnrealScriptEditor editor;
+	
 	private HyperlinkDetector[] hyperlinkDetectors;
 	private DoubleClickStrategy	doubleClickStrategy;
 	private OutlineContentPage	outlineContentPage;
@@ -35,8 +38,10 @@ public class Configuration extends SourceViewerConfiguration
 	private static HashMap<File,FileChangesListener> saveOnResourceChangesListeners = new HashMap<File,FileChangesListener>();
 	
 	
-	public Configuration()
+	public Configuration( UnrealScriptEditor editor )
 	{
+		this.editor = editor;
+		
 		doubleClickStrategy = new DoubleClickStrategy();
 		hyperlinkDetectors  = new HyperlinkDetector[]{ new HyperlinkDetector() };
 		
@@ -94,6 +99,15 @@ public class Configuration extends SourceViewerConfiguration
 		{
 			outlineContentPage.update();
 		}
+	}
+	
+	
+	@Override
+	public IUndoManager getUndoManager( ISourceViewer sourceViewer )
+	{
+		IUndoManager manager = super.getUndoManager( sourceViewer );
+		manager.setMaximalUndoLevel( editor.getUndoHistorySize() );
+		return manager;
 	}
 	
 	

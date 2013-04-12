@@ -27,6 +27,7 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.source.AnnotationRulerColumn;
@@ -72,7 +73,7 @@ public class UnrealScriptEditor extends TextEditor
 	{
 		super();
 		
-		configuration = new Configuration();
+		configuration = new Configuration( this );
 		setSourceViewerConfiguration( configuration );
 		setDocumentProvider( new DocumentProvider() );
 		
@@ -154,6 +155,13 @@ public class UnrealScriptEditor extends TextEditor
 		ruler.addDecorator( 0, new AnnotationRulerColumn(VERTICAL_RULER_WIDTH) );
 		return ruler;
 	}
+	
+	
+	public int getUndoHistorySize()
+	{
+        IPreferenceStore store = getPreferenceStore();
+        return ((store != null) ? store.getInt("undoHistorySize") : 1000);
+    }
 	
 	
 	// markers >>

@@ -56,6 +56,7 @@ import com.patrick_vane.unrealscript.editor.class_hierarchy.parser.UnrealScriptC
 import com.patrick_vane.unrealscript.editor.constants.ProjectConstant;
 import com.patrick_vane.unrealscript.editor.constants.UnrealScriptID;
 import com.patrick_vane.unrealscript.editor.default_classes.DocumentProvider;
+import com.patrick_vane.unrealscript.editor.default_classes.DoneNotifier;
 import com.patrick_vane.unrealscript.editor.default_classes.MyRunnable;
 import com.patrick_vane.unrealscript.editor.default_classes.MyStream;
 import com.patrick_vane.unrealscript.editor.default_classes.WhitespaceDetector;
@@ -375,46 +376,62 @@ public class UnrealScriptEditor extends TextEditor
 									final IEditorPart openedFile = IDE.openEditorOnFileStore( page, fileStore );
 									if( openedFile != null )
 									{
-										new Thread()
+										final IFile file = getIFile( openedFile.getEditorInput() );
+										if( file != null )
 										{
-											@Override
-											public void run()
+											new Thread()
 											{
-												try
+												@Override
+												public void run()
 												{
-													Thread.sleep( 500 );
-												}
-												catch( Exception e )
-												{
-												}
-												
-												Display.getDefault().syncExec
-												(
-													new Runnable()
+													final DoneNotifier doneNotifier = new DoneNotifier();
+													for( int i=1; i<=10; i++ )
 													{
-														@Override
-														public void run()
+														if( doneNotifier.isDone() )
+															return;
+														
+														try
 														{
-															try
-															{
-																page.activate( openedFile );
-																HashMap map = new HashMap();
-																map.put( IMarker.CHAR_START, startChar );
-																map.put( IMarker.CHAR_END, endChar );
-																IMarker marker = getActiveIFile().createMarker( IMarker.TEXT );
-																marker.setAttributes( map );
-																IDE.openEditor( page, marker );
-																marker.delete();
-															}
-															catch( Exception e )
-															{
-																e.printStackTrace();
-															}
+															Thread.sleep( i*100 );
 														}
+														catch( Exception e )
+														{
+														}
+														
+														Display.getDefault().syncExec
+														(
+															new Runnable()
+															{
+																@Override
+																public void run()
+																{
+																	try
+																	{
+																		page.activate( openedFile );
+																		
+																		HashMap map = new HashMap();
+																		map.put( IMarker.CHAR_START, startChar );
+																		map.put( IMarker.CHAR_END, endChar );
+																		IMarker marker = file.createMarker( IMarker.TEXT );
+																		if( marker != null )
+																		{
+																			marker.setAttributes( map );
+																			IDE.openEditor( page, marker );
+																			marker.delete();
+																			
+																			doneNotifier.done();
+																		}
+																	}
+																	catch( Exception e )
+																	{
+																	}
+																}
+															}
+														);
 													}
-												);
-											}
-										}.start();
+												}
+											}.start();
+										}
 									}
 								}
 								catch( Exception e )
@@ -478,6 +495,21 @@ public class UnrealScriptEditor extends TextEditor
 			try
 			{
 				Object object = editor.getEditorInput().getAdapter( IFile.class );
+				if( object instanceof IFile )
+				{
+					return (IFile) object;
+				}
+			}
+			catch( Exception e )
+			{
+			}
+			return null;
+		}
+		public static IFile getIFile( IEditorInput editor )
+		{
+			try
+			{
+				Object object = editor.getAdapter( IFile.class );
 				if( object instanceof IFile )
 				{
 					return (IFile) object;

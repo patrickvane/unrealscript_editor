@@ -10,12 +10,13 @@ public class ProjectConstant
 	
 	static
 	{
-		addFolder( "UnrealScript", "Development/Src" );
-		addFolder( "Logs", "UDKGame/Logs" );
+		addFolder( "BaseConfig", "Engine/Config" );
 		addFolder( "Config", "UDKGame/Config" );
 		addFolder( "Content", "UDKGame/Content", new String[]{"Maps"} );
-		addFolder( "Maps", "UDKGame/Content/Maps" );
+		addFolder( "Logs", "UDKGame/Logs" );
 		addFolder( "Flash", "UDKGame/Flash" );
+		addFolder( "Maps", "UDKGame/Content/Maps" );
+		addFolder( "UnrealScript", "Development/Src" );
 	}
 	
 	private static void addFolder( String name, String path )

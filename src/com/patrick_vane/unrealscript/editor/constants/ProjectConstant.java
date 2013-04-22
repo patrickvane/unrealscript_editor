@@ -15,7 +15,7 @@ public class ProjectConstant
 		addFolder( "Config", "UDKGame/Config" );
 		addFolder( "Content", "UDKGame/Content", new String[]{"Maps"} );
 		addFolder( "Maps", "UDKGame/Content/Maps" );
-		addFolder( "Flash", "Development/Flash" );
+		addFolder( "Flash", "UDKGame/Flash" );
 	}
 	
 	private static void addFolder( String name, String path )

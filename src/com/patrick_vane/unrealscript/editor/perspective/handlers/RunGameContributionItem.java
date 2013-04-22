@@ -10,7 +10,7 @@ import org.eclipse.jface.action.ContributionItem;
 import org.eclipse.jface.action.IAction;
 import org.eclipse.swt.widgets.Menu;
 import com.patrick_vane.unrealscript.editor.UnrealScriptEditor;
-import com.patrick_vane.unrealscript.editor.UnrealScriptID;
+import com.patrick_vane.unrealscript.editor.constants.UnrealScriptID;
 import com.patrick_vane.unrealscript.editor.default_classes.MyArraySorter;
 import com.patrick_vane.unrealscript.editor.default_classes.MySerializer;
 import com.patrick_vane.unrealscript.editor.executable.Profile;

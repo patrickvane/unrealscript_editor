@@ -14,7 +14,7 @@ import java.util.HashMap;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import com.patrick_vane.unrealscript.editor.UnrealScriptEditor;
-import com.patrick_vane.unrealscript.editor.UnrealScriptID;
+import com.patrick_vane.unrealscript.editor.constants.UnrealScriptID;
 import com.patrick_vane.unrealscript.editor.default_classes.MyArraySorter;
 import com.patrick_vane.unrealscript.editor.default_classes.MySerializer;
 import com.patrick_vane.unrealscript.editor.executable.Profile;

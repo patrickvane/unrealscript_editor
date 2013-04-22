@@ -7,7 +7,7 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
-import com.patrick_vane.unrealscript.editor.UnrealScriptID;
+import com.patrick_vane.unrealscript.editor.constants.UnrealScriptID;
 import com.patrick_vane.unrealscript.editor.executable.UDKCompiler;
 
 

@@ -3,8 +3,8 @@ package com.patrick_vane.unrealscript.editor.executable;
 import java.util.ArrayList;
 import org.eclipse.core.resources.IProject;
 import com.patrick_vane.unrealscript.editor.UnrealScriptEditor;
-import com.patrick_vane.unrealscript.editor.UnrealScriptID;
 import com.patrick_vane.unrealscript.editor.console.UDKLaunchLogConsole;
+import com.patrick_vane.unrealscript.editor.constants.UnrealScriptID;
 import com.patrick_vane.unrealscript.editor.default_classes.MyUrlChecker;
 import com.patrick_vane.unrealscript.editor.default_classes.StringSplitter;
 

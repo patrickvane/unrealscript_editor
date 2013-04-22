@@ -4,11 +4,13 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.io.PrintStream;
+import java.net.URI;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.Map.Entry;
 import org.eclipse.core.filesystem.EFS;
 import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.core.resources.IContainer;
@@ -27,6 +29,7 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.text.IDocument;
@@ -51,6 +54,7 @@ import com.patrick_vane.unrealscript.editor.class_hierarchy.TypeHierarchyView;
 import com.patrick_vane.unrealscript.editor.class_hierarchy.parser.UnrealScriptClass;
 import com.patrick_vane.unrealscript.editor.class_hierarchy.parser.UnrealScriptClassHierarchyParser;
 import com.patrick_vane.unrealscript.editor.constants.ProjectConstant;
+import com.patrick_vane.unrealscript.editor.constants.UnrealScriptID;
 import com.patrick_vane.unrealscript.editor.default_classes.DocumentProvider;
 import com.patrick_vane.unrealscript.editor.default_classes.MyRunnable;
 import com.patrick_vane.unrealscript.editor.default_classes.MyStream;
@@ -101,6 +105,7 @@ public class UnrealScriptEditor extends TextEditor
 	
 	
 	private int markers = -1;
+	private boolean executedStartup = false;
 	private boolean updateMarkersThreadRunning = true;
 	private Thread updateMarkersThread = new Thread()
 	{
@@ -115,6 +120,25 @@ public class UnrealScriptEditor extends TextEditor
 				}
 				catch( Exception e )
 				{
+				}
+				
+				if( !executedStartup )
+				{
+					try
+					{
+						IProject activeProject = getActiveProject();
+						if( activeProject != null )
+						{
+							executedStartup = true;
+							if( isProjectUDK(activeProject) )
+							{
+								createProjectFolders( activeProject, "file:"+getActiveProjectFile().toURI().getPath(), null, null );
+							}
+						}
+					}
+					catch( Exception e )
+					{
+					}
 				}
 				
 				try
@@ -1377,6 +1401,56 @@ public class UnrealScriptEditor extends TextEditor
 		public static IWorkspaceRoot getRoot()
 		{
 			return ResourcesPlugin.getWorkspace().getRoot();
+		}
+		
+		public static void createProjectFolders( IProject project, String rootPath, IProgressMonitor progressMonitor, IWorkbenchWindow window )
+		{
+			for( Entry<String,String> subfolder : ProjectConstant.subfolders.entrySet() )
+			{
+				IFolder folder = project.getFolder( subfolder.getKey() );
+				try
+				{
+					folder.createLink( URI.create(rootPath+subfolder.getValue()+"/"), 0, progressMonitor );
+				}
+				catch( CoreException e )
+				{
+					try
+					{
+						if( window != null )
+						{
+							MessageDialog.openError( window.getShell(), "Error", "Can't make subfolder "+subfolder.getKey()+": "+e.getMessage() );
+						}
+					}
+					catch( Exception e2 )
+					{
+					}
+				}
+				String[] hides = ProjectConstant.hiddensubfolders.get( subfolder.getValue() );
+				if( hides != null )
+				{
+					for( String hide : hides )
+					{
+						IFolder hideFolder = folder.getFolder( hide );
+						try
+						{
+							hideFolder.create( true, true, progressMonitor );
+						}
+						catch( Exception e )
+						{
+						}
+						try
+						{
+							if( hideFolder.exists() )
+							{
+								hideFolder.setHidden( true );
+							}
+						}
+						catch( Exception e )
+						{
+						}
+					}
+				}
+			}
 		}
 	// static methods <<
 	

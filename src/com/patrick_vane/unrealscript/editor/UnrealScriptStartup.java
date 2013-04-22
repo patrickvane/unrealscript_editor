@@ -3,6 +3,7 @@ package com.patrick_vane.unrealscript.editor;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IStartup;
 import org.eclipse.ui.PlatformUI;
+import com.patrick_vane.unrealscript.editor.constants.UnrealScriptID;
 
 
 public class UnrealScriptStartup implements IStartup

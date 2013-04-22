@@ -6,9 +6,9 @@ import org.eclipse.core.resources.IProject;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.PlatformUI;
 import com.patrick_vane.unrealscript.editor.UnrealScriptEditor;
-import com.patrick_vane.unrealscript.editor.UnrealScriptID;
 import com.patrick_vane.unrealscript.editor.console.UnrealScriptCompilerConsole;
 import com.patrick_vane.unrealscript.editor.constants.ColorConstant;
+import com.patrick_vane.unrealscript.editor.constants.UnrealScriptID;
 
 
 public class UDKCompiler

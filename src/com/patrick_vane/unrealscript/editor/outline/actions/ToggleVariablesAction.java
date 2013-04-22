@@ -3,7 +3,7 @@ package com.patrick_vane.unrealscript.editor.outline.actions;
 import org.eclipse.core.runtime.CoreException;
 import org.eclipse.jface.action.Action;
 import com.patrick_vane.unrealscript.editor.UnrealScriptEditor;
-import com.patrick_vane.unrealscript.editor.UnrealScriptID;
+import com.patrick_vane.unrealscript.editor.constants.UnrealScriptID;
 import com.patrick_vane.unrealscript.editor.outline.OutlineContentPage;
 
 

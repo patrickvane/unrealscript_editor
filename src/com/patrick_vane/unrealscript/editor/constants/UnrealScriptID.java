@@ -1,4 +1,4 @@
-package com.patrick_vane.unrealscript.editor;
+package com.patrick_vane.unrealscript.editor.constants;
 
 import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.jdt.ui.JavaUI;

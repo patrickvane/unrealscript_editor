@@ -25,9 +25,9 @@ public class HyperlinkDetector extends MyAbstractHyperlinkDetector
 			return null;
 		
 		boolean startWithClass = true;
-		if( before != null )
+		if( (word != null) && (word.getWord() != null) )
 		{
-			char firstChar = before.charAt( 0 );
+			char firstChar = word.getWord().charAt( 0 );
 			if( firstChar == Character.toLowerCase(firstChar) ) // firstChar is lower case
 			{
 				 // before starts with lower case

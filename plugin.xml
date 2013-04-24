@@ -13,6 +13,14 @@
             class="com.patrick_vane.unrealscript.editor.UnrealScriptEditor"
             id="patrick_vane_unrealscript_editor.editors.UnrealScriptEditor">
       </editor>
+      <editor
+            class="com.patrick_vane.unrealscript.editor.UnrealScriptEditor"
+            contributorClass="org.eclipse.ui.texteditor.BasicTextEditorActionContributor"
+            extensions="uci"
+            icon="icons/uc.png"
+            id="patrick_vane_unrealscript_editor.editors.UnrealScriptEditor"
+            name="UnrealScript Preprocessor Editor">
+      </editor>
    </extension>
    
    

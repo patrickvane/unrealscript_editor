@@ -7,12 +7,15 @@ public class WordConstant
 {
 	public static final String[] KEYWORDS = new String[]
 	{
-		"#if",
-		"#elif",
-		"#else",
-		"#end",
-		"#include",
-		"#define",
+		// cpp >>
+			"if",
+			"elif",
+			"endif",
+			"else",
+			"end",
+			"include",
+			"define",
+		// cpp <<
 		
 		"abstract",
 		"alwaysc",
@@ -78,7 +81,6 @@ public class WordConstant
 		"editinlineuse",
 		"edittextbox",
 		"else",
-		"#endif",
 		"end",
 		"enum",
 		"enumcount",
@@ -110,7 +112,6 @@ public class WordConstant
 		"hidecategories",
 		"hidedropdown",
 		
-		"#if",
 		"if",
 		"ignores",
 		"immutable",
@@ -119,6 +120,7 @@ public class WordConstant
 		"importc",
 		"inherits",
 		"init",
+		"inline",
 		"input",
 		"instanced",
 		"int",
@@ -176,6 +178,7 @@ public class WordConstant
 		"pointer",
 		"postoperator",
 		"public",
+		"pure_virtual",
 		
 		"reliable",
 		"replication",

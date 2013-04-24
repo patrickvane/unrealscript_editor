@@ -22,77 +22,109 @@ public class HyperlinkDetector extends MyAbstractHyperlinkDetector
 	protected IHyperlink getHyperlink( final CodeWord word, final String before, final String after ) throws Exception
 	{
 		if( ".".equals(before) )
-		{
 			return null;
-		}
 		
-		// class >>
+		boolean startWithClass = true;
+		if( before != null )
 		{
-			final UnrealScriptClass unrealscriptClass = UnrealScriptEditor.getUnrealScriptClass( word.getWord() );
-			if( unrealscriptClass != null )
+			char firstChar = before.charAt( 0 );
+			if( firstChar == Character.toLowerCase(firstChar) ) // firstChar is lower case
 			{
-				return new MyAbstractHyperlink( word )
-				{
-					@Override
-					public void open()
-					{
-						UnrealScriptEditor.openFile( unrealscriptClass.getFile() );
-					}
-				};
+				 // before starts with lower case
+				startWithClass = false;
 			}
 		}
-		// class <<
 		
-		// functions and variables >>
+		IHyperlink hyperlink;
+		if( startWithClass )
 		{
-			if( System.currentTimeMillis()-lastTime >= 3000 )
-			{
-				lastAttributes = UnrealScriptEditor.getActiveUnrealScriptAttributesWithParents();
-				lastTime = System.currentTimeMillis();
-			}
+			hyperlink = getHyperlinkOfClass( word, before, after );
+			if( hyperlink != null )
+				return hyperlink;
 			
-			if( "(".equals(after) )
+			hyperlink = getHyperlinkOfAttribute( word, before, after );
+			if( hyperlink != null )
+				return hyperlink;
+		}
+		else
+		{
+			hyperlink = getHyperlinkOfAttribute( word, before, after );
+			if( hyperlink != null )
+				return hyperlink;
+			
+			hyperlink = getHyperlinkOfClass( word, before, after );
+			if( hyperlink != null )
+				return hyperlink;
+		}
+		
+		return null;
+	}
+	
+	
+	protected IHyperlink getHyperlinkOfClass( final CodeWord word, final String before, final String after ) throws Exception
+	{
+		final UnrealScriptClass unrealscriptClass = UnrealScriptEditor.getUnrealScriptClass( word.getWord() );
+		if( unrealscriptClass != null )
+		{
+			return new MyAbstractHyperlink( word )
 			{
-				final CodeAttributeFunction function = lastAttributes.getAttributeFunction( word.getWord(), (WordConstant.FUNCTION_KEYWORDS_HASHSET.contains(before) ? 1 : 0) );
-				
-				if( function != null )
+				@Override
+				public void open()
 				{
-					final UnrealScriptClass unrealscriptClass = UnrealScriptEditor.getUnrealScriptClass( function.getClassName() );
-					if( unrealscriptClass != null )
-					{
-						return new MyAbstractHyperlink( word )
-						{
-							@Override
-							public void open()
-							{
-								UnrealScriptEditor.openFile( unrealscriptClass.getFile(), function.getFirstCharacterPosition(), function.getLastCharacterPosition() );
-							}
-						};
-					}
+					UnrealScriptEditor.openFile( unrealscriptClass.getFile() );
 				}
-			}
-			else
+			};
+		}
+		return null;
+	}
+	
+	protected IHyperlink getHyperlinkOfAttribute( final CodeWord word, final String before, final String after ) throws Exception
+	{
+		if( System.currentTimeMillis()-lastTime >= 3000 )
+		{
+			lastAttributes = UnrealScriptEditor.getActiveUnrealScriptAttributesWithParents();
+			lastTime = System.currentTimeMillis();
+		}
+		
+		if( "(".equals(after) )
+		{
+			final CodeAttributeFunction function = lastAttributes.getAttributeFunction( word.getWord(), (WordConstant.FUNCTION_KEYWORDS_HASHSET.contains(before) ? 1 : 0) );
+			
+			if( function != null )
 			{
-				final CodeAttributeVariable variable = lastAttributes.getAttributeVariable( word.getWord() );
-				if( variable != null )
+				final UnrealScriptClass unrealscriptClass = UnrealScriptEditor.getUnrealScriptClass( function.getClassName() );
+				if( unrealscriptClass != null )
 				{
-					final UnrealScriptClass unrealscriptClass = UnrealScriptEditor.getUnrealScriptClass( variable.getClassName() );
-					if( unrealscriptClass != null )
+					return new MyAbstractHyperlink( word )
 					{
-						return new MyAbstractHyperlink( word )
+						@Override
+						public void open()
 						{
-							@Override
-							public void open()
-							{
-								UnrealScriptEditor.openFile( unrealscriptClass.getFile(), variable.getFirstCharacterPosition(), variable.getLastCharacterPosition() );
-							}
-						};
-					}
+							UnrealScriptEditor.openFile( unrealscriptClass.getFile(), function.getFirstCharacterPosition(), function.getLastCharacterPosition() );
+						}
+					};
 				}
 			}
 		}
-		// functions and variables <<
-		
+		else
+		{
+			final CodeAttributeVariable variable = lastAttributes.getAttributeVariable( word.getWord() );
+			if( variable != null )
+			{
+				final UnrealScriptClass unrealscriptClass = UnrealScriptEditor.getUnrealScriptClass( variable.getClassName() );
+				if( unrealscriptClass != null )
+				{
+					return new MyAbstractHyperlink( word )
+					{
+						@Override
+						public void open()
+						{
+							UnrealScriptEditor.openFile( unrealscriptClass.getFile(), variable.getFirstCharacterPosition(), variable.getLastCharacterPosition() );
+						}
+					};
+				}
+			}
+		}
 		return null;
 	}
 }

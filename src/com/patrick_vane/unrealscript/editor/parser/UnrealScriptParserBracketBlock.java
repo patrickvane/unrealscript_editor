@@ -32,8 +32,23 @@ class UnrealScriptParserBracketBlock
 	public void newLine( int characterPosition ) throws CodeException
 	{
 		if( (openBracketCharacter == '(') || (openBracketCharacter == '[') )
-			if( !"for".equalsIgnoreCase(getKeywordWord()) )
+			if( !canBracketsContainSemicolon() )
 				throw new CodeException( characterPosition, characterPosition+1, true, "Unexpected: ;" );
+	}
+	
+	private boolean canBracketsContainSemicolon()
+	{
+		if( getKeywordWord() == null )
+			return false;
+		
+		String word = getKeywordWord().toLowerCase();
+		
+		if( word.equals("for") )
+			return true;
+		if( word.endsWith("virtual") )
+			return true;
+		
+		return false;
 	}
 	
 	

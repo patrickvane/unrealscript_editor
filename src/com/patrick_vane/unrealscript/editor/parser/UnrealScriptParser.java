@@ -911,6 +911,53 @@ public class UnrealScriptParser
 	
 	
 	
+	public static CodeWord[] parseLine( File file, int charInLinePosition ) throws IOException
+	{
+		String data = UnrealScriptEditor.getFileContent( file );
+		
+		if( data == null )
+			return new CodeWord[0];
+		
+		return parseLine( data, charInLinePosition );
+	}
+	
+	public static CodeWord[] parseLine( String data, int charPos )
+	{
+		if( charPos > data.length() )
+		{
+			charPos = data.length();
+		}
+		
+		int left = charPos;
+		while( left >= 0 )
+		{
+			char c = data.charAt( left );
+			if( (c == '{') || (c == '}') || (c == ';') )
+				break;
+			left--;
+		}
+		if( left < 0 )
+		{
+			return new CodeWord[0];
+		}
+		
+		int right = charPos;
+		while( right < data.length() )
+		{
+			char c = data.charAt( right );
+			if( (c == '{') || (c == '}') || (c == ';') )
+				break;
+			right++;
+		}
+		if( right >= data.length() )
+		{
+			return new CodeWord[0];
+		}
+		
+		return parsePartWords( data.substring(left, right), left );
+	}
+	
+	
 	public static CodeWord[] parsePartWords( String data, int startCharPosition )
 	{
 		ArrayList<CodeWord> words = new ArrayList<CodeWord>();

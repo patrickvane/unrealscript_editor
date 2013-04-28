@@ -11,7 +11,7 @@ import com.patrick_vane.unrealscript.editor.parser.UnrealScriptParser;
 
 public abstract class MyAbstractHyperlinkDetector extends AbstractHyperlinkDetector
 {
-	protected abstract IHyperlink getHyperlink( CodeWord word, String before, String after ) throws Exception;
+	protected abstract IHyperlink getHyperlink( CodeWord word, int inLineArrayPos, CodeWord[] line, String before, String after ) throws Exception;
 	
 	
 	@Override
@@ -27,6 +27,7 @@ public abstract class MyAbstractHyperlinkDetector extends AbstractHyperlinkDetec
 			int start  = clamp( region.getOffset()-40, min, max );
 			int length = clamp( 80, min, max-start );
 			CodeWord[] words = UnrealScriptParser.parsePartWords( textViewer.getDocument().get(start, length), start );
+			CodeWord[] line  = UnrealScriptParser.parseLine( textViewer.getDocument().get(), region.getOffset() );
 			
 			int pos = region.getOffset();
 			
@@ -42,7 +43,17 @@ public abstract class MyAbstractHyperlinkDetector extends AbstractHyperlinkDetec
 					if( i < words.length-1 )
 						after = words[i+1].getWord();
 					
-					IHyperlink link = getHyperlink( word, before, after );
+					int inLineArrayPos = -1;
+					for( int j=0; j<line.length; j++ )
+					{
+						if( line[j].equals(word) )
+						{
+							inLineArrayPos = j;
+							break;
+						}
+					}
+					
+					IHyperlink link = getHyperlink( word, inLineArrayPos, line, before, after );
 					if( link != null )
 					{
 						links.add( link );

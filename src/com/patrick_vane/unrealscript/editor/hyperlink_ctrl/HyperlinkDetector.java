@@ -19,7 +19,7 @@ public class HyperlinkDetector extends MyAbstractHyperlinkDetector
 	
 	
 	@Override
-	protected IHyperlink getHyperlink( final CodeWord word, final String before, final String after ) throws Exception
+	protected IHyperlink getHyperlink( final CodeWord word, final int inLineArrayPos, final CodeWord[] line, final String before, final String after ) throws Exception
 	{
 		if( ".".equals(before) )
 			return null;
@@ -38,21 +38,21 @@ public class HyperlinkDetector extends MyAbstractHyperlinkDetector
 		IHyperlink hyperlink;
 		if( startWithClass )
 		{
-			hyperlink = getHyperlinkOfClass( word, before, after );
+			hyperlink = getHyperlinkOfClass( word, inLineArrayPos, line, before, after );
 			if( hyperlink != null )
 				return hyperlink;
 			
-			hyperlink = getHyperlinkOfAttribute( word, before, after );
+			hyperlink = getHyperlinkOfAttribute( word, inLineArrayPos, line, before, after );
 			if( hyperlink != null )
 				return hyperlink;
 		}
 		else
 		{
-			hyperlink = getHyperlinkOfAttribute( word, before, after );
+			hyperlink = getHyperlinkOfAttribute( word, inLineArrayPos, line, before, after );
 			if( hyperlink != null )
 				return hyperlink;
 			
-			hyperlink = getHyperlinkOfClass( word, before, after );
+			hyperlink = getHyperlinkOfClass( word, inLineArrayPos, line, before, after );
 			if( hyperlink != null )
 				return hyperlink;
 		}
@@ -61,7 +61,7 @@ public class HyperlinkDetector extends MyAbstractHyperlinkDetector
 	}
 	
 	
-	protected IHyperlink getHyperlinkOfClass( final CodeWord word, final String before, final String after ) throws Exception
+	protected IHyperlink getHyperlinkOfClass( final CodeWord word, final int inLineArrayPos, final CodeWord[] line, final String before, final String after ) throws Exception
 	{
 		final UnrealScriptClass unrealscriptClass = UnrealScriptEditor.getUnrealScriptClass( word.getWord() );
 		if( unrealscriptClass != null )
@@ -78,7 +78,7 @@ public class HyperlinkDetector extends MyAbstractHyperlinkDetector
 		return null;
 	}
 	
-	protected IHyperlink getHyperlinkOfAttribute( final CodeWord word, final String before, final String after ) throws Exception
+	protected IHyperlink getHyperlinkOfAttribute( final CodeWord word, final int inLineArrayPos, final CodeWord[] line, final String before, final String after ) throws Exception
 	{
 		if( System.currentTimeMillis()-lastTime >= 3000 )
 		{
@@ -88,7 +88,20 @@ public class HyperlinkDetector extends MyAbstractHyperlinkDetector
 		
 		if( "(".equals(after) )
 		{
-			final CodeAttributeFunction function = lastAttributes.getAttributeFunction( word.getWord(), (WordConstant.FUNCTION_KEYWORDS_HASHSET.contains(before) ? 1 : 0) );
+			boolean containsFunctionKeyword = WordConstant.FUNCTION_KEYWORDS_HASHSET.contains( before );
+			if( !containsFunctionKeyword )
+			{
+				for( int i=0; i<inLineArrayPos; i++ )
+				{
+					if( WordConstant.FUNCTION_KEYWORDS_HASHSET.contains(line[i].getWord()) )
+					{
+						containsFunctionKeyword = true;
+						break;
+					}
+				}
+			}
+			
+			final CodeAttributeFunction function = lastAttributes.getAttributeFunction( word.getWord(), (containsFunctionKeyword ? 1 : 0) );
 			
 			if( function != null )
 			{

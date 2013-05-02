@@ -8,13 +8,13 @@ public class WordConstant
 	public static final String[] KEYWORDS = new String[]
 	{
 		// cpp >>
-			"if",
-			"elif",
-			"endif",
-			"else",
-			"end",
-			"include",
-			"define",
+			"#if",
+			"#elif",
+			"#endif",
+			"#else",
+			"#end",
+			"#include",
+			"#define",
 		// cpp <<
 		
 		"abstract",

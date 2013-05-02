@@ -19,14 +19,14 @@ public class KeywordDetector implements IWordDetector
 	
 	
 	@Override
-	public boolean isWordPart( char c )
+	public boolean isWordStart( char c )
 	{
-		return ((c == '_') || Character.isLetterOrDigit(c));
+		return ((c == '_') || (c == '#') || Character.isLetter(c));
 	}
 	
 	@Override
-	public boolean isWordStart( char c )
+	public boolean isWordPart( char c )
 	{
-		return ((c == '_') || Character.isLetter(c));
+		return ((c == '_') || Character.isLetterOrDigit(c));
 	}
 }

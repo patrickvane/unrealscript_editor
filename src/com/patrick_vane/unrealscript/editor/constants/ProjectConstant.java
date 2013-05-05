@@ -16,6 +16,7 @@ public class ProjectConstant
 		addFolder( "Logs", "UDKGame/Logs" );
 		addFolder( "Flash", "UDKGame/Flash" );
 		addFolder( "Maps", "UDKGame/Content/Maps" );
+		addFolder( "Movies", "UDKGame/Movies" );
 		addFolder( "UnrealScript", "Development/Src" );
 	}
 	

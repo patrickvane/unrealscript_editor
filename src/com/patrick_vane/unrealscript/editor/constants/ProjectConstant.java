@@ -13,6 +13,7 @@ public class ProjectConstant
 		addFolder( "BaseConfig", "Engine/Config" );
 		addFolder( "Config", "UDKGame/Config" );
 		addFolder( "Content", "UDKGame/Content", new String[]{"Maps"} );
+		addFolder( "DLLs", "Binaries/Win32/UserCode" );
 		addFolder( "Logs", "UDKGame/Logs" );
 		addFolder( "Flash", "UDKGame/Flash" );
 		addFolder( "Maps", "UDKGame/Content/Maps" );

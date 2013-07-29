@@ -8,6 +8,7 @@ public class CodeBlock implements Code
 {
 	protected CodeBlock parent;
 	protected ArrayList<Code> childs = new ArrayList<Code>();
+	protected ArrayList<CodeWord> lineBeforeBlock;
 	protected boolean function;
 	
 	protected CodeBlockCode currentCode;
@@ -21,13 +22,14 @@ public class CodeBlock implements Code
 		
 		if( parent == null )
 		{
-			function = false;
+			lineBeforeBlock = new ArrayList<CodeWord>();
 		}
 		else
 		{
-			if( parent.getLastLine().size() > 0 )
+			lineBeforeBlock = parent.getLastLine();
+			if( lineBeforeBlock.size() > 0 )
 			{
-				function = WordConstant.FUNCTION_KEYWORDS_HASHSET.contains( parent.getLastLine().get(0).getWord().toLowerCase() );
+				function = WordConstant.FUNCTION_KEYWORDS_HASHSET.contains( lineBeforeBlock.get(0).getWord().toLowerCase() );
 			}
 		}
 		
@@ -149,6 +151,10 @@ public class CodeBlock implements Code
 	public ArrayList<Code> getChilds()
 	{
 		return childs;
+	}
+	public ArrayList<CodeWord> getLineBeforeBlock()
+	{
+		return lineBeforeBlock;
 	}
 	
 	/** Is this block inside a function? (is a parent block of this block a function?) */

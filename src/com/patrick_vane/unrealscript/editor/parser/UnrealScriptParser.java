@@ -81,7 +81,7 @@ public class UnrealScriptParser
 						if( (noLocalsAnymore || !isFirstInFunction) && word.equals("local") )
 							errors.add( new CodeException( worddata.getFirstCharacterPosition(), worddata.getLastCharacterPosition(), true, "You can only make locals at the beginning of the function") );
 						
-						if( !noLocalsAnymore && !word.equals("local") && !word.equals("var") )
+						if( !noLocalsAnymore && !word.equals("local") && !word.equals("var") && !word.startsWith("`") && !word.startsWith("#") )
 							noLocalsAnymore = true;
 					}
 				}
@@ -128,6 +128,17 @@ public class UnrealScriptParser
 	public static ArrayList<CodeAttribute> getAttributes( String className, CodeBlock code )
 	{
 		ArrayList<CodeAttribute> attributes = new ArrayList<CodeAttribute>();
+		
+		ArrayList<CodeWord> lastLine = code.getLineBeforeBlock();
+		for( CodeWord codeWord : lastLine )
+		{
+			String word = codeWord.getWord().toLowerCase();
+			if( word.equals("struct") || word.equals("enum") )
+			{
+				return attributes;
+			}
+		}
+		
 		for( Code child : code.getChilds() )
 		{
 			if( child instanceof CodeBlockCode )
@@ -699,19 +710,24 @@ public class UnrealScriptParser
 				{
 					if( !inString && !inChar )
 					{
-						boolean isInDefaultProperties = false;
+						boolean isInSkippableBlock = false;
 						UnrealScriptParserBracketBlock bracketBlockLoop = bracketBlock;
 						while( bracketBlockLoop != null )
 						{
-							if( (bracketBlockLoop.getKeywordWord() != null) && bracketBlockLoop.getKeywordWord().endsWith("defaultproperties") )
+							String keyword = bracketBlockLoop.getKeywordWord();
+							if( keyword != null )
 							{
-								isInDefaultProperties = true;
-								break;
+								keyword = keyword.toLowerCase();
+								if( keyword.endsWith("defaultproperties") || keyword.equals("replication") )
+								{
+									isInSkippableBlock = true;
+									break;
+								}
 							}
 							bracketBlockLoop = bracketBlockLoop.getParent();
 						}
 						
-						if( isInDefaultProperties )
+						if( isInSkippableBlock )
 						{
 							block.closeWord( characterPosition );
 							if( bracketBlock.getDepth() <= 1 )

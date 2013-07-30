@@ -13,8 +13,8 @@ import com.patrick_vane.unrealscript.editor.class_hierarchy.parser.UnrealScriptC
 
 public class TypeHierarchyLabelProvider extends LabelProvider implements IFontProvider
 {
-	private static final Image FILE 			= getImage( "uc.png" );
-	private static final Image FILE_NOT_FOUND 	= getImage( "uc_unknown.png" );
+	private static final Image FILE 			= UnrealScriptEditor.getImage( "icons/uc.png" );
+	private static final Image FILE_NOT_FOUND 	= UnrealScriptEditor.getImage( "icons/uc_unknown.png" );
 	
 	
 	@Override
@@ -68,11 +68,5 @@ public class TypeHierarchyLabelProvider extends LabelProvider implements IFontPr
 			}
 		}
 		return FILE_NOT_FOUND;
-	}
-	
-	
-	private static Image getImage( String file )
-	{
-		return UnrealScriptEditor.getImageDescriptor( file ).createImage();
 	}
 }

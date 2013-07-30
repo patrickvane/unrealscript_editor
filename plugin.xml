@@ -279,7 +279,7 @@
          point="org.eclipse.ui.workbench.texteditor.hyperlinkDetectors">
       <hyperlinkDetector
             activate="true"
-            class="com.patrick_vane.unrealscript.editor.hyperlink_ctrl.HyperlinkDetector"
+            class="com.patrick_vane.unrealscript.editor.extra.HyperlinkDetector"
             id="com.patrick_vane.unrealscript.editor.hyperlink_ctrl.detector"
             modifierKeys="Ctrl"
             name="com.patrick_vane.unrealscript.editor.hyperlink_ctrl.detector"

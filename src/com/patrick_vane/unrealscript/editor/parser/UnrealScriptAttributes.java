@@ -12,6 +12,9 @@ public class UnrealScriptAttributes
 	private final ArrayList<CodeAttributeVariable>					variablesArray	= new ArrayList<CodeAttributeVariable>();
 	private final ArrayList<CodeAttributeFunction>					functionsArray	= new ArrayList<CodeAttributeFunction>();
 	
+	private HashMap<String,CodeAttributeVariable>					variablesChildOverrides;
+	private HashMap<String,CodeAttributeFunction>					functionsChildOverrides;
+	
 	
 	public void addAttributes( ArrayList<CodeAttribute> attributes )
 	{
@@ -51,6 +54,49 @@ public class UnrealScriptAttributes
 	public ArrayList<CodeAttributeFunction> getAttributeFunctions()
 	{
 		return functionsArray;
+	}
+	
+	public HashMap<String, CodeAttributeVariable> getAttributeVariablesChildOverrides()
+	{
+		if( variablesChildOverrides != null )
+			return variablesChildOverrides;
+		
+		HashMap<String, CodeAttributeVariable> attributes = new HashMap<String,CodeAttributeVariable>();
+		for( HashMap<String,CodeAttributeVariable> variables : this.variables )
+		{
+			for( CodeAttributeVariable variable : variables.values() )
+			{
+				String key = variable.getName().toLowerCase();
+				if( !attributes.containsKey(key) )
+				{
+					attributes.put( key, variable );
+				}
+			}
+		}
+		
+		variablesChildOverrides = attributes;
+		return attributes;
+	}
+	public HashMap<String, CodeAttributeFunction> getAttributeFunctionsChildOverrides()
+	{
+		if( functionsChildOverrides != null )
+			return functionsChildOverrides;
+		
+		HashMap<String, CodeAttributeFunction> attributes = new HashMap<String,CodeAttributeFunction>();
+		for( HashMap<String,CodeAttributeFunction> functions : this.functions )
+		{
+			for( CodeAttributeFunction function : functions.values() )
+			{
+				String key = function.getName().toLowerCase();
+				if( !attributes.containsKey(key) )
+				{
+					attributes.put( key, function );
+				}
+			}
+		}
+		
+		functionsChildOverrides = attributes;
+		return attributes;
 	}
 	
 	

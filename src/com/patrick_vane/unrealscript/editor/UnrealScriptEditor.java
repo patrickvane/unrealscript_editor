@@ -39,6 +39,7 @@ import org.eclipse.jface.text.source.IAnnotationModel;
 import org.eclipse.jface.text.source.IVerticalRuler;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.TreeSelection;
+import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
@@ -1426,8 +1427,12 @@ public class UnrealScriptEditor extends TextEditor
 		public static ImageDescriptor getImageDescriptor( String file )
 		{
 			Bundle bundle = FrameworkUtil.getBundle( OutlineLabelProvider.class );
-			URL url = FileLocator.find( bundle, new Path("icons/" + file), null );
+			URL url = FileLocator.find( bundle, new Path(file), null );
 			return ImageDescriptor.createFromURL( url );
+		}
+		public static Image getImage( String file )
+		{
+			return getImageDescriptor( file ).createImage();
 		}
 		
 		public static IWorkspaceRoot getRoot()

@@ -15,7 +15,7 @@ public class ToggleVariablesAction extends Action
 	public ToggleVariablesAction( OutlineContentPage page )
 	{
 		super( "Hide Variables", AS_CHECK_BOX );
-		setImageDescriptor( UnrealScriptEditor.getImageDescriptor("outline/button_hide_variables.gif") );
+		setImageDescriptor( UnrealScriptEditor.getImageDescriptor("icons/outline/button_hide_variables.gif") );
 		
 		this.page = page;
 		

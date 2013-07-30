@@ -15,7 +15,7 @@ public class ToggleSortAction extends Action
 	public ToggleSortAction( OutlineContentPage page )
 	{
 		super( "Sort", AS_CHECK_BOX );
-		setImageDescriptor( UnrealScriptEditor.getImageDescriptor("outline/button_sort.gif") );
+		setImageDescriptor( UnrealScriptEditor.getImageDescriptor("icons/outline/button_sort.gif") );
 		
 		this.page = page;
 		

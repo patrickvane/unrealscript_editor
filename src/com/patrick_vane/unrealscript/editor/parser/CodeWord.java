@@ -3,13 +3,35 @@ package com.patrick_vane.unrealscript.editor.parser;
 
 public class CodeWord
 {
-	protected StringBuilder characters = new StringBuilder();
-	protected String word;
+	public static class CodeWordData
+	{
+		public final CodeWord	word;
+		public final CodeWord[]	line;
+		public final int		inLineArrayPos;
+		public final boolean	function;
+		
+		public CodeWordData( CodeWord word, CodeWord[] line, int inLineArrayPos, boolean function )
+		{
+			this.word = word;
+			this.line = line;
+			this.inLineArrayPos = inLineArrayPos;
+			this.function = function;
+		}
+		
+		public CodeWordData getParentWord()
+		{
+			return word.getParentWord( line, inLineArrayPos );
+		}
+	}
 	
-	protected int firstCharacterPosition;
-	protected int lastCharacterPosition;
 	
-	protected boolean closed = false;
+	protected StringBuilder	characters	= new StringBuilder();
+	protected String		word;
+	
+	protected int			firstCharacterPosition;
+	protected int			lastCharacterPosition;
+	
+	protected boolean		closed		= false;
 	
 	
 	public CodeWord( int characterPosition )
@@ -96,29 +118,7 @@ public class CodeWord
 	}
 	
 	
-	
-	public static class ParentCodeWord
-	{
-		public final CodeWord	word;
-		public final CodeWord[]	line;
-		public final int		thisInLineArrayPos;
-		public final boolean	function;
-
-		public ParentCodeWord( CodeWord word, CodeWord[] line, int thisInLineArrayPos, boolean function )
-		{
-			this.word = word;
-			this.line = line;
-			this.thisInLineArrayPos = thisInLineArrayPos;
-			this.function = function;
-		}
-		
-		public ParentCodeWord getParentWord()
-		{
-			return word.getParentWord( line, thisInLineArrayPos );
-		}
-	}
-	
-	public ParentCodeWord getParentWord( CodeWord[] line )
+	public CodeWordData getParentWord( CodeWord[] line )
 	{
 		for( int i=0; i<line.length; i++ )
 		{
@@ -129,7 +129,7 @@ public class CodeWord
 		}
 		return null;
 	}
-	public ParentCodeWord getParentWord( CodeWord[] line, int thisInLineArrayPos )
+	public CodeWordData getParentWord( CodeWord[] line, int inLineArrayPos )
 	{
 		int brackets 		= 0;
 		int squareBrackets 	= 0;
@@ -138,7 +138,7 @@ public class CodeWord
 		boolean hadDot 		= false;
 		boolean function 	= false;
 		
-		for( int i=thisInLineArrayPos-1; i>=0; i-- )
+		for( int i=inLineArrayPos-1; i>=0; i-- )
 		{
 			CodeWord word = line[i];
 			String wordWord = word.getWord();
@@ -218,7 +218,7 @@ public class CodeWord
 				}
 			}
 			
-			return new ParentCodeWord( word, line, i, function );
+			return new CodeWordData( word, line, i, function );
 		}
 		
 		return null;

@@ -26,8 +26,8 @@ import com.patrick_vane.unrealscript.editor.default_classes.DoubleClickStrategy;
 import com.patrick_vane.unrealscript.editor.extra.AutoEditStrategy;
 import com.patrick_vane.unrealscript.editor.extra.CodeCompleter;
 import com.patrick_vane.unrealscript.editor.extra.CodeFormatter;
+import com.patrick_vane.unrealscript.editor.extra.HyperlinkDetector;
 import com.patrick_vane.unrealscript.editor.extra.TextHover;
-import com.patrick_vane.unrealscript.editor.hyperlink_ctrl.HyperlinkDetector;
 import com.patrick_vane.unrealscript.editor.outline.OutlineContentPage;
 import com.patrick_vane.unrealscript.editor.syntaxcolor.UnrealScriptSyntaxColor;
 

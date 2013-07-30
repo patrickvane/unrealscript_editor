@@ -10,11 +10,11 @@ import com.patrick_vane.unrealscript.editor.parser.UnrealScriptAttributes;
 
 public class OutlineLabelProvider extends LabelProvider
 {
-	//private static final Image	STRUCT				= getImage( "outline/struct.gif" );
-	private static final Image	FUNCTION			= getImage( "outline/function.gif" );
-	private static final Image	FUNCTION_OVERRIDDEN	= getImage( "outline/function_overridden.gif" );
-	//private static final Image	VARIABLE_PUBLIC		= getImage( "outline/var_public.gif" );
-	private static final Image	VARIABLE_PRIVATE	= getImage( "outline/var_private.gif" );
+	//private static final Image	STRUCT				= UnrealScriptEditor.getImage( "icons/outline/struct.gif" );
+	private static final Image		FUNCTION			= UnrealScriptEditor.getImage( "icons/outline/function.gif" );
+	private static final Image		FUNCTION_OVERRIDDEN	= UnrealScriptEditor.getImage( "icons/outline/function_overridden.gif" );
+	//private static final Image	VARIABLE_PUBLIC		= UnrealScriptEditor.getImage( "icons/outline/var_public.gif" );
+	private static final Image		VARIABLE_PRIVATE	= UnrealScriptEditor.getImage( "icons/outline/var_private.gif" );
 	
 	
 	@Override
@@ -67,11 +67,5 @@ public class OutlineLabelProvider extends LabelProvider
 			}
 		}
 		return null;
-	}
-	
-	
-	private static Image getImage( String file )
-	{
-		return UnrealScriptEditor.getImageDescriptor( file ).createImage();
 	}
 }

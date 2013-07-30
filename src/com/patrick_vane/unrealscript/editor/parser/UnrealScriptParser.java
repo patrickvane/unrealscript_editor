@@ -956,6 +956,7 @@ public class UnrealScriptParser
 		{
 			return new CodeWord[0];
 		}
+		left += 1;
 		
 		int right = charPos;
 		while( right < data.length() )
@@ -969,6 +970,7 @@ public class UnrealScriptParser
 		{
 			return new CodeWord[0];
 		}
+		right += 1;
 		
 		return parsePartWords( data.substring(left, right), left );
 	}

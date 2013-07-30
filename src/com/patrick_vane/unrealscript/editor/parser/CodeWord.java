@@ -94,4 +94,133 @@ public class CodeWord
 			return false;
 		return true;
 	}
+	
+	
+	
+	public static class ParentCodeWord
+	{
+		public final CodeWord	word;
+		public final CodeWord[]	line;
+		public final int		thisInLineArrayPos;
+		public final boolean	function;
+
+		public ParentCodeWord( CodeWord word, CodeWord[] line, int thisInLineArrayPos, boolean function )
+		{
+			this.word = word;
+			this.line = line;
+			this.thisInLineArrayPos = thisInLineArrayPos;
+			this.function = function;
+		}
+		
+		public ParentCodeWord getParentWord()
+		{
+			return word.getParentWord( line, thisInLineArrayPos );
+		}
+	}
+	
+	public ParentCodeWord getParentWord( CodeWord[] line )
+	{
+		for( int i=0; i<line.length; i++ )
+		{
+			if( equals(line[i]) )
+			{
+				return getParentWord( line, i );
+			}
+		}
+		return null;
+	}
+	public ParentCodeWord getParentWord( CodeWord[] line, int thisInLineArrayPos )
+	{
+		int brackets 		= 0;
+		int squareBrackets 	= 0;
+		int parentheses 	= 0;
+		int chevrons 		= 0;
+		boolean hadDot 		= false;
+		boolean function 	= false;
+		
+		for( int i=thisInLineArrayPos-1; i>=0; i-- )
+		{
+			CodeWord word = line[i];
+			String wordWord = word.getWord();
+			
+			if( "(".equals(wordWord) )
+			{
+				if( brackets <= 0 )
+					return null;
+				brackets--;
+				function = true;
+			}
+			else if( "[".equals(wordWord) )
+			{
+				if( squareBrackets <= 0 )
+					return null;
+				squareBrackets--;
+			}
+			else if( "{".equals(wordWord) )
+			{
+				if( parentheses <= 0 )
+					return null;
+				parentheses--;
+			}
+			else if( "<".equals(wordWord) )
+			{
+				if( chevrons <= 0 )
+					return null;
+				chevrons--;
+			}
+			else if( ")".equals(wordWord) )
+			{
+				brackets++;
+			}
+			else if( "]".equals(wordWord) )
+			{
+				squareBrackets++;
+			}
+			else if( "}".equals(wordWord) )
+			{
+				parentheses++;
+			}
+			else if( ">".equals(wordWord) )
+			{
+				chevrons++;
+			}
+			
+			if( brackets > 0 )
+				continue;
+			if( squareBrackets > 0 )
+				continue;
+			if( parentheses > 0 )
+				continue;
+			if( chevrons > 0 )
+				continue;
+			
+			if( "'".equals(wordWord) )
+				continue;
+			
+			if( ".".equals(wordWord) )
+			{
+				if( hadDot )
+					return null;
+				
+				hadDot = true;
+				continue;
+			}
+			
+			if( !hadDot )
+				return null;
+			
+			if( !function )
+			{
+				if( "static".equals(wordWord) )
+				{
+					hadDot = false;
+					continue;
+				}
+			}
+			
+			return new ParentCodeWord( word, line, i, function );
+		}
+		
+		return null;
+	}
 }

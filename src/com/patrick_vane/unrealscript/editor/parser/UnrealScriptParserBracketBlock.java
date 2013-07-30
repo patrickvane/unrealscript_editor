@@ -38,6 +38,8 @@ class UnrealScriptParserBracketBlock
 	
 	private boolean canBracketsContainSemicolon()
 	{
+		if( openBracketCharacter == '{' )
+			return true;
 		if( getKeywordWord() == null )
 			return false;
 		
@@ -48,7 +50,7 @@ class UnrealScriptParserBracketBlock
 		if( word.endsWith("virtual") )
 			return true;
 		
-		return false;
+		return true;
 	}
 	
 	

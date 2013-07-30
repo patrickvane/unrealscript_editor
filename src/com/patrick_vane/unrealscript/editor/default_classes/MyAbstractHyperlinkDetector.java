@@ -38,10 +38,6 @@ public abstract class MyAbstractHyperlinkDetector extends AbstractHyperlinkDetec
 				{
 					String before = "";
 					String after  = "";
-					if( i >= 1 )
-						before = words[i-1].getWord();
-					if( i < words.length-1 )
-						after = words[i+1].getWord();
 					
 					int inLineArrayPos = -1;
 					for( int j=0; j<line.length; j++ )
@@ -52,6 +48,11 @@ public abstract class MyAbstractHyperlinkDetector extends AbstractHyperlinkDetec
 							break;
 						}
 					}
+					
+					if( inLineArrayPos-1 >= 0 )
+						before = line[inLineArrayPos-1].getWord();
+					if( inLineArrayPos+1 < line.length )
+						after = line[inLineArrayPos+1].getWord();
 					
 					IHyperlink link = getHyperlink( word, inLineArrayPos, line, before, after );
 					if( link != null )

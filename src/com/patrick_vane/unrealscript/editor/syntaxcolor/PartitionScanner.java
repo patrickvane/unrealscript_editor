@@ -16,12 +16,12 @@ import com.patrick_vane.unrealscript.editor.constants.TagConstant;
 
 public class PartitionScanner extends RuleBasedPartitionScanner
 {
-	private IToken commentLine 	= new Token( TagConstant.COMMENT_LINE );
-	private IToken commentBlock = new Token( TagConstant.COMMENT_BLOCK );
-	private IToken docsBlock 	= new Token( TagConstant.DOCS );
-	private IToken string 		= new Token( TagConstant.STRING );
+	private IToken	commentLine			= new Token( TagConstant.COMMENT_LINE );
+	private IToken	commentBlock		= new Token( TagConstant.COMMENT_BLOCK );
+	private IToken	docsBlock			= new Token( TagConstant.DOCS );
+	private IToken	string				= new Token( TagConstant.STRING );
 	
-	public int commentBlockCount = 0;
+	public int		commentBlockCount	= 0;
 	
 	
 	public PartitionScanner()

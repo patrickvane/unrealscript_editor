@@ -8,8 +8,8 @@ import com.patrick_vane.unrealscript.editor.executable.UDKCompiler;
 
 public class FileChangesListener extends AbstractResourcesChangedListener
 {
-	private Configuration configuration;
-	private IProject project;
+	private Configuration	configuration;
+	private IProject		project;
 	
 	
 	public FileChangesListener( Configuration configuration, IProject project, File root )

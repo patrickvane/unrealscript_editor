@@ -133,7 +133,7 @@ public class UnrealScriptParser
 		for( CodeWord codeWord : lastLine )
 		{
 			String word = codeWord.getWord().toLowerCase();
-			if( word.equals("struct") || word.equals("enum") )
+			if( word.equals("struct") || word.equals("enum") || word.equals("state") )
 			{
 				return attributes;
 			}

@@ -41,10 +41,26 @@
          point="org.eclipse.ui.perspectives">
       <perspective
             class="com.patrick_vane.unrealscript.editor.perspective.UDKPerspective"
+            fixed="false"
             icon="icons/perspective.png"
             id="patrick_vane_unrealscript_editor.editors.perspective.UnrealScriptPerspective"
             name="UDK">
       </perspective>
+   </extension>
+   <extension
+         point="org.eclipse.ui.perspectiveExtensions">
+      <perspectiveExtension
+            targetID="patrick_vane_unrealscript_editor.editors.perspective.UnrealScriptPerspective">
+         <newWizardShortcut
+               id="com.patrick_vane.unrealscript.editor.new_file_wizard">
+         </newWizardShortcut>
+         <newWizardShortcut
+               id="org.eclipse.ui.wizards.new.folder">
+         </newWizardShortcut>
+         <newWizardShortcut
+               id="org.eclipse.ui.wizards.new.file">
+         </newWizardShortcut>
+      </perspectiveExtension>
    </extension>
    
    
@@ -276,6 +292,26 @@
             id="com.patrick_vane.unrealscript.editor.hyperlink_ctrl.targets"
             name="com.patrick_vane.unrealscript.editor.hyperlink_ctrl.targets">
       </target>
+   </extension>
+   <extension
+         point="org.eclipse.ui.newWizards">
+      <wizard
+            canFinishEarly="false"
+            category="com.patrick_vane.unrealscript.editor.wizard_category"
+            class="com.patrick_vane.unrealscript.editor.extra.NewFileWizard"
+            hasPages="true"
+            icon="icons/uc.png"
+            id="com.patrick_vane.unrealscript.editor.new_file_wizard"
+            name="Class"
+            project="false">
+         <description>
+            Creates a new UnrealScript class.
+         </description>
+      </wizard>
+      <category
+            id="com.patrick_vane.unrealscript.editor.wizard_category"
+            name="UDK">
+      </category>
    </extension>
    
    

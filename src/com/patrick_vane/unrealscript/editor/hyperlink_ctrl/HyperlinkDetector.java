@@ -189,18 +189,42 @@ public class HyperlinkDetector extends MyAbstractHyperlinkDetector
 	{
 		if( attribute != null )
 		{
-			if( attribute.isFunction() )
+			boolean skipOne = false;
+			
+			if( !skipOne )
 			{
-				boolean containsFunctionKeyword = false;
-				for( int i=0; i<inLineArrayPos; i++ )
+				if( inLineArrayPos >= 2 )
 				{
-					if( WordConstant.FUNCTION_KEYWORDS_HASHSET.contains(line[i].getWord()) )
+					skipOne = ("super".equals(line[inLineArrayPos-2].getWord()) || "super".equals(line[inLineArrayPos-1].getWord()));
+				}
+			}
+			
+			if( !skipOne )
+			{
+				if( attribute.isFunction() )
+				{
+					for( int i=0; i<inLineArrayPos; i++ )
 					{
-						containsFunctionKeyword = true;
-						break;
+						if( WordConstant.FUNCTION_KEYWORDS_HASHSET.contains(line[i].getWord()) )
+						{
+							skipOne = true;
+							break;
+						}
 					}
 				}
-				if( containsFunctionKeyword )
+			}
+			
+			if( skipOne )
+			{
+				if( !attribute.isFunction() )
+				{
+					CodeAttribute newAttribute = getAttributes( attribute.getClassName() ).getAttributeVariable( word.getWord(), 1 );
+					if( newAttribute != null )
+					{
+						return getHyperlinkOfAttribute( newAttribute, word );
+					}
+				}
+				else
 				{
 					CodeAttribute newAttribute = getAttributes( attribute.getClassName() ).getAttributeFunction( word.getWord(), 1 );
 					if( newAttribute != null )
@@ -209,6 +233,7 @@ public class HyperlinkDetector extends MyAbstractHyperlinkDetector
 					}
 				}
 			}
+			
 			return getHyperlinkOfAttribute( attribute, word );
 		}
 		return null;

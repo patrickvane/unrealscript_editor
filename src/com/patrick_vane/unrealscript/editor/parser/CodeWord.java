@@ -211,7 +211,7 @@ public class CodeWord
 			
 			if( !function )
 			{
-				if( "static".equals(wordWord) )
+				if( "static".equals(wordWord) || "self".equals(wordWord) || "default".equals(wordWord) || "super".equals(wordWord) )
 				{
 					hadDot = false;
 					continue;

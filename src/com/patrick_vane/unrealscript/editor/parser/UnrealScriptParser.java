@@ -5,6 +5,8 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import com.patrick_vane.unrealscript.editor.UnrealScriptEditor;
 import com.patrick_vane.unrealscript.editor.class_hierarchy.parser.UnrealScriptClass;
 import com.patrick_vane.unrealscript.editor.constants.WordConstant;
@@ -542,7 +544,10 @@ public class UnrealScriptParser
 							if( chevrons != 0 )
 								continue;
 							
-							break;
+							if( (type.length() > 0) && KeywordDetector.getSharedInstance().isWordStart(type.charAt(0)) )
+							{
+								break;
+							}
 						}
 						
 						if( type.length() == 0 )
@@ -671,6 +676,8 @@ public class UnrealScriptParser
 	
 	public static CodeBlock parse( String data ) throws CodeException
 	{
+		data = removeUselessCode( data );
+		
 		CodeBlock root = new CodeBlock( null );
 		CodeBlock block = root;
 		
@@ -1030,5 +1037,24 @@ public class UnrealScriptParser
 		}
 		
 		return words.toArray( new CodeWord[0] );
+	}
+	
+	
+	private static String removeUselessCode( String data )
+	{
+		Pattern pattern = Pattern.compile( "\\{+[a-zA-Z_]+\\}" );
+		Matcher matcher = pattern.matcher( data );
+		while( matcher.find() )
+		{
+			String start = data.substring( 0, matcher.start() );
+			String end = data.substring( matcher.end() );
+			
+			String match = matcher.group();
+			String newMatch = " "+match.substring(1, match.length()-1)+" ";
+			
+			data = start + newMatch + end;
+		}
+		
+		return data;
 	}
 }

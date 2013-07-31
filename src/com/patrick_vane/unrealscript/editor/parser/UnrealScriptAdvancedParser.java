@@ -222,6 +222,10 @@ public class UnrealScriptAdvancedParser
 			}
 			
 			
+			if( usingClass == null )
+				return null;
+			
+			
 			boolean startWithClass = canBeClass;
 			if( canBeClass )
 			{

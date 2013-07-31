@@ -45,7 +45,7 @@ public class DoubleClickStrategy implements ITextDoubleClickStrategy
 					pos -= 2;
 					continue;
 				}
-				if( c == Character.LINE_SEPARATOR || c == '\"' )
+				if( c == Character.LINE_SEPARATOR )
 					break;
 				pos--;
 			}
@@ -62,7 +62,7 @@ public class DoubleClickStrategy implements ITextDoubleClickStrategy
 			while( pos < length )
 			{
 				c = doc.getChar( pos );
-				if( c == Character.LINE_SEPARATOR || c == '\"' )
+				if( c == Character.LINE_SEPARATOR )
 					break;
 				pos++;
 			}
@@ -96,7 +96,7 @@ public class DoubleClickStrategy implements ITextDoubleClickStrategy
 			while( pos >= 0 )
 			{
 				c = doc.getChar( pos );
-				if( !Character.isJavaIdentifierPart(c) )
+				if( !KeywordDetector.getSharedInstance().isWordStart(c) )
 					break;
 				pos--;
 			}
@@ -109,7 +109,7 @@ public class DoubleClickStrategy implements ITextDoubleClickStrategy
 			while( pos < length )
 			{
 				c = doc.getChar( pos );
-				if( !Character.isJavaIdentifierPart(c) )
+				if( !KeywordDetector.getSharedInstance().isWordPart(c) )
 					break;
 				pos++;
 			}

@@ -116,31 +116,12 @@ public class CodeCompleter implements  IContentAssistProcessor
 				{
 					if( name.toLowerCase().startsWith(cwordWordLow) )
 					{
-						StringBuilder parametersBuffer = new StringBuilder();
-						boolean firstParameter = true;
-						for( CodeAttributeVariable parameter : attribute.getParameters() )
-						{
-							if( !firstParameter )
-								parametersBuffer.append( ", " );
-							else
-								firstParameter = false;
-							
-							StringBuilder modifiersBuffer = new StringBuilder();
-							for( String modifier : parameter.getModifiers() )
-							{
-								modifiersBuffer.append( modifier );
-								modifiersBuffer.append( " " );
-							}
-							
-							parametersBuffer.append( parameter.getType()+" "+parameter.getName() );
-						}
-						String parameters = parametersBuffer.toString();
-						String parametersString = "(" + (parameters.isEmpty()?"":" ") + parameters + (parameters.isEmpty()?"":" ") + ") : " + attribute.getType();
+						String parameters = attribute.getParametersAsString( true );
 						
 						String addString = name.substring( cwordLength );
-						String showString = cwordWordStart + name.substring( cwordStartLength ) + parametersString;
+						String showString = cwordWordStart + name.substring( cwordStartLength ) + parameters + " : " + attribute.getType();
 						if( !hasParentheses )
-							addString += parametersString;
+							addString += parameters;
 						
 						completions.add( new CompletionProposal(addString, wordOffset+cwordLength, wordLength-cwordLength, addString.length(), functionImage, showString, null, null) );
 					}

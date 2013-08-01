@@ -5,15 +5,15 @@ import java.util.ArrayList;
 
 public class CodeBlockCode implements Code
 {
-	protected CodeBlock parent;
-	protected int firstCharacterPosition;
-	protected int lastCharacterPosition;
+	protected CodeBlock							parent;
 	
-	protected ArrayList<ArrayList<CodeWord>> lines = new ArrayList<ArrayList<CodeWord>>();
-	protected ArrayList<CodeWord> words = new ArrayList<CodeWord>();
-	protected CodeWord word;
+	protected ArrayList<ArrayList<CodeWord>>	lines					= new ArrayList<ArrayList<CodeWord>>();
+	protected ArrayList<CodeWord>				words					= new ArrayList<CodeWord>();
+	protected CodeWord							word;
+	protected int								firstCharacterPosition	= -1;
+	protected int								lastCharacterPosition	= -1;
 	
-	protected boolean closed = false;
+	protected boolean							closed					= false;
 	
 	
 	protected CodeBlockCode( CodeBlock parent )
@@ -39,12 +39,22 @@ public class CodeBlockCode implements Code
 	}
 	protected void newWord( int characterPosition )
 	{
+		if( firstCharacterPosition < 0 )
+			firstCharacterPosition = characterPosition;
+		else
+			firstCharacterPosition = Math.min( characterPosition, firstCharacterPosition );
+		
 		word = new CodeWord( characterPosition );
 		words.add( word );
 	}
 	@Override
 	public void closeWord( int characterPosition )
 	{
+		if( lastCharacterPosition < 0 )
+			lastCharacterPosition = characterPosition;
+		else
+			lastCharacterPosition = Math.max( characterPosition, lastCharacterPosition );
+		
 		if( word != null )
 		{
 			word.close( characterPosition );
@@ -87,11 +97,11 @@ public class CodeBlockCode implements Code
 	{
 		return parent;
 	}
-	
 	public ArrayList<ArrayList<CodeWord>> getLines()
 	{
 		return lines;
 	}
+	
 	@Override
 	public ArrayList<CodeWord> getLastLine()
 	{
@@ -111,11 +121,43 @@ public class CodeBlockCode implements Code
 	}
 	
 	@Override
+	public int getFirstCharacterPosition()
+	{
+		return firstCharacterPosition;
+	}
+	@Override
+	public int getLastCharacterPosition()
+	{
+		return lastCharacterPosition;
+	}
+	
+	@Override
+	public boolean isInFunction()
+	{
+		CodeBlock block = parent;
+		while( block != null )
+		{
+			if( block.isFunction() )
+				return true;
+			block = block.getParent();
+		}
+		return false;
+	}
+	
+	
+	@Override
 	public int getDepth()
 	{
 		return parent.getDepth();
 	}
 	
+	@Override
+	public boolean isChildOf( CodeBlock block )
+	{
+		return block.isParentOf( this );
+	}
+	
+	@Override
 	public int getBlockNumber()
 	{
 		return parent.getChildNumber( this );

@@ -6,13 +6,15 @@ import com.patrick_vane.unrealscript.editor.constants.WordConstant;
 
 public class CodeBlock implements Code
 {
-	protected CodeBlock parent;
-	protected ArrayList<Code> childs = new ArrayList<Code>();
-	protected ArrayList<CodeWord> lineBeforeBlock;
-	protected boolean function;
+	protected CodeBlock				parent;
+	protected ArrayList<Code>		childs					= new ArrayList<Code>();
+	protected ArrayList<CodeWord>	lineBeforeBlock;
+	protected boolean				function;
+	protected int					firstCharacterPosition	= -1;
+	protected int					lastCharacterPosition	= -1;
 	
-	protected CodeBlockCode currentCode;
-	protected boolean closed = false;
+	protected CodeBlockCode			currentCode;
+	protected boolean				closed					= false;
 	
 	
 	protected CodeBlock( CodeBlock parent )
@@ -27,9 +29,13 @@ public class CodeBlock implements Code
 		else
 		{
 			lineBeforeBlock = parent.getLastLine();
-			if( lineBeforeBlock.size() > 0 )
+			for( CodeWord word : lineBeforeBlock )
 			{
-				function = WordConstant.FUNCTION_KEYWORDS_HASHSET.contains( lineBeforeBlock.get(0).getWord().toLowerCase() );
+				if( WordConstant.FUNCTION_KEYWORDS_HASHSET.contains(word.getWord().toLowerCase()) )
+				{
+					function = true;
+					break;
+				}
 			}
 		}
 		
@@ -51,12 +57,22 @@ public class CodeBlock implements Code
 	@Override
 	public void addCharacter( int characterPosition, char character )
 	{
+		if( firstCharacterPosition < 0 )
+			firstCharacterPosition = characterPosition;
+		else
+			firstCharacterPosition = Math.min( characterPosition, firstCharacterPosition );
+		
 		if( currentCode != null )
 			currentCode.addCharacter( characterPosition, character );
 	}
 	@Override
 	public void closeWord( int characterPosition )
 	{
+		if( lastCharacterPosition < 0 )
+			lastCharacterPosition = characterPosition;
+		else
+			lastCharacterPosition = Math.max( characterPosition, lastCharacterPosition );
+		
 		if( currentCode != null )
 			currentCode.closeWord( characterPosition );
 	}
@@ -138,11 +154,6 @@ public class CodeBlock implements Code
 		return null;
 	}
 	
-	/** Is this block a function? */
-	public boolean isFunction()
-	{
-		return function;
-	}
 	@Override
 	public CodeBlock getParent()
 	{
@@ -156,8 +167,24 @@ public class CodeBlock implements Code
 	{
 		return lineBeforeBlock;
 	}
+	@Override
+	public int getFirstCharacterPosition()
+	{
+		return firstCharacterPosition;
+	}
+	@Override
+	public int getLastCharacterPosition()
+	{
+		return lastCharacterPosition;
+	}
 	
+	/** Is this block a function? */
+	public boolean isFunction()
+	{
+		return function;
+	}
 	/** Is this block inside a function? (is a parent block of this block a function?) */
+	@Override
 	public boolean isInFunction()
 	{
 		CodeBlock block = parent;
@@ -169,6 +196,7 @@ public class CodeBlock implements Code
 		}
 		return false;
 	}
+	
 	
 	@Override
 	public int getDepth()
@@ -187,9 +215,19 @@ public class CodeBlock implements Code
 	{
 		return childs.contains( block );
 	}
+	
+	@Override
 	public boolean isChildOf( CodeBlock block )
 	{
 		return block.isParentOf( this );
+	}
+	
+	@Override
+	public int getBlockNumber()
+	{
+		if( parent == null )
+			return 0;
+		return parent.getChildNumber( this );
 	}
 	
 	/** Starts with 1, returns -1 if it is not a child of this block. */

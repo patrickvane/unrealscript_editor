@@ -12,7 +12,12 @@ public interface Code
 	
 	public ArrayList<CodeWord> getLastLine();
 	public CodeWord getLastCompletedWord();
+	public int getFirstCharacterPosition();
+	public int getLastCharacterPosition();
+	public boolean isInFunction();
 	
+	public boolean isChildOf( CodeBlock block );
+	public int getBlockNumber();
 	public int getDepth();
 	
 	public void addCharacter( int characterPosition, char character );

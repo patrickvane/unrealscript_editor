@@ -22,9 +22,10 @@ import com.patrick_vane.unrealscript.editor.parser.UnrealScriptAttributes;
 
 public class CodeCompleter implements  IContentAssistProcessor
 {
-	private static final Image	variableImage	= UnrealScriptEditor.getImage( "icons/outline/var_private.gif" );
-	private static final Image	functionImage	= UnrealScriptEditor.getImage( "icons/outline/function.gif" );
-	private static final Image	classImage		= UnrealScriptEditor.getImage( "icons/outline/class.gif" );
+	private static final Image	localVariableImage	= UnrealScriptEditor.getImage( "icons/outline/var_public.gif" );
+	private static final Image	variableImage		= UnrealScriptEditor.getImage( "icons/outline/var_private.gif" );
+	private static final Image	functionImage		= UnrealScriptEditor.getImage( "icons/outline/function.gif" );
+	private static final Image	classImage			= UnrealScriptEditor.getImage( "icons/outline/class.gif" );
 	
 	
 	@Override
@@ -76,10 +77,14 @@ public class CodeCompleter implements  IContentAssistProcessor
 		
 		if( (word != null) && (wordCutoff != null) && (parentClass != null) )
 		{
+			HashMap<String,CodeAttributeVariable> localVariables = new HashMap<String,CodeAttributeVariable>();
 			UnrealScriptAttributes attributes = UnrealScriptAdvancedParser.getAttributes( parentClass.getName() );
 			HashMap<String,UnrealScriptClass> classes = new HashMap<String,UnrealScriptClass>();
 			if( canBeClass )
+			{
+				localVariables = UnrealScriptAdvancedParser.getLocalVariables( parentClass.getName(), offset );
 				classes = UnrealScriptAdvancedParser.getClasses();
+			}
 			
 			
 			int wordOffset = word.word.getFirstCharacterPosition();
@@ -93,6 +98,21 @@ public class CodeCompleter implements  IContentAssistProcessor
 			int cwordLength = cwordWord.length();
 			int cwordStartLength = cwordWordStart.length();
 			
+			
+			for( CodeAttributeVariable attribute : localVariables.values() )
+			{
+				String name = attribute.getName();
+				if( name != null )
+				{
+					if( name.toLowerCase().startsWith(cwordWordLow) )
+					{
+						String addString = name.substring( cwordLength );
+						String showString = cwordWordStart + name.substring( cwordStartLength ) + " : " + attribute.getType();
+						
+						completions.add( new CompletionProposal(addString, wordOffset+cwordLength, wordLength-cwordLength, addString.length(), localVariableImage, showString, null, null) );
+					}
+				}
+			}
 			
 			for( CodeAttributeVariable attribute : attributes.getAttributeVariablesChildOverrides().values() )
 			{

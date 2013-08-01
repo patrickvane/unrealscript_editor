@@ -161,6 +161,17 @@ public class UnrealScriptAdvancedParser
 			{
 				parent = parents.get( i );
 				
+				if( i == parents.size()-1 )
+				{
+					CodeAttributeVariable localVariable = getLocalVariable( usingClass.getName(), parent.word.getWord(), parent.inLineArrayPos, parent.line, parent.function );
+					UnrealScriptClass newLocalVariableClass = ((localVariable == null) ? null : getClass(localVariable.getType()));
+					if( newLocalVariableClass != null )
+					{
+						usingClass = newLocalVariableClass;
+						continue;
+					}
+				}
+				
 				boolean startWithClass = canBeClass;
 				if( canBeClass )
 				{
@@ -226,6 +237,13 @@ public class UnrealScriptAdvancedParser
 				return null;
 			
 			
+			if( parents.size() == 0 )
+			{
+				CodeAttributeVariable localVariable = getLocalVariable( usingClass.getName(), word.getWord(), inLineArrayPos, line, function );
+				if( localVariable != null )
+					return new ClassOrAttribute( word, localVariable );
+			}
+			
 			boolean startWithClass = canBeClass;
 			if( canBeClass )
 			{
@@ -285,6 +303,11 @@ public class UnrealScriptAdvancedParser
 			return lastAttributes.get( className );
 		}
 		
+		public static HashMap<String,CodeAttributeVariable> getLocalVariables( String className, int positionInsideFunction )
+		{
+			return UnrealScriptParser.parseFunctionParametersAndLocalVariables( className, positionInsideFunction );
+		}
+		
 		
 		public static UnrealScriptClass getClass( String word )
 		{
@@ -298,6 +321,14 @@ public class UnrealScriptAdvancedParser
 				return getParentAttributeIfNeeded( attributes.getAttributeFunction(word), word, inLineArrayPos, line );
 			else
 				return getParentAttributeIfNeeded( attributes.getAttributeVariable(word), word, inLineArrayPos, line );
+		}
+		
+		public static CodeAttributeVariable getLocalVariable( String className, String word, int inLineArrayPos, CodeWord[] line, boolean function )
+		{
+			if( inLineArrayPos < 0 )
+				return null;
+			HashMap<String,CodeAttributeVariable> attributes = getLocalVariables( className, line[inLineArrayPos].getFirstCharacterPosition() );
+			return attributes.get( word.toLowerCase() );
 		}
 		
 		public static CodeAttribute getParentAttributeIfNeeded( CodeAttribute attribute, String word, int inLineArrayPos, CodeWord[] line )

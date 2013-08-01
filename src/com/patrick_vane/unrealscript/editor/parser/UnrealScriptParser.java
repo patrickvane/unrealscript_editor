@@ -311,7 +311,7 @@ public class UnrealScriptParser
 				}
 				// parse variable type <<
 				
-				// parse variable modifiers >>
+				// parse modifiers >>
 				{
 					int brackets 		= 0;
 					int squareBrackets 	= 0;
@@ -355,7 +355,7 @@ public class UnrealScriptParser
 						modifier = "";
 					}
 				}
-				// parse variable modifiers <<
+				// parse modifiers <<
 				
 				for( int n=names.size()-1; n>=0; n-- )
 				{
@@ -555,7 +555,7 @@ public class UnrealScriptParser
 					}
 					// parse return type <<
 					
-					// parse variable modifiers >>
+					// parse modifiers >>
 					{
 						int brackets 		= 0;
 						int squareBrackets 	= 0;
@@ -602,7 +602,7 @@ public class UnrealScriptParser
 							modifier = "";
 						}
 					}
-					// parse variable modifiers <<
+					// parse modifiers <<
 					
 					if( name != null )
 						attributes.add( new CodeAttributeFunction(modifiers, type, name.getWord(), parameters, className, name.getFirstCharacterPosition(), name.getLastCharacterPosition()) );
@@ -1037,6 +1037,430 @@ public class UnrealScriptParser
 		}
 		
 		return words.toArray( new CodeWord[0] );
+	}
+	
+	
+	public static HashMap<String,CodeAttributeVariable> parseFunctionParametersAndLocalVariables( String className, int positionInsideFunction )
+	{
+		try
+		{
+			UnrealScriptClass unrealscriptClass = UnrealScriptEditor.getUnrealScriptClass( className );
+			if( unrealscriptClass == null )
+				throw new Exception( "class \""+className+"\" couldn't be found" );
+			
+			CodeBlock code = UnrealScriptParser.parse( unrealscriptClass.getFile() );
+			if( code == null )
+				throw new Exception( "class \""+className+"\" couldn't be parsed" );
+			
+			for( Code child : code.getChilds() )
+			{
+				if( (child.getFirstCharacterPosition() <= positionInsideFunction) && (child.getLastCharacterPosition() >= positionInsideFunction) )
+				{
+					
+					HashMap<String,CodeAttributeVariable> variables = new HashMap<String,CodeAttributeVariable>();
+					if( child instanceof CodeBlock )
+					{
+						CodeBlock childBlock = (CodeBlock) child;
+						if( childBlock.isFunction() )
+						{
+							
+							for( CodeAttributeVariable variable : getFunctionParameters(className, childBlock.getLineBeforeBlock()) )
+							{
+								variables.put( variable.getName().toLowerCase(), variable );
+							}
+							
+							CodeBlockCode childChildCode = null;
+							CodeBlock currentBlock = childBlock;
+							while( true )
+							{
+								if( childBlock.getChilds().size() > 0 )
+								{
+									Code currentBlockChild = currentBlock.getChilds().get( 0 );
+									if( currentBlockChild != null )
+									{
+										if( currentBlockChild instanceof CodeBlockCode )
+										{
+											childChildCode = (CodeBlockCode) currentBlockChild;
+											break;
+										}
+										else if( currentBlockChild instanceof CodeBlock )
+										{
+											currentBlock = (CodeBlock) currentBlockChild;
+											continue;
+										}
+									}
+								}
+								break;
+							}
+							if( childChildCode != null )
+							{
+								ArrayList<CodeAttributeVariable> functionVariables = getFunctionLocalVariables( className, childChildCode );
+								for( CodeAttributeVariable variable : functionVariables )
+								{
+									String key = variable.getName().toLowerCase();
+									if( !variables.containsKey(key) )
+									{
+										variables.put( key, variable );
+									}
+								}
+							}
+							
+						}
+					}
+					return variables;
+					
+				}
+			}
+		}
+		catch( Exception e )
+		{
+		}
+		return new HashMap<String,CodeAttributeVariable>();
+	}
+	
+	public static ArrayList<CodeAttributeVariable> getFunctionParameters( String className, ArrayList<CodeWord> line )
+	{
+		boolean function = false;
+		for( int i=0; i<line.size(); i++ )
+		{
+			if( WordConstant.FUNCTION_KEYWORDS_HASHSET.contains(line.get(i).getWord().toLowerCase()) )
+			{
+				function = true;
+				break;
+			}
+		}
+		if( !function )
+		{
+			return new ArrayList<CodeAttributeVariable>();
+		}
+		
+		ArrayList<CodeAttributeVariable> parameters = new ArrayList<CodeAttributeVariable>();
+		
+		// parse parameters >>
+			CodeWord variableName = null;
+			ArrayList<String> variableModifiers = new ArrayList<String>();
+			String variableType = "";
+			boolean gotType = false;
+			String modifierWord = "";
+			
+			int brackets 		= 0;
+			int squareBrackets 	= 0;
+			int parentheses 	= 0;
+			int chevrons 		= 0;
+			for( int i=line.size()-2; i>=0; i-- )
+			{
+				CodeWord word = line.get( i );
+				char firstChar = word.getWord().charAt( 0 );
+				
+				if( firstChar == '<' )
+					chevrons++;
+				else if( firstChar == '>' )
+					chevrons--;
+				else if( firstChar == '(' )
+					parentheses++;
+				else if( firstChar == ')' )
+					parentheses--;
+				else if( firstChar == '[' )
+					squareBrackets++;
+				else if( firstChar == ']' )
+					squareBrackets--;
+				else if( firstChar == '{' )
+					brackets++;
+				else if( firstChar == '}' )
+					brackets--;
+				
+				if( (firstChar == ',') || (parentheses >= 1) )
+				{
+					if( (brackets == 0) && (squareBrackets == 0) && (parentheses >= 0) && (chevrons == 0) )
+					{
+						if( variableName != null )
+						{
+							// add parameter >>
+								parameters.add( new CodeAttributeVariable(variableModifiers, variableType, variableName.getWord(), className, variableName.getFirstCharacterPosition(), variableName.getLastCharacterPosition()) );
+								variableModifiers = new ArrayList<String>();
+								variableName = null;
+								variableType = "";
+								gotType = false;
+							// add parameter <<
+						}
+						
+						if( parentheses >= 1 )
+							break;
+						continue;
+					}
+				}
+				
+				if( variableName == null )
+				{
+					if( KeywordDetector.getSharedInstance().isWordStart(firstChar) )
+					{
+						variableName = word;
+					}
+					continue;
+				}
+				else
+				{
+					if( (firstChar == '=') || (firstChar == '-') || (firstChar == '.') )
+					{
+						variableName = null;
+						continue;
+					}
+				}
+				
+				if( !gotType )
+				{
+					variableType = word.getWord() + variableType;
+				}
+				else
+				{
+					modifierWord = word.getWord() + modifierWord;
+				}
+				
+				if( brackets != 0 )
+					continue;
+				if( squareBrackets != 0 )
+					continue;
+				if( parentheses != 0 )
+					continue;
+				if( chevrons != 0 )
+					continue;
+				
+				if( !gotType )
+				{
+					if( (variableType.length() > 0) && KeywordDetector.getSharedInstance().isWordStart(variableType.charAt(0)) )
+					{
+						gotType = true;
+					}
+					continue;
+				}
+				else
+				{
+					variableModifiers.add( modifierWord );
+					modifierWord = "";
+				}
+			}
+			Collections.reverse( parameters );
+		// parse parameters <<
+		
+		return parameters;
+	}
+	
+	public static ArrayList<CodeAttributeVariable> getFunctionLocalVariables( String className, CodeBlockCode code )
+	{
+		ArrayList<CodeAttributeVariable> attributes = new ArrayList<CodeAttributeVariable>();
+		
+		for( ArrayList<CodeWord> line : code.getLines() )
+		{
+			if( line.size() <= 0 )
+				continue;
+			
+			if( line.get(0).getWord().equalsIgnoreCase("local") )
+			{
+				ArrayList<CodeWord> names = new ArrayList<CodeWord>();
+				String type = "";
+				ArrayList<String> modifiers = new ArrayList<String>();
+				int i;
+				
+				// parse variable names >>
+				{
+					int brackets 		= 0;
+					int squareBrackets 	= 0;
+					int parentheses 	= 0;
+					int chevrons 		= 0;
+					boolean comma = true;
+					for( i=line.size()-1; i>=1; i-- )
+					{
+						CodeWord word = line.get( i );
+						char firstChar = word.getWord().charAt( 0 );
+						
+						if( !comma && (firstChar != ',') )
+							break;
+						
+						if( firstChar == '<' )
+						{
+							chevrons++;
+							continue;
+						}
+						else if( firstChar == '>' )
+						{
+							chevrons--;
+							continue;
+						}
+						else if( firstChar == '(' )
+						{
+							parentheses++;
+							continue;
+						}
+						else if( firstChar == ')' )
+						{
+							parentheses--;
+							continue;
+						}
+						else if( firstChar == '[' )
+						{
+							squareBrackets++;
+							continue;
+						}
+						else if( firstChar == ']' )
+						{
+							squareBrackets--;
+							continue;
+						}
+						else if( firstChar == '{' )
+						{
+							brackets++;
+							continue;
+						}
+						else if( firstChar == '}' )
+						{
+							brackets--;
+							continue;
+						}
+						
+						if( brackets != 0 )
+							continue;
+						if( squareBrackets != 0 )
+							continue;
+						if( parentheses != 0 )
+							continue;
+						if( chevrons != 0 )
+							continue;
+						
+						if( comma )
+						{
+							names.add( word );
+							comma = false;
+							continue;
+						}
+						else if( firstChar == ',' )
+						{
+							comma = true;
+							continue;
+						}
+						break;
+					}
+				}
+				// parse variable names <<
+				
+				// parse variable type >>
+				{
+					int brackets 		= 0;
+					int squareBrackets 	= 0;
+					int parentheses 	= 0;
+					int chevrons 		= 0;
+					boolean noBrackets = true;
+					for( ; i>=1; i-- )
+					{
+						String word = line.get(i).getWord();
+						char firstChar = word.charAt( 0 );
+						
+						type = word + type;
+						
+						if( firstChar == '<' )
+							chevrons++;
+						else if( firstChar == '>' )
+							chevrons--;
+						else if( firstChar == '(' )
+							parentheses++;
+						else if( firstChar == ')' )
+							parentheses--;
+						else if( firstChar == '[' )
+							squareBrackets++;
+						else if( firstChar == ']' )
+							squareBrackets--;
+						else if( firstChar == '{' )
+							brackets++;
+						else if( firstChar == '}' )
+							brackets--;
+						
+						if( brackets != 0 )
+						{
+							noBrackets = false;
+							continue;
+						}
+						if( squareBrackets != 0 )
+						{
+							noBrackets = false;
+							continue;
+						}
+						if( parentheses != 0 )
+						{
+							noBrackets = false;
+							continue;
+						}
+						if( chevrons != 0 )
+						{
+							noBrackets = false;
+							continue;
+						}
+						
+						if( !noBrackets )
+							noBrackets = true;
+						else
+							break;
+					}
+				}
+				// parse variable type <<
+				
+				// parse variable modifiers >>
+				{
+					int brackets 		= 0;
+					int squareBrackets 	= 0;
+					int parentheses 	= 0;
+					int chevrons 		= 0;
+					String modifier = "";
+					for( int j=1; j<i; j++ )
+					{
+						String word = line.get(j).getWord();
+						char firstChar = word.charAt( 0 );
+						
+						modifier += word;
+						
+						if( firstChar == '<' )
+							chevrons++;
+						else if( firstChar == '>' )
+							chevrons--;
+						else if( firstChar == '(' )
+							parentheses++;
+						else if( firstChar == ')' )
+							parentheses--;
+						else if( firstChar == '[' )
+							squareBrackets++;
+						else if( firstChar == ']' )
+							squareBrackets--;
+						else if( firstChar == '{' )
+							brackets++;
+						else if( firstChar == '}' )
+							brackets--;
+						
+						if( brackets != 0 )
+							continue;
+						if( squareBrackets != 0 )
+							continue;
+						if( parentheses != 0 )
+							continue;
+						if( chevrons != 0 )
+							continue;
+						
+						modifiers.add( modifier );
+						modifier = "";
+					}
+				}
+				// parse variable modifiers <<
+				
+				for( int n=names.size()-1; n>=0; n-- )
+				{
+					CodeWord word = names.get( n );
+					attributes.add( new CodeAttributeVariable(modifiers, type, word.getWord(), className, word.getFirstCharacterPosition(), word.getLastCharacterPosition()) );
+				}
+			}
+			else
+			{
+				break;
+			}
+		}
+		
+		return attributes;
 	}
 	
 	

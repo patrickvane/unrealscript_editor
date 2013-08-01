@@ -65,7 +65,7 @@ public class UnrealScriptAdvancedParser
 			try
 			{
 				int min = 0;
-				int max = (cutWordOffTillOffset ? offset : document.getLength());
+				int max = (cutWordOffTillOffset ? Math.min(offset,document.getLength()) : document.getLength());
 				
 				int start  = clamp( offset-40, min, max );
 				int length = clamp( 80, min, max-start );
@@ -73,33 +73,130 @@ public class UnrealScriptAdvancedParser
 				CodeWord[] line  = UnrealScriptParser.parseLine( document.get(), offset );
 				
 				int pos = offset;
+				int lastPos = 0;
 				
+				CodeWord word = null;
 				for( int i=0; i<words.length; i++ )
 				{
-					CodeWord word = words[i];
+					word = words[i];
+					
 					if( isBetween(pos, word.getFirstCharacterPosition(), word.getLastCharacterPosition()) )
 					{
 						int inLineArrayPos = -1;
-						for( int j=0; j<line.length; j++ )
+						CodeWord[] currentLine = line;
+						for( int j=0; j<currentLine.length; j++ )
 						{
-							if( line[j].equals(word) )
+							if( currentLine[j].getFirstCharacterPosition() == word.getFirstCharacterPosition() )
 							{
 								inLineArrayPos = j;
 								break;
 							}
 						}
 						
-						boolean function = false;
-						if( inLineArrayPos+1 < line.length )
+						if( inLineArrayPos >= 0 )
 						{
-							CodeWord after = line[inLineArrayPos+1];
-							if( after != null )
+							boolean function = false;
+							if( inLineArrayPos+1 < currentLine.length )
 							{
-								function = "(".equals( after.getWord() );
+								CodeWord after = currentLine[inLineArrayPos+1];
+								if( after != null )
+								{
+									function = "(".equals( after.getWord() );
+								}
+							}
+							
+							return new CodeWordData( word, currentLine, inLineArrayPos, function );
+						}
+					}
+					
+					if( isBetween(pos, lastPos, word.getFirstCharacterPosition()) )
+					{
+						int inLineArrayPos = -1;
+						CodeWord[] currentLine = line;
+						for( int j=0; j<currentLine.length; j++ )
+						{
+							if( currentLine[j].getFirstCharacterPosition() == word.getFirstCharacterPosition() )
+							{
+								inLineArrayPos = j;
+								break;
 							}
 						}
 						
-						return new CodeWordData( word, line, inLineArrayPos, function );
+						if( inLineArrayPos >= 0 )
+						{
+							CodeWord newWord = new CodeWord( pos );
+							newWord.close( pos );
+							
+							boolean added = false;
+							ArrayList<CodeWord> newLine = new ArrayList<CodeWord>();
+							for( CodeWord lineWord : currentLine )
+							{
+								if( !added )
+								{
+									if( newWord.getFirstCharacterPosition() < lineWord.getFirstCharacterPosition() )
+									{
+										inLineArrayPos = newLine.size();
+										newLine.add( newWord );
+										added = true;
+									}
+								}
+								newLine.add( lineWord );
+							}
+							if( !added )
+							{
+								inLineArrayPos = newLine.size();
+								newLine.add( newWord );
+								added = true;
+							}
+							
+							return new CodeWordData( newWord, newLine.toArray(new CodeWord[0]), inLineArrayPos, false );
+						}
+					}
+					
+					lastPos = word.getLastCharacterPosition();
+				}
+				
+				if( word != null )
+				{
+					int inLineArrayPos = -1;
+					CodeWord[] currentLine = line;
+					for( int j=0; j<currentLine.length; j++ )
+					{
+						if( currentLine[j].getFirstCharacterPosition() == word.getFirstCharacterPosition() )
+						{
+							inLineArrayPos = j;
+							break;
+						}
+					}
+					
+					if( inLineArrayPos >= 0 )
+					{
+						CodeWord newWord = new CodeWord( pos );
+						newWord.close( pos );
+						
+						boolean added = false;
+						ArrayList<CodeWord> newLine = new ArrayList<CodeWord>();
+						for( CodeWord lineWord : currentLine )
+						{
+							if( !added )
+							{
+								if( newWord.getFirstCharacterPosition() < lineWord.getFirstCharacterPosition() )
+								{
+									inLineArrayPos = newLine.size();
+									newLine.add( newWord );
+									added = true;
+								}
+							}
+							newLine.add( lineWord );
+						}
+						if( !added )
+						{
+							inLineArrayPos = newLine.size();
+							newLine.add( newWord );
+							added = true;
+						}
+						
+						return new CodeWordData( newWord, newLine.toArray(new CodeWord[0]), inLineArrayPos, false );
 					}
 				}
 			}
@@ -107,7 +204,10 @@ public class UnrealScriptAdvancedParser
 			{
 				e.printStackTrace();
 			}
-			return null;
+			
+			CodeWord newWord = new CodeWord( offset );
+			newWord.close( offset );
+			return new CodeWordData( newWord, new CodeWord[]{newWord}, 0, false );
 		}
 	// parse line <<
 	
@@ -175,10 +275,13 @@ public class UnrealScriptAdvancedParser
 				boolean startWithClass = canBeClass;
 				if( canBeClass )
 				{
-					char firstChar = parent.word.getWord().charAt( 0 );
-					if( firstChar == Character.toLowerCase(firstChar) ) // firstChar is lower case
+					if( parent.word.getWord().length() > 0 )
 					{
-						startWithClass = false;
+						char firstChar = parent.word.getWord().charAt( 0 );
+						if( firstChar == Character.toLowerCase(firstChar) ) // firstChar is lower case
+						{
+							startWithClass = false;
+						}
 					}
 				}
 				
@@ -247,10 +350,13 @@ public class UnrealScriptAdvancedParser
 			boolean startWithClass = canBeClass;
 			if( canBeClass )
 			{
-				char firstChar = word.getWord().charAt( 0 );
-				if( firstChar == Character.toLowerCase(firstChar) ) // firstChar is lower case
+				if( word.getWord().length() > 0 )
 				{
-					startWithClass = false;
+					char firstChar = word.getWord().charAt( 0 );
+					if( firstChar == Character.toLowerCase(firstChar) ) // firstChar is lower case
+					{
+						startWithClass = false;
+					}
 				}
 			}
 			

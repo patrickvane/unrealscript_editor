@@ -107,12 +107,9 @@ public class CodeWord
 			return false;
 		if( lastCharacterPosition != other.lastCharacterPosition )
 			return false;
-		if( word == null )
-		{
-			if( other.word != null )
-				return false;
-		}
-		else if( !word.equals(other.word) )
+		if( ((word == null) || (other.word == null)) && ((word != null) || (other.word != null)) )
+			return false;
+		if( !word.equals(other.word) )
 			return false;
 		return true;
 	}
@@ -137,6 +134,9 @@ public class CodeWord
 		int chevrons 		= 0;
 		boolean hadDot 		= false;
 		boolean function 	= false;
+		
+		CodeWord mainWord = line[inLineArrayPos];
+		hadDot = ".".equals( mainWord.getWord() );
 		
 		for( int i=inLineArrayPos-1; i>=0; i-- )
 		{

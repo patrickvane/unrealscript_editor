@@ -51,7 +51,11 @@ public class CodeCompleter implements  IContentAssistProcessor
 				{
 					if( parentClassOrAttribute.isAttribute() )
 					{
-						parentClass = UnrealScriptAdvancedParser.getClass( parentClassOrAttribute.attribute.getClassName() );
+						parentClass = UnrealScriptAdvancedParser.getClass( parentClassOrAttribute.attribute.getType() );
+					}
+					else if( parentClassOrAttribute.isClass() )
+					{
+						parentClass = parentClassOrAttribute.unrealscriptClass;
 					}
 				}
 			}
@@ -92,36 +96,50 @@ public class CodeCompleter implements  IContentAssistProcessor
 			String wordWord = word.word.getWord();
 			int wordLength = wordWord.length();
 			
-			String cwordWord = wordCutoff.word.getWord();
-			String cwordWordLow = cwordWord.toLowerCase();
-			String cwordWordStart = cwordWord.charAt( 0 ) + "";
+			boolean isDot = ".".equals( wordCutoff.word.getWord() );
+			String cwordWord = "";
+			String cwordWordLow = "";
+			String addedString = "";
+			if( !isDot )
+			{
+				cwordWord = wordCutoff.word.getWord();
+				cwordWordLow = cwordWord.toLowerCase();
+			}
+			else
+			{
+				addedString = ".";
+			}
+			String cwordWordStart = ((cwordWord.length() > 0) ? cwordWord.charAt(0)+"" : "");
 			int cwordLength = cwordWord.length();
 			int cwordStartLength = cwordWordStart.length();
 			
 			
-			for( CodeAttributeVariable attribute : localVariables.values() )
+			if( !isDot )
 			{
-				String name = attribute.getName();
-				if( name != null )
+				for( CodeAttributeVariable attribute : Sorter.sortAttributeVariables(localVariables.values()) )
 				{
-					if( name.toLowerCase().startsWith(cwordWordLow) )
+					String name = attribute.getName();
+					if( name != null )
 					{
-						String addString = name.substring( cwordLength );
-						String showString = cwordWordStart + name.substring( cwordStartLength ) + " : " + attribute.getType();
-						
-						completions.add( new CompletionProposal(addString, wordOffset+cwordLength, wordLength-cwordLength, addString.length(), localVariableImage, showString, null, null) );
+						if( name.toLowerCase().startsWith(cwordWordLow) )
+						{
+							String addString = addedString + name.substring( cwordLength );
+							String showString = cwordWordStart + name.substring( cwordStartLength ) + " : " + attribute.getType();
+							
+							completions.add( new CompletionProposal(addString, wordOffset+cwordLength, wordLength-cwordLength, addString.length(), localVariableImage, showString, null, null) );
+						}
 					}
 				}
 			}
 			
-			for( CodeAttributeVariable attribute : attributes.getAttributeVariablesChildOverrides().values() )
+			for( CodeAttributeVariable attribute : Sorter.sortAttributeVariables(attributes.getAttributeVariablesChildOverrides().values()) )
 			{
 				String name = attribute.getName();
 				if( name != null )
 				{
-					if( name.toLowerCase().startsWith(cwordWordLow) )
+					if( isDot || name.toLowerCase().startsWith(cwordWordLow) )
 					{
-						String addString = name.substring( cwordLength );
+						String addString = addedString + name.substring( cwordLength );
 						String showString = cwordWordStart + name.substring( cwordStartLength ) + " : " + attribute.getType();
 						
 						completions.add( new CompletionProposal(addString, wordOffset+cwordLength, wordLength-cwordLength, addString.length(), variableImage, showString, null, null) );
@@ -129,16 +147,16 @@ public class CodeCompleter implements  IContentAssistProcessor
 				}
 			}
 			
-			for( CodeAttributeFunction attribute : attributes.getAttributeFunctionsChildOverrides().values() )
+			for( CodeAttributeFunction attribute : Sorter.sortAttributeFunctions(attributes.getAttributeFunctionsChildOverrides().values()) )
 			{
 				String name = attribute.getName();
 				if( name != null )
 				{
-					if( name.toLowerCase().startsWith(cwordWordLow) )
+					if( isDot || name.toLowerCase().startsWith(cwordWordLow) )
 					{
 						String parameters = attribute.getParametersAsString( true );
 						
-						String addString = name.substring( cwordLength );
+						String addString = addedString + name.substring( cwordLength );
 						String showString = cwordWordStart + name.substring( cwordStartLength ) + parameters + " : " + attribute.getType();
 						if( !hasParentheses )
 							addString += parameters;
@@ -148,14 +166,17 @@ public class CodeCompleter implements  IContentAssistProcessor
 				}
 			}
 			
-			for( UnrealScriptClass ucClass : classes.values() )
+			if( !isDot )
 			{
-				String name = ucClass.getName();
-				if( name != null )
+				for( UnrealScriptClass ucClass : Sorter.sortClasses(classes.values()) )
 				{
-					if( name.toLowerCase().startsWith(cwordWordLow) )
+					String name = ucClass.getName();
+					if( name != null )
 					{
-						completions.add( new CompletionProposal(name, wordOffset, wordLength, name.length(), classImage, name, null, null) );
+						if( name.toLowerCase().startsWith(cwordWordLow) )
+						{
+							completions.add( new CompletionProposal(name, wordOffset, wordLength, name.length(), classImage, name, null, null) );
+						}
 					}
 				}
 			}

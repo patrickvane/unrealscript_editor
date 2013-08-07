@@ -29,7 +29,7 @@ public class CodeAttributeFunction extends CodeAttribute
 				modifiersBuffer.append( " " );
 			}
 			
-			parametersBuffer.append( parameter.getType()+" "+parameter.getName() );
+			parametersBuffer.append( modifiersBuffer.toString()+parameter.getType()+" "+parameter.getName() );
 		}
 		String parameters = parametersBuffer.toString();
 		

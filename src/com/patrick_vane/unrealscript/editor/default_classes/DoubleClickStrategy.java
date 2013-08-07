@@ -21,7 +21,7 @@ public class DoubleClickStrategy implements ITextDoubleClickStrategy
 		
 		fText = part;
 		
-		if( !selectComment( pos ) )
+		if( !selectComment(pos) )
 		{
 			selectWord( pos );
 		}
@@ -96,7 +96,7 @@ public class DoubleClickStrategy implements ITextDoubleClickStrategy
 			while( pos >= 0 )
 			{
 				c = doc.getChar( pos );
-				if( !KeywordDetector.getSharedInstance().isWordStart(c) )
+				if( !KeywordDetector.getSharedInstance().isWordPart(c) )
 					break;
 				pos--;
 			}

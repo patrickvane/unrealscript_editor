@@ -45,23 +45,23 @@ public class CodeCompleter implements  IContentAssistProcessor
 			CodeWordData parent = word.getParentWord();
 			if( parent != null )
 			{
-				canBeClass = false;
 				ClassOrAttribute parentClassOrAttribute = UnrealScriptAdvancedParser.getClassOrAttributeAt( parent );
 				if( parentClassOrAttribute != null )
 				{
 					if( parentClassOrAttribute.isAttribute() )
 					{
 						parentClass = UnrealScriptAdvancedParser.getClass( parentClassOrAttribute.attribute.getType() );
+						canBeClass = false;
 					}
 					else if( parentClassOrAttribute.isClass() )
 					{
 						parentClass = parentClassOrAttribute.unrealscriptClass;
+						canBeClass = false;
 					}
 				}
 			}
 			if( parentClass == null )
 			{
-				canBeClass = true;
 				parentClass = UnrealScriptEditor.getActiveUnrealScriptClass();
 			}
 		}

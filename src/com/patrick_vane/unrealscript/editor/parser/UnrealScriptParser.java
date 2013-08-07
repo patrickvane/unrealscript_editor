@@ -959,9 +959,9 @@ public class UnrealScriptParser
 				break;
 			left--;
 		}
-		if( left < 0 )
+		if( left <= 0 )
 		{
-			return new CodeWord[0];
+			left = -1;
 		}
 		left += 1;
 		
@@ -975,7 +975,7 @@ public class UnrealScriptParser
 		}
 		if( right >= data.length() )
 		{
-			return new CodeWord[0];
+			right = data.length()-2;
 		}
 		right += 1;
 		

@@ -68,7 +68,7 @@ public class UnrealScriptAdvancedParser
 				int max = (cutWordOffTillOffset ? Math.min(offset,document.getLength()) : document.getLength());
 				
 				int start  = clamp( offset-40, min, max );
-				int length = clamp( 80, min, max-start );
+				int length = clamp( 80, 0, max-start );
 				CodeWord[] words = UnrealScriptParser.parsePartWords( document.get(start, length), start );
 				CodeWord[] line  = UnrealScriptParser.parseLine( document.get(), offset );
 				
@@ -268,6 +268,7 @@ public class UnrealScriptAdvancedParser
 					if( newLocalVariableClass != null )
 					{
 						usingClass = newLocalVariableClass;
+						canBeClass = false;
 						continue;
 					}
 				}
@@ -291,6 +292,8 @@ public class UnrealScriptAdvancedParser
 					if( newClass != null )
 					{
 						usingClass = newClass;
+						canBeClass = false;
+						continue;
 					}
 					else
 					{
@@ -299,6 +302,8 @@ public class UnrealScriptAdvancedParser
 						if( newAttributeClass != null )
 						{
 							usingClass = newAttributeClass;
+							canBeClass = false;
+							continue;
 						}
 						else
 						{
@@ -313,6 +318,8 @@ public class UnrealScriptAdvancedParser
 					if( newAttributeClass != null )
 					{
 						usingClass = newAttributeClass;
+						canBeClass = false;
+						continue;
 					}
 					else if( canBeClass )
 					{
@@ -320,6 +327,8 @@ public class UnrealScriptAdvancedParser
 						if( newClass != null )
 						{
 							usingClass = newClass;
+							canBeClass = false;
+							continue;
 						}
 						else
 						{
@@ -331,8 +340,6 @@ public class UnrealScriptAdvancedParser
 						break;
 					}
 				}
-				
-				canBeClass = false;
 			}
 			
 			
@@ -340,7 +347,7 @@ public class UnrealScriptAdvancedParser
 				return null;
 			
 			
-			if( parents.size() == 0 )
+			if( canBeClass )
 			{
 				CodeAttributeVariable localVariable = getLocalVariable( usingClass.getName(), word.getWord(), inLineArrayPos, line, function );
 				if( localVariable != null )

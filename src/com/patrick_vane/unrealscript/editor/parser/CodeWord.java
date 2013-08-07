@@ -149,24 +149,28 @@ public class CodeWord
 					return null;
 				brackets--;
 				function = true;
+				continue;
 			}
 			else if( "[".equals(wordWord) )
 			{
 				if( squareBrackets <= 0 )
 					return null;
 				squareBrackets--;
+				continue;
 			}
 			else if( "{".equals(wordWord) )
 			{
 				if( parentheses <= 0 )
 					return null;
 				parentheses--;
+				continue;
 			}
 			else if( "<".equals(wordWord) )
 			{
 				if( chevrons <= 0 )
 					return null;
 				chevrons--;
+				continue;
 			}
 			else if( ")".equals(wordWord) )
 			{

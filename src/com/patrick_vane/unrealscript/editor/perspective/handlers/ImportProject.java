@@ -1,7 +1,6 @@
 package com.patrick_vane.unrealscript.editor.perspective.handlers;
 
 import java.io.File;
-import java.net.URI;
 import java.util.Map.Entry;
 import org.eclipse.core.commands.AbstractHandler;
 import org.eclipse.core.commands.ExecutionEvent;
@@ -42,7 +41,7 @@ public class ImportProject extends AbstractHandler
 				return null;
 			
 			root 		= new File( dialog.getInstallationPath() );
-			rootPath 	= "file:"+root.toURI().getPath();
+			rootPath 	= root.getAbsolutePath()+"/";
 			projectName = dialog.getNewProjectName();
 			
 			project = ResourcesPlugin.getWorkspace().getRoot().getProject( projectName );
@@ -54,14 +53,14 @@ public class ImportProject extends AbstractHandler
 			}
 			
 			ok = true;
-			for( Entry<String,String> subfolder : ProjectConstant.subfolders.entrySet() )
+			for( Entry<String,String> subfolder : ProjectConstant.neededSubfolders.entrySet() )
 			{
 				String filepath = rootPath+subfolder.getValue()+"/";
 				try
 				{
-					if( new File(new URI(filepath)).exists() == false )
+					if( new File(filepath).exists() == false )
 					{
-						MessageDialog.openError( window.getShell(), "Error", "Wrong installation path, can't find folder \""+filepath+"\"" );
+						MessageDialog.openError( window.getShell(), "Error", "Wrong installation path, can't find folder: \n"+filepath );
 						ok = false;
 						break;
 					}
@@ -70,7 +69,7 @@ public class ImportProject extends AbstractHandler
 				{
 					try
 					{
-						MessageDialog.openError( window.getShell(), "Error", "Wrong installation path, can't find folder \""+filepath+"\"" );
+						MessageDialog.openError( window.getShell(), "Error", "Wrong installation path, can't find folder: \n"+filepath+"\n\nReason: \n"+e.getMessage() );
 					}
 					catch( Exception e2 )
 					{
@@ -94,7 +93,7 @@ public class ImportProject extends AbstractHandler
 			project.create( progressMonitor );
 			project.open( progressMonitor );
 			project.setPersistentProperty( UnrealScriptID.PROPERTY_IS_UDK_IMPORT, "true" );
-			UnrealScriptEditor.createProjectFolders( project, rootPath, progressMonitor, window );
+			UnrealScriptEditor.createProjectFolders( project, "file:/"+root.getAbsolutePath().replaceAll("\\\\", "/").replaceAll(" ", "%20")+"/", progressMonitor, window );
 		}
 		catch( CoreException e )
 		{

@@ -29,7 +29,6 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
-import org.eclipse.jface.dialogs.MessageDialog;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.text.IDocument;
@@ -1455,7 +1454,7 @@ public class UnrealScriptEditor extends TextEditor
 					{
 						if( window != null )
 						{
-							MessageDialog.openError( window.getShell(), "Error", "Can't make subfolder "+subfolder.getKey()+": "+e.getMessage() );
+							//MessageDialog.openError( window.getShell(), "Error", "Can't make subfolder "+subfolder.getKey()+": "+e.getMessage() );
 						}
 					}
 					catch( Exception e2 )

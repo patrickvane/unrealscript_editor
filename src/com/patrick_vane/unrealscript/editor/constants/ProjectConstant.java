@@ -6,28 +6,34 @@ import java.util.HashMap;
 public class ProjectConstant
 {
 	public static final HashMap<String,String>		subfolders			= new HashMap<String,String>();
+	public static final HashMap<String,String>		neededSubfolders	= new HashMap<String,String>();
 	public static final HashMap<String,String[]>	hiddensubfolders	= new HashMap<String,String[]>();
+	
 	
 	static
 	{
-		addFolder( "BaseConfig", "Engine/Config" );
-		addFolder( "Config", "UDKGame/Config" );
-		addFolder( "Content", "UDKGame/Content", new String[]{"Maps"} );
-		addFolder( "DLLs", "Binaries/Win32/UserCode" );
-		addFolder( "Logs", "UDKGame/Logs" );
-		addFolder( "Flash", "UDKGame/Flash" );
-		addFolder( "Maps", "UDKGame/Content/Maps" );
-		addFolder( "Movies", "UDKGame/Movies" );
-		addFolder( "UnrealScript", "Development/Src" );
+		addFolder( false, "BaseConfig", "Engine/Config" );
+		addFolder( false, "Config", "UDKGame/Config" );
+		addFolder( false, "Content", "UDKGame/Content", new String[]{"Maps"} );
+		addFolder( false, "DLLs", "Binaries/Win32/UserCode" );
+		addFolder( false, "Logs", "UDKGame/Logs" );
+		addFolder( false, "Flash", "UDKGame/Flash" );
+		addFolder( false, "Maps", "UDKGame/Content/Maps" );
+		addFolder( false, "Movies", "UDKGame/Movies" );
+		addFolder( true,  "UnrealScript", "Development/Src" );
 	}
 	
-	private static void addFolder( String name, String path )
+	private static void addFolder( boolean needed, String name, String path )
 	{
 		subfolders.put( name, path );
+		if( needed )
+			neededSubfolders.put( name, path );
 	}
-	private static void addFolder( String name, String path, String[] hide )
+	private static void addFolder( boolean needed, String name, String path, String[] hide )
 	{
 		subfolders.put( name, path );
 		hiddensubfolders.put( path, hide );
+		if( needed )
+			neededSubfolders.put( name, path );
 	}
 }

@@ -267,8 +267,5 @@ public class WordConstant
 	{
 		FUNCTION_KEYWORDS_HASHSET.add( "function" );
 		FUNCTION_KEYWORDS_HASHSET.add( "event" );
-		FUNCTION_KEYWORDS_HASHSET.add( "delegate" );
-		FUNCTION_KEYWORDS_HASHSET.add( "virtual" );
-		FUNCTION_KEYWORDS_HASHSET.add( "template" );
 	}
 }

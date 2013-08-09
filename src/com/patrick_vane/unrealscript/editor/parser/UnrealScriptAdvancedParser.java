@@ -347,13 +347,6 @@ public class UnrealScriptAdvancedParser
 				return null;
 			
 			
-			if( canBeClass )
-			{
-				CodeAttributeVariable localVariable = getLocalVariable( usingClass.getName(), word.getWord(), inLineArrayPos, line, function );
-				if( localVariable != null )
-					return new ClassOrAttribute( word, localVariable );
-			}
-			
 			boolean startWithClass = canBeClass;
 			if( canBeClass )
 			{
@@ -373,6 +366,10 @@ public class UnrealScriptAdvancedParser
 				if( unrealscriptClass != null )
 					return new ClassOrAttribute( word, unrealscriptClass );
 				
+				CodeAttributeVariable localVariable = getLocalVariable( usingClass.getName(), word.getWord(), inLineArrayPos, line, function );
+				if( localVariable != null )
+					return new ClassOrAttribute( word, localVariable );
+				
 				CodeAttribute attribute = getAttribute( usingClass.getName(), word.getWord(), inLineArrayPos, line, function );
 				if( attribute != null )
 					return new ClassOrAttribute( word, attribute );
@@ -385,6 +382,10 @@ public class UnrealScriptAdvancedParser
 				
 				if( canBeClass )
 				{
+					CodeAttributeVariable localVariable = getLocalVariable( usingClass.getName(), word.getWord(), inLineArrayPos, line, function );
+					if( localVariable != null )
+						return new ClassOrAttribute( word, localVariable );
+					
 					UnrealScriptClass unrealscriptClass = getClass( word.getWord() );
 					if( unrealscriptClass != null )
 						return new ClassOrAttribute( word, unrealscriptClass );

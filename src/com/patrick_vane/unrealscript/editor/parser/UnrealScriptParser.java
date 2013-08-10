@@ -1478,7 +1478,6 @@ public class UnrealScriptParser
 			
 			data = start + newMatch + end;
 		}
-		
 		return data;
 	}
 }

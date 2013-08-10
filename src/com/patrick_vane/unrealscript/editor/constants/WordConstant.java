@@ -119,7 +119,7 @@ public class WordConstant
 		"implements",
 		"importc",
 		"inherits",
-		"init",
+		//"init",
 		"inline",
 		"input",
 		"instanced",

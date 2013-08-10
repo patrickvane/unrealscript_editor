@@ -49,4 +49,11 @@ public class ColorManager
 	{
 		return new Token( getTextAttribute(rgb) );
 	}
+	
+	
+	public static RGB blend( RGB bg, RGB fg, float factor )
+	{
+		float complement = 1f - factor;
+		return new RGB( (int) (complement * bg.red + factor * fg.red), (int) (complement * bg.green + factor * fg.green), (int) (complement * bg.blue + factor * fg.blue) );
+	}
 }

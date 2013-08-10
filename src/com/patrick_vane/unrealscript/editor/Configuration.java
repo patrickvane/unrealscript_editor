@@ -6,6 +6,8 @@ import org.eclipse.core.resources.IFolder;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.jface.text.IAutoEditStrategy;
 import org.eclipse.jface.text.IDocument;
+import org.eclipse.jface.text.IInformationControl;
+import org.eclipse.jface.text.IInformationControlCreator;
 import org.eclipse.jface.text.ITextDoubleClickStrategy;
 import org.eclipse.jface.text.ITextHover;
 import org.eclipse.jface.text.IUndoManager;
@@ -19,10 +21,13 @@ import org.eclipse.jface.text.source.DefaultAnnotationHover;
 import org.eclipse.jface.text.source.IAnnotationHover;
 import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.jface.text.source.SourceViewerConfiguration;
+import org.eclipse.swt.SWT;
+import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.views.contentoutline.IContentOutlinePage;
 import com.patrick_vane.unrealscript.editor.class_hierarchy.TypeHierarchyView;
 import com.patrick_vane.unrealscript.editor.constants.TagConstant;
 import com.patrick_vane.unrealscript.editor.default_classes.DoubleClickStrategy;
+import com.patrick_vane.unrealscript.editor.default_classes.HoverInformationControl;
 import com.patrick_vane.unrealscript.editor.extra.AutoEditStrategy;
 import com.patrick_vane.unrealscript.editor.extra.CodeCompleter;
 import com.patrick_vane.unrealscript.editor.extra.CodeFormatter;
@@ -167,5 +172,18 @@ public class Configuration extends SourceViewerConfiguration
 	public ITextHover getTextHover( ISourceViewer sourceViewer, String contentType, int stateMask )
 	{
 		return new TextHover();
+	}
+	
+	@Override
+	public IInformationControlCreator getInformationControlCreator( ISourceViewer sourceViewer )
+	{
+		return new IInformationControlCreator()
+		{
+			@Override
+			public IInformationControl createInformationControl( Shell parent )
+			{
+				return new HoverInformationControl( this, parent, false, SWT.LEFT_TO_RIGHT, null );
+			}
+		};
 	}
 }

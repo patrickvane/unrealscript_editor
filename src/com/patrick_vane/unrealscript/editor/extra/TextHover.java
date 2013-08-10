@@ -5,7 +5,9 @@ import org.eclipse.jface.text.ITextHover;
 import org.eclipse.jface.text.ITextViewer;
 import org.eclipse.jface.text.Region;
 import com.patrick_vane.unrealscript.editor.class_hierarchy.parser.UnrealScriptClass;
+import com.patrick_vane.unrealscript.editor.constants.KeywordInfoConstants;
 import com.patrick_vane.unrealscript.editor.parser.CodeAttributeFunction;
+import com.patrick_vane.unrealscript.editor.parser.CodeWord.CodeWordData;
 import com.patrick_vane.unrealscript.editor.parser.UnrealScriptAdvancedParser;
 import com.patrick_vane.unrealscript.editor.parser.UnrealScriptAdvancedParser.ClassOrAttribute;
 
@@ -23,7 +25,16 @@ public class TextHover implements ITextHover
     {
     	ClassOrAttribute classOrAttribute = UnrealScriptAdvancedParser.getClassOrAttributeAt( textviewer.getDocument(), region.getOffset() );
 		if( classOrAttribute == null )
+		{
+			CodeWordData word = UnrealScriptAdvancedParser.getWordAt( textviewer.getDocument(), region.getOffset() );
+			if( word != null )
+			{
+				String info = KeywordInfoConstants.getKeywordInfo( word.word.getWord() );
+				if( (info != null) && !info.isEmpty() )
+					return "/**\n"+info+"\n*/";
+			}
 			return null;
+		}
     	
     	if( classOrAttribute.isClass() )
     	{

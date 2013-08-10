@@ -36,6 +36,7 @@ import org.eclipse.jface.text.source.AnnotationRulerColumn;
 import org.eclipse.jface.text.source.CompositeRuler;
 import org.eclipse.jface.text.source.IAnnotationModel;
 import org.eclipse.jface.text.source.IVerticalRuler;
+import org.eclipse.jface.text.source.SourceViewerConfiguration;
 import org.eclipse.jface.viewers.ISelection;
 import org.eclipse.jface.viewers.TreeSelection;
 import org.eclipse.swt.graphics.Image;
@@ -69,9 +70,9 @@ import com.patrick_vane.unrealscript.editor.parser.UnrealScriptParser;
 
 public class UnrealScriptEditor extends TextEditor
 {
-	private static boolean firstInitStaticClassesCall = true;
+	private static boolean		firstInitStaticClassesCall	= true;
 	
-	private final Configuration configuration;
+	private final Configuration	configuration;
 	
 	
 	public UnrealScriptEditor()
@@ -181,6 +182,11 @@ public class UnrealScriptEditor extends TextEditor
 		return ruler;
 	}
 	
+	
+	public SourceViewerConfiguration getConfiguration()
+	{
+		return super.getSourceViewerConfiguration();
+	}
 	
 	public int getUndoHistorySize()
 	{

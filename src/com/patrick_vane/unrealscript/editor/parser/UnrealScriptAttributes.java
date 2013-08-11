@@ -56,12 +56,12 @@ public class UnrealScriptAttributes
 		return functionsArray;
 	}
 	
-	public HashMap<String, CodeAttributeVariable> getAttributeVariablesChildOverrides()
+	public HashMap<String,CodeAttributeVariable> getAttributeVariablesChildOverrides()
 	{
 		if( variablesChildOverrides != null )
 			return variablesChildOverrides;
 		
-		HashMap<String, CodeAttributeVariable> attributes = new HashMap<String,CodeAttributeVariable>();
+		HashMap<String,CodeAttributeVariable> attributes = new HashMap<String,CodeAttributeVariable>();
 		for( HashMap<String,CodeAttributeVariable> variables : this.variables )
 		{
 			for( CodeAttributeVariable variable : variables.values() )
@@ -77,12 +77,12 @@ public class UnrealScriptAttributes
 		variablesChildOverrides = attributes;
 		return attributes;
 	}
-	public HashMap<String, CodeAttributeFunction> getAttributeFunctionsChildOverrides()
+	public HashMap<String,CodeAttributeFunction> getAttributeFunctionsChildOverrides()
 	{
 		if( functionsChildOverrides != null )
 			return functionsChildOverrides;
 		
-		HashMap<String, CodeAttributeFunction> attributes = new HashMap<String,CodeAttributeFunction>();
+		HashMap<String,CodeAttributeFunction> attributes = new HashMap<String,CodeAttributeFunction>();
 		for( HashMap<String,CodeAttributeFunction> functions : this.functions )
 		{
 			for( CodeAttributeFunction function : functions.values() )

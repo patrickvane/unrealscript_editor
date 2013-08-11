@@ -660,7 +660,7 @@ public class UnrealScriptParser
 	
 	public static CodeBlock parse( File file ) throws CodeException, IOException
 	{
-		String data = UnrealScriptEditor.getFileContent( file );
+		String data = UnrealScriptEditor.getOpenedFileOrFileContent( file );
 		
 		if( data == null )
 			return parse( "" );
@@ -936,7 +936,7 @@ public class UnrealScriptParser
 	
 	public static CodeWord[] parseLine( File file, int charInLinePosition ) throws IOException
 	{
-		String data = UnrealScriptEditor.getFileContent( file );
+		String data = UnrealScriptEditor.getOpenedFileOrFileContent( file );
 		
 		if( data == null )
 			return new CodeWord[0];

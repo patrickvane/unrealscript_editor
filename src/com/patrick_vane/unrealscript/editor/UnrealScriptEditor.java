@@ -43,6 +43,7 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.IEditorInput;
 import org.eclipse.ui.IEditorPart;
+import org.eclipse.ui.IEditorReference;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
 import org.eclipse.ui.PlatformUI;
@@ -1234,6 +1235,53 @@ public class UnrealScriptEditor extends TextEditor
 					}
 				}
 			}
+		}
+		
+		public static String getOpenedFileOrFileContent( IFile file ) throws IOException
+		{
+			return getOpenedFileOrFileContent( getFile(file) );
+		}
+		public static String getOpenedFileOrFileContent( File file ) throws IOException
+		{
+			String openedFileContent = getOpenedFileContent( file );
+			if( openedFileContent != null )
+				return openedFileContent;
+			return getFileContent( file );
+		}
+		
+		public static IDocument getOpenedFileDocument( IFile file )
+		{
+			return getOpenedFileDocument( getFile(file) );
+		}
+		public static IDocument getOpenedFileDocument( File file )
+		{
+			if( file == null )
+				return null;
+			for( IEditorReference reference : getActiveWorkbenchWindow().getActivePage().getEditorReferences() )
+			{
+				IEditorPart activeEditor = reference.getEditor( false );
+				if( activeEditor instanceof UnrealScriptEditor )
+				{
+					UnrealScriptEditor editor = (UnrealScriptEditor) activeEditor;
+					File openedFile = getFile( getIFile(editor) );
+					if( (openedFile != null) && openedFile.getPath().equals(file.getPath()) )
+					{
+						return getEditorDocument( editor );
+					}
+				}
+			}
+			return null;
+		}
+		public static String getOpenedFileContent( IFile file )
+		{
+			return getOpenedFileContent( getFile(file) );
+		}
+		public static String getOpenedFileContent( File file )
+		{
+			IDocument doc = getOpenedFileDocument( file );
+			if( doc != null )
+				return doc.get();
+			return null;
 		}
 		
 		private static final HashMap<String,FileCache> fileCache = new HashMap<String,FileCache>();

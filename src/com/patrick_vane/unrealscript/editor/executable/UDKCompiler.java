@@ -129,7 +129,7 @@ public class UDKCompiler
 						}
 						else if( !forced )
 						{
-							if( System.currentTimeMillis()-time >= 200 )
+							if( System.currentTimeMillis()-time >= 500 )
 							{
 								waitForCompileProjects.put( project, params );
 								return;

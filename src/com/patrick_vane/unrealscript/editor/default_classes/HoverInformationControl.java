@@ -141,7 +141,7 @@ public class HoverInformationControl implements IInformationControl, IInformatio
 		GridData gd;
 		
 		int shellStyle = SWT.TOOL | SWT.ON_TOP | orientation | (isResizable ? SWT.RESIZE : 0);
-		int textStyle = isResizable ? SWT.V_SCROLL | SWT.H_SCROLL : SWT.SHELL_TRIM;
+		int textStyle = SWT.SHELL_TRIM | (isResizable ? SWT.V_SCROLL | SWT.H_SCROLL : 0);
 		
 		fShell = new Shell( parent, SWT.NO_FOCUS | SWT.ON_TOP | shellStyle );
 		Display display = fShell.getDisplay();
@@ -586,7 +586,15 @@ public class HoverInformationControl implements IInformationControl, IInformatio
 	@Override
 	public IInformationControlCreator getInformationPresenterControlCreator()
 	{
-		return creator;
+		return new IInformationControlCreator()
+		{
+			@Override
+			public IInformationControl createInformationControl( Shell parent )
+			{
+				return new HoverInformationControl( this, parent, true, SWT.LEFT_TO_RIGHT, null );
+			}
+		};
+		//return creator;
 	}
 	
 	/*

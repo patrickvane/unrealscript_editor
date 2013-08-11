@@ -71,6 +71,31 @@ public abstract class CodeAttribute
 	}
 	
 	
+	public String getModifiersAsString()
+	{
+		return getModifiersAsString( false );
+	}
+	public String getModifiersAsString( boolean addSpaceAfter )
+	{
+		StringBuilder modofiersBuffer = new StringBuilder();
+		boolean firstModifier = true;
+		for( String modifier : getModifiers() )
+		{
+			if( !firstModifier )
+				modofiersBuffer.append( " " );
+			else
+				firstModifier = false;
+			
+			modofiersBuffer.append( modifier );
+		}
+		if( addSpaceAfter && (modofiersBuffer.length() > 0) )
+		{
+			modofiersBuffer.append( " " );
+		}
+		return modofiersBuffer.toString();
+	}
+	
+	
 	@Override
 	public int hashCode()
 	{

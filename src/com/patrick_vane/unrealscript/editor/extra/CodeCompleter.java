@@ -13,6 +13,7 @@ import com.patrick_vane.unrealscript.editor.UnrealScriptEditor;
 import com.patrick_vane.unrealscript.editor.class_hierarchy.parser.UnrealScriptClass;
 import com.patrick_vane.unrealscript.editor.default_classes.CompletionProposalMessage;
 import com.patrick_vane.unrealscript.editor.parser.CodeAttributeFunction;
+import com.patrick_vane.unrealscript.editor.parser.CodeAttributeLocalVariable;
 import com.patrick_vane.unrealscript.editor.parser.CodeAttributeVariable;
 import com.patrick_vane.unrealscript.editor.parser.CodeWord.CodeWordData;
 import com.patrick_vane.unrealscript.editor.parser.UnrealScriptAdvancedParser;
@@ -81,7 +82,7 @@ public class CodeCompleter implements  IContentAssistProcessor
 		
 		if( (word != null) && (wordCutoff != null) && (parentClass != null) )
 		{
-			HashMap<String,CodeAttributeVariable> localVariables = new HashMap<String,CodeAttributeVariable>();
+			HashMap<String,CodeAttributeLocalVariable> localVariables = new HashMap<String,CodeAttributeLocalVariable>();
 			UnrealScriptAttributes attributes = UnrealScriptAdvancedParser.getAttributes( parentClass.getName() );
 			HashMap<String,UnrealScriptClass> classes = new HashMap<String,UnrealScriptClass>();
 			if( canBeClass )
@@ -116,7 +117,7 @@ public class CodeCompleter implements  IContentAssistProcessor
 			
 			if( !isDot )
 			{
-				for( CodeAttributeVariable attribute : Sorter.sortAttributeVariables(localVariables.values()) )
+				for( CodeAttributeLocalVariable attribute : Sorter.sortAttributeLocalVariables(localVariables.values()) )
 				{
 					String name = attribute.getName();
 					if( name != null )

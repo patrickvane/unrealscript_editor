@@ -1040,7 +1040,7 @@ public class UnrealScriptParser
 	}
 	
 	
-	public static HashMap<String,CodeAttributeVariable> parseFunctionParametersAndLocalVariables( String className, int positionInsideFunction )
+	public static HashMap<String,CodeAttributeLocalVariable> parseFunctionParametersAndLocalVariables( String className, int positionInsideFunction )
 	{
 		try
 		{
@@ -1057,14 +1057,14 @@ public class UnrealScriptParser
 				if( (child.getFirstCharacterPosition() <= positionInsideFunction) && (child.getLastCharacterPosition() >= positionInsideFunction) )
 				{
 					
-					HashMap<String,CodeAttributeVariable> variables = new HashMap<String,CodeAttributeVariable>();
+					HashMap<String,CodeAttributeLocalVariable> variables = new HashMap<String,CodeAttributeLocalVariable>();
 					if( child instanceof CodeBlock )
 					{
 						CodeBlock childBlock = (CodeBlock) child;
 						if( childBlock.isFunction() )
 						{
 							
-							for( CodeAttributeVariable variable : getFunctionParameters(className, childBlock.getLineBeforeBlock()) )
+							for( CodeAttributeParameterLocalVariable variable : getFunctionParameters(className, childBlock.getLineBeforeBlock()) )
 							{
 								variables.put( variable.getName().toLowerCase(), variable );
 							}
@@ -1094,8 +1094,8 @@ public class UnrealScriptParser
 							}
 							if( childChildCode != null )
 							{
-								ArrayList<CodeAttributeVariable> functionVariables = getFunctionLocalVariables( className, childChildCode );
-								for( CodeAttributeVariable variable : functionVariables )
+								ArrayList<CodeAttributeLocalVariable> functionVariables = getFunctionLocalVariables( className, childChildCode );
+								for( CodeAttributeLocalVariable variable : functionVariables )
 								{
 									String key = variable.getName().toLowerCase();
 									if( !variables.containsKey(key) )
@@ -1115,10 +1115,10 @@ public class UnrealScriptParser
 		catch( Exception e )
 		{
 		}
-		return new HashMap<String,CodeAttributeVariable>();
+		return new HashMap<String,CodeAttributeLocalVariable>();
 	}
 	
-	public static ArrayList<CodeAttributeVariable> getFunctionParameters( String className, ArrayList<CodeWord> line )
+	public static ArrayList<CodeAttributeParameterLocalVariable> getFunctionParameters( String className, ArrayList<CodeWord> line )
 	{
 		boolean function = false;
 		for( int i=0; i<line.size(); i++ )
@@ -1131,10 +1131,10 @@ public class UnrealScriptParser
 		}
 		if( !function )
 		{
-			return new ArrayList<CodeAttributeVariable>();
+			return new ArrayList<CodeAttributeParameterLocalVariable>();
 		}
 		
-		ArrayList<CodeAttributeVariable> parameters = new ArrayList<CodeAttributeVariable>();
+		ArrayList<CodeAttributeParameterLocalVariable> parameters = new ArrayList<CodeAttributeParameterLocalVariable>();
 		
 		// parse parameters >>
 			CodeWord variableName = null;
@@ -1176,7 +1176,7 @@ public class UnrealScriptParser
 						if( variableName != null )
 						{
 							// add parameter >>
-								parameters.add( new CodeAttributeVariable(variableModifiers, variableType, variableName.getWord(), className, variableName.getFirstCharacterPosition(), variableName.getLastCharacterPosition()) );
+								parameters.add( new CodeAttributeParameterLocalVariable(variableModifiers, variableType, variableName.getWord(), className, variableName.getFirstCharacterPosition(), variableName.getLastCharacterPosition()) );
 								variableModifiers = new ArrayList<String>();
 								variableName = null;
 								variableType = "";
@@ -1245,9 +1245,9 @@ public class UnrealScriptParser
 		return parameters;
 	}
 	
-	public static ArrayList<CodeAttributeVariable> getFunctionLocalVariables( String className, CodeBlockCode code )
+	public static ArrayList<CodeAttributeLocalVariable> getFunctionLocalVariables( String className, CodeBlockCode code )
 	{
-		ArrayList<CodeAttributeVariable> attributes = new ArrayList<CodeAttributeVariable>();
+		ArrayList<CodeAttributeLocalVariable> attributes = new ArrayList<CodeAttributeLocalVariable>();
 		
 		for( ArrayList<CodeWord> line : code.getLines() )
 		{
@@ -1451,7 +1451,7 @@ public class UnrealScriptParser
 				for( int n=names.size()-1; n>=0; n-- )
 				{
 					CodeWord word = names.get( n );
-					attributes.add( new CodeAttributeVariable(modifiers, type, word.getWord(), className, word.getFirstCharacterPosition(), word.getLastCharacterPosition()) );
+					attributes.add( new CodeAttributeLocalVariable(modifiers, type, word.getWord(), className, word.getFirstCharacterPosition(), word.getLastCharacterPosition()) );
 				}
 			}
 			else

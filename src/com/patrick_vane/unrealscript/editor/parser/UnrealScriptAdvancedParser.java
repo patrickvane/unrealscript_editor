@@ -417,7 +417,7 @@ public class UnrealScriptAdvancedParser
 			return lastAttributes.get( className );
 		}
 		
-		public static HashMap<String,CodeAttributeVariable> getLocalVariables( String className, int positionInsideFunction )
+		public static HashMap<String,CodeAttributeLocalVariable> getLocalVariables( String className, int positionInsideFunction )
 		{
 			return UnrealScriptParser.parseFunctionParametersAndLocalVariables( className, positionInsideFunction );
 		}
@@ -437,11 +437,11 @@ public class UnrealScriptAdvancedParser
 				return getParentAttributeIfNeeded( attributes.getAttributeVariable(word), word, inLineArrayPos, line );
 		}
 		
-		public static CodeAttributeVariable getLocalVariable( String className, String word, int inLineArrayPos, CodeWord[] line, boolean function )
+		public static CodeAttributeLocalVariable getLocalVariable( String className, String word, int inLineArrayPos, CodeWord[] line, boolean function )
 		{
 			if( inLineArrayPos < 0 )
 				return null;
-			HashMap<String,CodeAttributeVariable> attributes = getLocalVariables( className, line[inLineArrayPos].getFirstCharacterPosition() );
+			HashMap<String,CodeAttributeLocalVariable> attributes = getLocalVariables( className, line[inLineArrayPos].getFirstCharacterPosition() );
 			return attributes.get( word.toLowerCase() );
 		}
 		

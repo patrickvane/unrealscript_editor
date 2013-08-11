@@ -7,6 +7,9 @@ import org.eclipse.jface.text.Region;
 import com.patrick_vane.unrealscript.editor.class_hierarchy.parser.UnrealScriptClass;
 import com.patrick_vane.unrealscript.editor.constants.KeywordInfoConstants;
 import com.patrick_vane.unrealscript.editor.parser.CodeAttributeFunction;
+import com.patrick_vane.unrealscript.editor.parser.CodeAttributeLocalVariable;
+import com.patrick_vane.unrealscript.editor.parser.CodeAttributeParameterLocalVariable;
+import com.patrick_vane.unrealscript.editor.parser.CodeAttributeVariable;
 import com.patrick_vane.unrealscript.editor.parser.CodeWord.CodeWordData;
 import com.patrick_vane.unrealscript.editor.parser.UnrealScriptAdvancedParser;
 import com.patrick_vane.unrealscript.editor.parser.UnrealScriptAdvancedParser.ClassOrAttribute;
@@ -38,7 +41,7 @@ public class TextHover implements ITextHover
     	
     	if( classOrAttribute.isClass() )
     	{
-    		String text = classOrAttribute.unrealscriptClass.getName();
+    		String text = "class "+classOrAttribute.unrealscriptClass.getName();
     		UnrealScriptClass parent = classOrAttribute.unrealscriptClass.getParent();
     		if( parent != null )
     			text += " extends "+parent.getName();
@@ -47,10 +50,26 @@ public class TextHover implements ITextHover
     	
     	if( classOrAttribute.isAttribute() )
     	{
-    		String text = classOrAttribute.attribute.getType() + " " + classOrAttribute.attribute.getName();
     		if( classOrAttribute.attribute instanceof CodeAttributeFunction )
-    			text += ((CodeAttributeFunction) classOrAttribute.attribute).getParametersAsString( true );
-    		return text;
+    		{
+    			CodeAttributeFunction function = (CodeAttributeFunction) classOrAttribute.attribute;
+				return function.getModifiersAsString( true ) + "function " + function.getType() + " " + function.getName() + function.getParametersAsString( true );
+			}
+    		else if( classOrAttribute.attribute instanceof CodeAttributeParameterLocalVariable )
+    		{
+    			CodeAttributeParameterLocalVariable parameter = (CodeAttributeParameterLocalVariable) classOrAttribute.attribute;
+				return parameter.getModifiersAsString( true ) + parameter.getType() + " " + parameter.getName();
+			}
+    		else if( classOrAttribute.attribute instanceof CodeAttributeLocalVariable )
+    		{
+    			CodeAttributeLocalVariable local = (CodeAttributeLocalVariable) classOrAttribute.attribute;
+				return "local " + local.getModifiersAsString( true ) + local.getType() + " " + local.getName();
+			}
+    		else if( classOrAttribute.attribute instanceof CodeAttributeVariable )
+    		{
+    			CodeAttributeVariable var = (CodeAttributeVariable) classOrAttribute.attribute;
+				return "var " + var.getModifiersAsString( true ) + var.getType() + " " + var.getName();
+			}
     	}
     	
     	return null;

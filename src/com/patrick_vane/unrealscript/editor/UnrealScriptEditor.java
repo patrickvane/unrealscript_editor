@@ -594,19 +594,19 @@ public class UnrealScriptEditor extends TextEditor
 			return null;
 		}
 		
-		public static UnrealScriptAttributes getActiveUnrealScriptAttributes()
+		public static UnrealScriptAttributes getActiveUnrealScriptAttributes() throws Exception
 		{
 			return getUnrealScriptAttributes( getActiveClassName() );
 		}
-		public static UnrealScriptAttributes getUnrealScriptAttributes( String className )
+		public static UnrealScriptAttributes getUnrealScriptAttributes( String className ) throws Exception
 		{
 			return UnrealScriptAttributeParser.parseAttributesOfClass( className );
 		}
-		public static UnrealScriptAttributes getActiveUnrealScriptAttributesWithParents()
+		public static UnrealScriptAttributes getActiveUnrealScriptAttributesWithParents() throws Exception
 		{
 			return getUnrealScriptAttributesWithParents( getActiveClassName() );
 		}
-		public static UnrealScriptAttributes getUnrealScriptAttributesWithParents( String className )
+		public static UnrealScriptAttributes getUnrealScriptAttributesWithParents( String className ) throws Exception
 		{
 			return UnrealScriptAttributeParser.parseAttributesOfClassAndParents( className );
 		}

@@ -412,7 +412,14 @@ public class UnrealScriptAdvancedParser
 			if( (newLastTime == null) || (System.currentTimeMillis()-newLastTime >= 3000) )
 			{
 				lastTime.put( className, newLastTime );
-				lastAttributes.put( className, UnrealScriptEditor.getUnrealScriptAttributesWithParents(className) );
+				try
+				{
+					UnrealScriptAttributes newAttirbutes = UnrealScriptEditor.getUnrealScriptAttributesWithParents( className );
+					lastAttributes.put( className, newAttirbutes );
+				}
+				catch( Exception e )
+				{
+				}
 			}
 			return lastAttributes.get( className );
 		}

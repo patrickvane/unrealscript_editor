@@ -3,8 +3,8 @@ package com.patrick_vane.unrealscript.editor.outline;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.swt.graphics.Image;
 import com.patrick_vane.unrealscript.editor.UnrealScriptEditor;
-import com.patrick_vane.unrealscript.editor.class_hierarchy.parser.UnrealScriptClass;
 import com.patrick_vane.unrealscript.editor.parser.CodeAttribute;
+import com.patrick_vane.unrealscript.editor.parser.UnrealScriptAdvancedParser;
 import com.patrick_vane.unrealscript.editor.parser.UnrealScriptAttributes;
 
 
@@ -49,18 +49,10 @@ public class OutlineLabelProvider extends LabelProvider
 				}
 				else
 				{
-					UnrealScriptClass attributeClass = UnrealScriptEditor.getUnrealScriptClass( attribute.getClassName() );
-					if( attributeClass != null )
+					UnrealScriptAttributes attributes = UnrealScriptAdvancedParser.getAttributes( attribute.getClassName() );
+					if( attributes.getAttributeFunction(attribute.getName(), 1) != null )
 					{
-						UnrealScriptClass parentClass = attributeClass.getParent();
-						if( parentClass != null )
-						{
-							UnrealScriptAttributes parentAttributes = UnrealScriptEditor.getUnrealScriptAttributesWithParents( parentClass.getName() );
-							if( parentAttributes.getAttributeFunction(attribute.getName()) != null )
-							{
-								return FUNCTION_OVERRIDDEN;
-							}
-						}
+						return FUNCTION_OVERRIDDEN;
 					}
 					return FUNCTION;
 				}

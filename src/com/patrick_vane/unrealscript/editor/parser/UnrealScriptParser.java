@@ -118,13 +118,16 @@ public class UnrealScriptParser
 		if( code == null )
 			return null;
 		
-		AttributesCache cache = attributesCache.get( unrealscriptClass.getName() );
-		if( (cache != null) && code.equals(cache.code) )
-			return cache.attributes;
-		
-		ArrayList<CodeAttribute> attributes = getAttributes( unrealscriptClass.getName(), code );
-		attributesCache.put( unrealscriptClass.getName(), new AttributesCache(code, attributes) );
-		return attributes;
+		synchronized( attributesCache )
+		{
+			AttributesCache cache = attributesCache.get( unrealscriptClass.getName() );
+			if( (cache != null) && code.equals(cache.code) )
+				return cache.attributes;
+			
+			ArrayList<CodeAttribute> attributes = getAttributes( unrealscriptClass.getName(), code );
+			attributesCache.put( unrealscriptClass.getName(), new AttributesCache(code, attributes) );
+			return attributes;
+		}
 	}
 	
 	public static ArrayList<CodeAttribute> getAttributes( String className, CodeBlock code )
@@ -665,13 +668,16 @@ public class UnrealScriptParser
 		if( data == null )
 			return parse( "" );
 		
-		ParseCache cache = parseCache.get( file.getAbsolutePath() );
-		if( (cache != null) && data.equals(cache.data) )
-			return cache.code;
-		
-		CodeBlock code = parse( data );
-		parseCache.put( file.getAbsolutePath(), new ParseCache(data, code) );
-		return code;
+		synchronized( parseCache )
+		{
+			ParseCache cache = parseCache.get( file.getAbsolutePath() );
+			if( (cache != null) && data.equals(cache.data) )
+				return cache.code;
+			
+			CodeBlock code = parse( data );
+			parseCache.put( file.getAbsolutePath(), new ParseCache(data, code) );
+			return code;
+		}
 	}
 	
 	public static CodeBlock parse( String data ) throws CodeException

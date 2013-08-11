@@ -64,8 +64,6 @@ import com.patrick_vane.unrealscript.editor.default_classes.MyStream;
 import com.patrick_vane.unrealscript.editor.default_classes.WhitespaceDetector;
 import com.patrick_vane.unrealscript.editor.outline.OutlineLabelProvider;
 import com.patrick_vane.unrealscript.editor.parser.CodeException;
-import com.patrick_vane.unrealscript.editor.parser.UnrealScriptAttributeParser;
-import com.patrick_vane.unrealscript.editor.parser.UnrealScriptAttributes;
 import com.patrick_vane.unrealscript.editor.parser.UnrealScriptParser;
 
 
@@ -594,22 +592,6 @@ public class UnrealScriptEditor extends TextEditor
 			return null;
 		}
 		
-		public static UnrealScriptAttributes getActiveUnrealScriptAttributes() throws Exception
-		{
-			return getUnrealScriptAttributes( getActiveClassName() );
-		}
-		public static UnrealScriptAttributes getUnrealScriptAttributes( String className ) throws Exception
-		{
-			return UnrealScriptAttributeParser.parseAttributesOfClass( className );
-		}
-		public static UnrealScriptAttributes getActiveUnrealScriptAttributesWithParents() throws Exception
-		{
-			return getUnrealScriptAttributesWithParents( getActiveClassName() );
-		}
-		public static UnrealScriptAttributes getUnrealScriptAttributesWithParents( String className ) throws Exception
-		{
-			return UnrealScriptAttributeParser.parseAttributesOfClassAndParents( className );
-		}
 		public static String getActiveClassName()
 		{
 			return getClassName( getActiveEditorContent() );

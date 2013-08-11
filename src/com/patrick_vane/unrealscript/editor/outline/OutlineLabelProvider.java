@@ -1,9 +1,11 @@
 package com.patrick_vane.unrealscript.editor.outline;
 
+import java.util.HashMap;
 import org.eclipse.jface.viewers.LabelProvider;
 import org.eclipse.swt.graphics.Image;
 import com.patrick_vane.unrealscript.editor.UnrealScriptEditor;
 import com.patrick_vane.unrealscript.editor.parser.CodeAttribute;
+import com.patrick_vane.unrealscript.editor.parser.CodeAttributeFunction;
 import com.patrick_vane.unrealscript.editor.parser.UnrealScriptAdvancedParser;
 import com.patrick_vane.unrealscript.editor.parser.UnrealScriptAttributes;
 
@@ -15,6 +17,9 @@ public class OutlineLabelProvider extends LabelProvider
 	private static final Image		FUNCTION_OVERRIDDEN	= UnrealScriptEditor.getImage( "icons/outline/function_overridden.gif" );
 	//private static final Image	VARIABLE_PUBLIC		= UnrealScriptEditor.getImage( "icons/outline/var_public.gif" );
 	private static final Image		VARIABLE_PRIVATE	= UnrealScriptEditor.getImage( "icons/outline/var_private.gif" );
+	
+	
+	private static final HashMap<String,HashMap<String,Boolean>> overriddenFunctions = new HashMap<String,HashMap<String,Boolean>>();
 	
 	
 	@Override
@@ -49,15 +54,53 @@ public class OutlineLabelProvider extends LabelProvider
 				}
 				else
 				{
-					UnrealScriptAttributes attributes = UnrealScriptAdvancedParser.getAttributes( attribute.getClassName() );
-					if( attributes.getAttributeFunction(attribute.getName(), 1) != null )
+					try
 					{
-						return FUNCTION_OVERRIDDEN;
+						synchronized( overriddenFunctions )
+						{
+							String className = attribute.getClassName().toLowerCase();
+							String functionName = attribute.getName().toLowerCase();
+							if( overriddenFunctions.get(className).get(functionName) == true )
+							{
+								return FUNCTION_OVERRIDDEN;
+							}
+						}
+					}
+					catch( Exception e )
+					{
 					}
 					return FUNCTION;
 				}
 			}
 		}
 		return null;
+	}
+	
+	
+	public static void parseOverriddenFunctions( UnrealScriptAttributes attributes )
+	{
+		for( CodeAttributeFunction function : attributes.getAttributeFunctions() )
+		{
+			String className = function.getClassName().toLowerCase();
+			String functionName = function.getName().toLowerCase();
+			boolean overridden = false;
+			
+			UnrealScriptAttributes functionClassAttributes = UnrealScriptAdvancedParser.getAttributes( className );
+			if( functionClassAttributes.getAttributeFunction(functionName, 1) != null )
+			{
+				overridden = true;
+			}
+			
+			synchronized( overriddenFunctions )
+			{
+				HashMap<String,Boolean> overriddenFunctionsClass = overriddenFunctions.get( className );
+				if( overriddenFunctionsClass == null )
+				{
+					overriddenFunctionsClass = new HashMap<String,Boolean>();
+					overriddenFunctions.put( className, overriddenFunctionsClass );
+				}
+				overriddenFunctionsClass.put( functionName, overridden );
+			}
+		}
 	}
 }

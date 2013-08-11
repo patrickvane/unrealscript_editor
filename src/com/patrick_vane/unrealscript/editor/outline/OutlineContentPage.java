@@ -11,6 +11,7 @@ import org.eclipse.ui.views.contentoutline.ContentOutlinePage;
 import com.patrick_vane.unrealscript.editor.UnrealScriptEditor;
 import com.patrick_vane.unrealscript.editor.outline.actions.ToggleSortAction;
 import com.patrick_vane.unrealscript.editor.outline.actions.ToggleVariablesAction;
+import com.patrick_vane.unrealscript.editor.parser.UnrealScriptAdvancedParser;
 import com.patrick_vane.unrealscript.editor.parser.UnrealScriptAttributes;
 
 
@@ -86,11 +87,13 @@ public class OutlineContentPage extends ContentOutlinePage
 		
 		try
 		{
-			final UnrealScriptAttributes attributes = UnrealScriptEditor.getUnrealScriptAttributes( UnrealScriptEditor.getClassName(file) );
+			final UnrealScriptAttributes attributes = UnrealScriptAdvancedParser.getAttributes( UnrealScriptEditor.getClassName(file) );
 			if( forced || !lastWasThis || (lastAttributes == null) || !lastAttributes.equals(attributes) )
 			{
 				lastAttributes = attributes;
 				lastWasThis = true;
+				
+				OutlineLabelProvider.parseOverriddenFunctions( attributes );
 				
 				Display.getDefault().syncExec
 				(

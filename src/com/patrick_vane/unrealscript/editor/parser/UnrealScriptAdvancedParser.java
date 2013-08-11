@@ -247,6 +247,8 @@ public class UnrealScriptAdvancedParser
 		public static ClassOrAttribute getClassOrAttributeAt( CodeWord word, CodeWord[] line, int inLineArrayPos, boolean function )
 		{
 			UnrealScriptClass usingClass = UnrealScriptEditor.getActiveUnrealScriptClass();
+			if( usingClass == null )
+				return null;
 			boolean canBeClass = true;
 			
 			ArrayList<CodeWordData> parents = new ArrayList<CodeWordData>();
@@ -343,10 +345,6 @@ public class UnrealScriptAdvancedParser
 			}
 			
 			
-			if( usingClass == null )
-				return null;
-			
-			
 			boolean startWithClass = canBeClass;
 			if( canBeClass )
 			{
@@ -408,20 +406,23 @@ public class UnrealScriptAdvancedParser
 				return new UnrealScriptAttributes();
 			className = className.toLowerCase();
 			
-			Long newLastTime = lastTime.get( className );
-			if( (newLastTime == null) || (System.currentTimeMillis()-newLastTime >= 3000) )
+			synchronized( lastAttributes )
 			{
-				lastTime.put( className, newLastTime );
-				try
+				Long newLastTime = lastTime.get( className );
+				if( (newLastTime == null) || (System.currentTimeMillis()-newLastTime >= 5000) )
 				{
-					UnrealScriptAttributes newAttirbutes = UnrealScriptEditor.getUnrealScriptAttributesWithParents( className );
-					lastAttributes.put( className, newAttirbutes );
+					try
+					{
+						UnrealScriptAttributes newAttirbutes = UnrealScriptAttributeParser.parseAttributesOfClassAndParents( className );
+						lastAttributes.put( className, newAttirbutes );
+					}
+					catch( Exception e )
+					{
+					}
+					lastTime.put( className, newLastTime );
 				}
-				catch( Exception e )
-				{
-				}
+				return lastAttributes.get( className );
 			}
-			return lastAttributes.get( className );
 		}
 		
 		public static HashMap<String,CodeAttributeLocalVariable> getLocalVariables( String className, int positionInsideFunction )

@@ -64,6 +64,8 @@ public class CodeCompleter implements  IContentAssistProcessor
 			if( parentClass == null )
 			{
 				parentClass = UnrealScriptEditor.getActiveUnrealScriptClass();
+				if( parentClass == null )
+					return null;
 			}
 		}
 		

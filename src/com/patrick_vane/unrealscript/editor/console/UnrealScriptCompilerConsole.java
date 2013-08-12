@@ -59,6 +59,11 @@ public class UnrealScriptCompilerConsole
 		return console.getSynchronizer();
 	}
 	
+	public static String getContent()
+	{
+		return console.getContent();
+	}
+	
 	public static void addClearListener( Runnable runnable )
 	{
 		console.addClearListener( runnable );

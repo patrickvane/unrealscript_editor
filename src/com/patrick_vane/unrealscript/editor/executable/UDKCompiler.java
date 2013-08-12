@@ -193,6 +193,7 @@ public class UDKCompiler
 				
 				UnrealScriptCompilerConsole.clear();
 				UnrealScriptEditor.runUDK( project, false, UnrealScriptCompilerConsole.getPrintStream(ColorConstant.INFO_COLOR), UnrealScriptCompilerConsole.getPrintStream(ColorConstant.ERROR_COLOR), params );
+				//System.out.println( UnrealScriptCompilerConsole.getContent() );
 				
 				ArrayList<String> newParams;
 				synchronized( sync )

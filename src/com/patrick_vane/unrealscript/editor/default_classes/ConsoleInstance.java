@@ -217,6 +217,12 @@ public class ConsoleInstance
 	}
 	
 	
+	public String getContent()
+	{
+		return console.getDocument().get();
+	}
+	
+	
 	public void addClearListener( Runnable runnable )
 	{
 		synchronized( clearedListeners )

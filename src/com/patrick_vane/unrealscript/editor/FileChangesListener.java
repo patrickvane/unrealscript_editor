@@ -22,7 +22,7 @@ public class FileChangesListener extends AbstractResourcesChangedListener
 	
 	
 	@Override
-	public void fileChanged( String name )
+	public void fileChanged( final String name )
 	{
 		if( name.endsWith(".uc") )
 		{

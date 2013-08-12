@@ -409,21 +409,36 @@ public class UnrealScriptAdvancedParser
 				return new UnrealScriptAttributes();
 			className = className.toLowerCase();
 			
-			synchronized( attributeSynchronizer.get(className) )
+			Object sync = attributeSynchronizer.get( className );
+			
+			Long newLastTime = null;
+			synchronized( sync )
 			{
-				Long newLastTime = lastTime.get( className );
-				if( (newLastTime == null) || (System.currentTimeMillis()-newLastTime >= 5000) )
+				newLastTime = lastTime.get( className );
+			}
+			
+			if( (newLastTime == null) || (System.currentTimeMillis()-newLastTime >= 5000) )
+			{
+				try
 				{
-					try
+					UnrealScriptAttributes newAttirbutes = UnrealScriptAttributeParser.parseAttributesOfClassAndParents( className );
+					synchronized( sync )
 					{
-						UnrealScriptAttributes newAttirbutes = UnrealScriptAttributeParser.parseAttributesOfClassAndParents( className );
 						lastAttributes.put( className, newAttirbutes );
+						lastTime.put( className, newLastTime );
 					}
-					catch( Exception e )
-					{
-					}
-					lastTime.put( className, newLastTime );
 				}
+				catch( Exception e )
+				{
+					synchronized( sync )
+					{
+						lastTime.put( className, newLastTime );
+					}
+				}
+			}
+			
+			synchronized( sync )
+			{
 				return lastAttributes.get( className );
 			}
 		}

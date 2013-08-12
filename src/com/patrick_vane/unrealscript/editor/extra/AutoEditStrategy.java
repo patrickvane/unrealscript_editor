@@ -329,7 +329,7 @@ public class AutoEditStrategy implements IAutoEditStrategy
 				parenthese--;
 			
 			if( numOpen >= 1 )
-				return getIndendOfLine( UnrealScriptEditor.getCodeLine(content, i) );
+				return getIndendOfLine( UnrealScriptEditor.getLine(content, i) );
 			else if( bracket >= 1 )
 				return null;
 			else if( squareBracket >= 1 )

@@ -11,6 +11,8 @@ import java.util.Collection;
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map.Entry;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import org.eclipse.core.filesystem.EFS;
 import org.eclipse.core.filesystem.IFileStore;
 import org.eclipse.core.resources.IContainer;
@@ -241,7 +243,28 @@ public class UnrealScriptEditor extends TextEditor
 		
 		public void addErrorMarker( final int startCharacter, final int endCharacter, final String message )
 		{
-			final IFile file = getIFile( this );
+			addErrorMarker( getIFile(this), startCharacter, endCharacter, message );
+		}
+		public static void addErrorMarker( final String className, final int startCharacter, final int endCharacter, final String message )
+		{
+			try
+			{
+				UnrealScriptEditor editor = getOpenedFileEditor( className );
+				if( editor != null )
+				{
+					IFile file = getIFile( editor );
+					if( file != null )
+					{
+						addErrorMarker( file, startCharacter, endCharacter, message );
+					}
+				}
+			}
+			catch( Exception e )
+			{
+			}
+		}
+		public static void addErrorMarker( final IFile file, final int startCharacter, final int endCharacter, final String message )
+		{
 			try
 			{
 				if( file != null )
@@ -258,9 +281,31 @@ public class UnrealScriptEditor extends TextEditor
 			{
 			}
 		}
+		
 		public void addWarningMarker( final int startCharacter, final int endCharacter, final String message )
 		{
-			final IFile file = getIFile( this );
+			addWarningMarker( getIFile(this), startCharacter, endCharacter, message );
+		}
+		public static void addWarningMarker( final String className, final int startCharacter, final int endCharacter, final String message )
+		{
+			try
+			{
+				UnrealScriptEditor editor = getOpenedFileEditor( className );
+				if( editor != null )
+				{
+					IFile file = getIFile( editor );
+					if( file != null )
+					{
+						addWarningMarker( file, startCharacter, endCharacter, message );
+					}
+				}
+			}
+			catch( Exception e )
+			{
+			}
+		}
+		public static void addWarningMarker( final IFile file, final int startCharacter, final int endCharacter, final String message )
+		{
 			try
 			{
 				if( file != null )
@@ -280,7 +325,32 @@ public class UnrealScriptEditor extends TextEditor
 		
 		public void clearMarkers()
 		{
-			final IFile file = getIFile( this );
+			clearMarkers( getIFile(this) );
+		}
+		public static void clearMarkers( UnrealScriptEditor editor )
+		{
+			clearMarkers( getIFile(editor) );
+		}
+		public static void clearMarkers( final String className )
+		{
+			try
+			{
+				UnrealScriptEditor editor = getOpenedFileEditor( className );
+				if( editor != null )
+				{
+					IFile file = getIFile( editor );
+					if( file != null )
+					{
+						clearMarkers( file );
+					}
+				}
+			}
+			catch( Exception e )
+			{
+			}
+		}
+		public static void clearMarkers( final IFile file )
+		{
 			if( file != null )
 			{
 				try
@@ -595,6 +665,10 @@ public class UnrealScriptEditor extends TextEditor
 		public static String getActiveClassName()
 		{
 			return getClassName( getActiveEditorContent() );
+		}
+		public static String getClassName( UnrealScriptEditor editor ) throws IOException
+		{
+			return getClassName( getIFile(editor) );
 		}
 		public static String getClassName( File file ) throws IOException
 		{
@@ -1231,6 +1305,50 @@ public class UnrealScriptEditor extends TextEditor
 			return getFileContent( file );
 		}
 		
+		public static void clearAllMarkers()
+		{
+			for( IEditorReference reference : getActiveWorkbenchWindow().getActivePage().getEditorReferences() )
+			{
+				IEditorPart activeEditor = reference.getEditor( false );
+				if( activeEditor instanceof UnrealScriptEditor )
+				{
+					try
+					{
+						UnrealScriptEditor editor = (UnrealScriptEditor) activeEditor;
+						clearMarkers( editor );
+					}
+					catch( Exception e )
+					{
+					}
+				}
+			}
+		}
+		public static UnrealScriptEditor getOpenedFileEditor( String className )
+		{
+			if( className == null )
+				return null;
+			for( IEditorReference reference : getActiveWorkbenchWindow().getActivePage().getEditorReferences() )
+			{
+				IEditorPart activeEditor = reference.getEditor( false );
+				if( activeEditor instanceof UnrealScriptEditor )
+				{
+					try
+					{
+						UnrealScriptEditor editor = (UnrealScriptEditor) activeEditor;
+						String openedFileClassName = getClassName( getFile(getIFile(editor)) );
+						if( (openedFileClassName != null) && openedFileClassName.equalsIgnoreCase(className) )
+						{
+							return editor;
+						}
+					}
+					catch( Exception e )
+					{
+					}
+				}
+			}
+			return null;
+		}
+		
 		public static IDocument getOpenedFileDocument( IFile file )
 		{
 			return getOpenedFileDocument( getFile(file) );
@@ -1254,6 +1372,31 @@ public class UnrealScriptEditor extends TextEditor
 			}
 			return null;
 		}
+		public static IDocument getOpenedFileDocument( String className )
+		{
+			if( className == null )
+				return null;
+			for( IEditorReference reference : getActiveWorkbenchWindow().getActivePage().getEditorReferences() )
+			{
+				IEditorPart activeEditor = reference.getEditor( false );
+				if( activeEditor instanceof UnrealScriptEditor )
+				{
+					try
+					{
+						UnrealScriptEditor editor = (UnrealScriptEditor) activeEditor;
+						String openedFileClassName = getClassName( getFile(getIFile(editor)) );
+						if( (openedFileClassName != null) && openedFileClassName.equalsIgnoreCase(className) )
+						{
+							return getEditorDocument( editor );
+						}
+					}
+					catch( Exception e )
+					{
+					}
+				}
+			}
+			return null;
+		}
 		public static String getOpenedFileContent( IFile file )
 		{
 			return getOpenedFileContent( getFile(file) );
@@ -1261,6 +1404,13 @@ public class UnrealScriptEditor extends TextEditor
 		public static String getOpenedFileContent( File file )
 		{
 			IDocument doc = getOpenedFileDocument( file );
+			if( doc != null )
+				return doc.get();
+			return null;
+		}
+		public static String getOpenedFileContent( String className )
+		{
+			IDocument doc = getOpenedFileDocument( className );
 			if( doc != null )
 				return doc.get();
 			return null;
@@ -1405,33 +1555,6 @@ public class UnrealScriptEditor extends TextEditor
 			}
 			return builder.toString();
 		}
-		public static String getCodeLine( String code, int offset )
-		{
-			while( offset > 0 )
-			{
-				char character = code.charAt( offset );
-				if( (character == '\n') || (character == '\r') )
-				{
-					offset++;
-					break;
-				}
-				offset--;
-			}
-			
-			StringBuffer buffer = new StringBuffer();
-			while( offset < code.length() )
-			{
-				char character = code.charAt( offset );
-				if( (character == '\n') || (character == '\r') )
-				{
-					break;
-				}
-				buffer.append( character );
-				offset++;
-			}
-			
-			return buffer.toString();
-		}
 		public static String[] getCodeWords( String code )
 		{
 			ArrayList<String> words = new ArrayList<String>();
@@ -1457,6 +1580,105 @@ public class UnrealScriptEditor extends TextEditor
 				words.add( buffer.toString() );
 			}
 			return words.toArray( new String[0] );
+		}
+		
+		public static int trimStartPosition( String content, int offset )
+		{
+			char now = ' ';
+			int length = content.length();
+			while( offset < length )
+			{
+				now = content.charAt( offset );
+				if( (now == ' ') || (now == '\t') )
+					offset++;
+				else
+					return offset;
+			}
+			return length;
+		}
+		public static int trimEndPosition( String content, int offset )
+		{
+			char now = ' ';
+			while( offset >= 0 )
+			{
+				now = content.charAt( offset );
+				if( (now == ' ') || (now == '\t') )
+					offset--;
+				else
+					return offset;
+			}
+			return 0;
+		}
+		
+		public static String getLine( String content, int offset )
+		{
+			while( offset >= 0 )
+			{
+				char character = content.charAt( offset );
+				if( character == '\n' )
+				{
+					offset++;
+					break;
+				}
+				offset--;
+			}
+			offset = Math.max( 0, offset );
+			
+			StringBuffer buffer = new StringBuffer();
+			int length = content.length();
+			while( offset < length )
+			{
+				char character = content.charAt( offset );
+				if( character == '\n' )
+				{
+					break;
+				}
+				buffer.append( character );
+				offset++;
+			}
+			
+			return buffer.toString();
+		}
+		public static int getLineStart( String content, int offset )
+		{
+			while( offset >= 0 )
+			{
+				char character = content.charAt( offset );
+				if( character == '\n' )
+				{
+					offset++;
+					break;
+				}
+				offset--;
+			}
+			return Math.max( 0, offset );
+		}
+		public static int getLineEnd( String content, int offset )
+		{
+			int length = content.length();
+			while( offset < length-1 )
+			{
+				char character = content.charAt( offset );
+				if( character == '\n' )
+				{
+					break;
+				}
+				offset++;
+			}
+			return offset;
+		}
+		public static int getLineNumber( String content, int offset )
+		{
+			int length = Math.min( content.length(), offset );
+			int line = 1;
+			for( int i=0; i<length; i++ )
+			{
+				if( content.charAt(i) == '\n' )
+				{
+					line++;
+				}
+			}
+			return line;
 		}
 		
 		public static boolean isInLineComment( String data, int offset )
@@ -1525,6 +1747,64 @@ public class UnrealScriptEditor extends TextEditor
 				}
 			}
 			return false;
+		}
+		
+		public static class StartAndEnd
+		{
+			public int start;
+			public int end;
+			
+			public StartAndEnd( int start, int end )
+			{
+				this.start = start;
+				this.end = end;
+			}
+		}
+		public static StartAndEnd getDefaultPropertiesStartAndEndLineNumber( String content )
+		{
+			if( content == null )
+				return null;
+			content = content.toLowerCase();
+			int contentLength = content.length();
+			
+			Pattern pattern = Pattern.compile( "defaultproperties( |\\t|\\n|\\r)*\\{" );
+			Matcher matcher = pattern.matcher( content );
+			if( matcher.find() )
+			{
+				try
+				{
+					int lineNumber = getLineNumber( content, matcher.start() );
+					
+					int brackets = 1;
+					int lastBracketPos = -1;
+					for( int i=matcher.end(); i<contentLength; i++ )
+					{
+						char now = content.charAt( i ); 
+						
+						if( now == '{' )
+						{
+							brackets++;
+							continue;
+						}
+						
+						if( now == '}' )
+						{
+							brackets--;
+							lastBracketPos = i;
+							if( brackets == 0 )
+								break;
+						}
+					}
+					
+					int lastLineNumber = getLineNumber( content, lastBracketPos );
+					
+					return new StartAndEnd( lineNumber, lastLineNumber );
+				}
+				catch( Exception e )
+				{
+				}
+			}
+			return null;
 		}
 		
 		public static ImageDescriptor getImageDescriptor( String file )

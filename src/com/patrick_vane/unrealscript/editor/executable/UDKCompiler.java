@@ -2,10 +2,20 @@ package com.patrick_vane.unrealscript.editor.executable;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import org.eclipse.core.resources.IProject;
+import org.eclipse.core.resources.IWorkspaceRunnable;
+import org.eclipse.core.resources.ResourcesPlugin;
+import org.eclipse.core.runtime.CoreException;
+import org.eclipse.core.runtime.IProgressMonitor;
+import org.eclipse.core.runtime.NullProgressMonitor;
+import org.eclipse.jface.text.IDocument;
 import org.eclipse.swt.widgets.Display;
 import org.eclipse.ui.PlatformUI;
 import com.patrick_vane.unrealscript.editor.UnrealScriptEditor;
+import com.patrick_vane.unrealscript.editor.UnrealScriptEditor.StartAndEnd;
+import com.patrick_vane.unrealscript.editor.class_hierarchy.parser.UnrealScriptClass;
 import com.patrick_vane.unrealscript.editor.console.UnrealScriptCompilerConsole;
 import com.patrick_vane.unrealscript.editor.constants.ColorConstant;
 import com.patrick_vane.unrealscript.editor.constants.UnrealScriptID;
@@ -193,7 +203,49 @@ public class UDKCompiler
 				
 				UnrealScriptCompilerConsole.clear();
 				UnrealScriptEditor.runUDK( project, false, UnrealScriptCompilerConsole.getPrintStream(ColorConstant.INFO_COLOR), UnrealScriptCompilerConsole.getPrintStream(ColorConstant.ERROR_COLOR), params );
-				//System.out.println( UnrealScriptCompilerConsole.getContent() );
+				
+				IWorkspaceRunnable runnable = new IWorkspaceRunnable()
+				{
+					@Override
+					public void run( IProgressMonitor monitor ) throws CoreException
+					{
+						ArrayList<CompilerError> errors = parseCompilerErrors( UnrealScriptCompilerConsole.getContent() );
+						UnrealScriptEditor.clearAllMarkers();
+						for( CompilerError error : errors )
+						{
+							try
+							{
+								IDocument doc = UnrealScriptEditor.getOpenedFileDocument( error.className );
+								if( doc != null )
+								{
+									String content = doc.get();
+									
+									int start = doc.getLineOffset( error.lineNumber-1 );
+									int end = doc.getLineLength( error.lineNumber-1 ) + start;
+									
+									start = UnrealScriptEditor.trimStartPosition( content, start );
+									end = UnrealScriptEditor.trimEndPosition( content, end );
+									
+									if( error.isWarning )
+										UnrealScriptEditor.addWarningMarker( error.className, start, end, error.message );
+									else
+										UnrealScriptEditor.addErrorMarker( error.className, start, end, error.message );
+								}
+							}
+							catch( Exception e )
+							{
+								e.printStackTrace();
+							}
+						}
+					}
+				};
+				try
+				{
+					ResourcesPlugin.getWorkspace().run( runnable, new NullProgressMonitor() );
+				}
+				catch( CoreException e )
+				{
+				}
 				
 				ArrayList<String> newParams;
 				synchronized( sync )
@@ -209,5 +261,108 @@ public class UDKCompiler
 				compile( project, true, false, newParams );
 			}
 		}.start();
+	}
+	
+	
+	public static class CompilerError
+	{
+		public final boolean isWarning;
+		
+		public final String className;
+		public final int lineNumber;
+		public final String message;
+		
+		public CompilerError( boolean isWarning, String className, int lineNumber, String message )
+		{
+			this.isWarning = isWarning;
+			this.className = className;
+			this.lineNumber = lineNumber;
+			this.message = message;
+		}
+	}
+	
+	public static ArrayList<CompilerError> parseCompilerErrors( String compilerOutput )
+	{
+		ArrayList<CompilerError> errors = new ArrayList<CompilerError>();
+		
+		if( compilerOutput == null )
+			return errors;
+		compilerOutput = compilerOutput.replaceAll( "\r", "" );
+		
+		// get begin and end of compiler errors >>
+			int begin = compilerOutput.indexOf( "Warning/Error Summary" );
+			if( begin < 0 )
+				return errors;
+			begin += "Warning/Error Summary".length();
+			
+			for( int i=begin; i<compilerOutput.length(); i++ )
+			{
+				char now = compilerOutput.charAt( i );
+				
+				if( (now == '\n') || (now == '-') )
+					continue;
+				
+				begin = i;
+				break;
+			}
+			
+			int end = compilerOutput.indexOf( "\n\n", begin );
+			if( end < 0 )
+				end = compilerOutput.length() - 1;
+		// get begin and end of compiler errors <<
+		
+		try
+		{
+			String errorsString = compilerOutput.substring( begin, end );
+			for( String errorString : errorsString.split("\n") )
+			{
+				Pattern pattern = Pattern.compile( "\\.uc\\(+[0-9]+\\) : " );
+				Matcher matcher = pattern.matcher( errorString );
+				if( matcher.find() )
+				{
+					try
+					{
+						String classPath = errorString.substring( 0, matcher.start() );
+						String[] classPathParts = classPath.split( "\\\\" );
+						String className = classPathParts[classPathParts.length-1];
+						
+						String message = errorString.substring( matcher.end() );
+						
+						String match = matcher.group();
+						match = match.replace( ".uc(", "" );
+						match = match.replace( ") : ", "" );
+						
+						int lineNumber = Integer.parseInt( match );
+						
+						boolean isWarning = message.toLowerCase().startsWith( "warning" );
+						
+						if( !message.contains("in defaults") )
+						{
+							UnrealScriptClass unrealscriptClass = UnrealScriptEditor.getUnrealScriptClass( className );
+							if( unrealscriptClass != null )
+							{
+								StartAndEnd defaultPropertiesLines = UnrealScriptEditor.getDefaultPropertiesStartAndEndLineNumber( UnrealScriptEditor.getFileContent(unrealscriptClass.getFile()) );
+								if( defaultPropertiesLines != null )
+								{
+									if( lineNumber >= defaultPropertiesLines.start )
+									{
+										lineNumber += defaultPropertiesLines.end - defaultPropertiesLines.start + 1;
+									}
+								}
+							}
+						}
+						
+						errors.add( new CompilerError(isWarning, className, lineNumber, message) );
+					}
+					catch( Exception e )
+					{
+					}
+				}
+			}
+		}
+		catch( Exception e )
+		{
+		}
+		return errors;
 	}
 }

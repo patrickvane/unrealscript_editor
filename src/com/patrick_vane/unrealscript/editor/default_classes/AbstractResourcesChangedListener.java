@@ -1,6 +1,7 @@
 package com.patrick_vane.unrealscript.editor.default_classes;
 
 import java.io.File;
+import java.util.HashMap;
 import org.eclipse.core.resources.IWorkspaceRunnable;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;
@@ -12,13 +13,19 @@ import com.patrick_vane.unrealscript.editor.My_File_Listener.MyFileListenerInter
 
 public abstract class AbstractResourcesChangedListener implements MyFileListenerInterface
 {
-	protected final MyFileListener listener;
+	protected final MyFileListener			listener;
+	
+	protected final HashMap<String,Long>	filter			= new HashMap<String,Long>();
+	protected int							filterMillis	= 2000;
 	
 	
 	public AbstractResourcesChangedListener( File root )
 	{
 		listener = new MyFileListener( root, this );
 	}
+	
+	
+	public abstract void onFileChanged( final String name );
 	
 	
 	public void start()
@@ -45,6 +52,27 @@ public abstract class AbstractResourcesChangedListener implements MyFileListener
 	{
 		stop();
 		super.finalize();
+	}
+	
+	
+	@Override
+	public final void fileChanged( final String name )
+	{
+		boolean callFileChanged = false;
+		synchronized( filter )
+		{
+			Long lastTime = filter.get( name );
+			if( (lastTime == null) || (System.currentTimeMillis()-lastTime >= filterMillis) )
+			{
+				filter.put( name, System.currentTimeMillis() );
+				callFileChanged = true;
+			}
+		}
+		
+		if( callFileChanged )
+		{
+			onFileChanged( name );
+		}
 	}
 	
 	

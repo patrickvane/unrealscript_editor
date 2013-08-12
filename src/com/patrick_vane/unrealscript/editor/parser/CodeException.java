@@ -3,8 +3,6 @@ package com.patrick_vane.unrealscript.editor.parser;
 
 public class CodeException extends Exception
 {
-	private static final long	serialVersionUID	= -3066611880047954513L;
-	
 	private int firstCharacterPosition;
 	private int lastCharacterPosition;
 	private String message;

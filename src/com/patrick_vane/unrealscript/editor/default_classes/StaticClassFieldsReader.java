@@ -22,7 +22,7 @@ public class StaticClassFieldsReader
 			{
 				try
 				{
-					String value = (String) field.get(constantsClass);
+					String value = (String) field.get( constantsClass );
 					if( value != null )
 					{
 						strings.add( value );

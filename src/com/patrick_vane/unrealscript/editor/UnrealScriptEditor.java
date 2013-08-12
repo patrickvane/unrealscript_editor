@@ -1769,10 +1769,17 @@ public class UnrealScriptEditor extends TextEditor
 			
 			Pattern pattern = Pattern.compile( "defaultproperties( |\\t|\\n|\\r)*\\{" );
 			Matcher matcher = pattern.matcher( content );
-			if( matcher.find() )
+			while( matcher.find() )
 			{
 				try
 				{
+					if( matcher.start() > 0 )
+					{
+						char before = content.charAt( matcher.start()-1 );
+						if( (before != ' ') && (before != '\t') && (before != '\n') && (before != '\r') )
+							continue;
+					}
+					
 					int lineNumber = getLineNumber( content, matcher.start() );
 					
 					int brackets = 1;

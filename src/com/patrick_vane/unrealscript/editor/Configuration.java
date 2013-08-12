@@ -159,7 +159,17 @@ public class Configuration extends SourceViewerConfiguration
 	public IContentAssistant getContentAssistant( ISourceViewer sourceViewer )
 	{
 		ContentAssistant assistant = new ContentAssistant();
-		assistant.setContentAssistProcessor( new CodeCompleter(), IDocument.DEFAULT_CONTENT_TYPE );
+		
+		CodeCompleter codeCompleter = new CodeCompleter();
+		for( String tag : TagConstant.TAGS )
+		{
+			assistant.setContentAssistProcessor( codeCompleter, tag );
+		}
+		
+		assistant.setInformationControlCreator( getInformationControlCreator(sourceViewer) );
+		assistant.setProposalPopupOrientation( IContentAssistant.PROPOSAL_OVERLAY );
+		assistant.setContextInformationPopupOrientation( IContentAssistant.CONTEXT_INFO_ABOVE );
+		
 		return assistant;
 	}
 	

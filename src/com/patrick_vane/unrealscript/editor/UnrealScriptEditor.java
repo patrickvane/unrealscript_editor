@@ -1459,6 +1459,74 @@ public class UnrealScriptEditor extends TextEditor
 			return words.toArray( new String[0] );
 		}
 		
+		public static boolean isInLineComment( String data, int offset )
+		{
+			char prev = ' ';
+			char now = ' ';
+			boolean inChar = false;
+			boolean inString = false;
+			for( int i=offset; i>=0; i-- )
+			{
+				prev = now;
+				now = data.charAt( i );
+				
+				if( !inString && (now == '\'') )
+				{
+					inChar = !inChar;
+					continue;
+				}
+				if( !inChar && (now == '"') )
+				{
+					inString = !inString;
+					continue;
+				}
+				if( inChar || inString )
+				{
+					continue;
+				}
+				
+				if( now == '\n' )
+				{
+					return false;
+				}
+				
+				if( (now == '/') && (prev == '/') )
+				{
+					char bprev = ' ';
+					char bnow = ' ';
+					boolean binChar = false;
+					boolean binString = false;
+					for( int j=i; j>=0; j-- )
+					{
+						bprev = bnow;
+						bnow = data.charAt( j );
+						
+						if( !binString && (bnow == '\'') )
+						{
+							binChar = !binChar;
+							continue;
+						}
+						if( !binChar && (bnow == '"') )
+						{
+							binString = !binString;
+							continue;
+						}
+						if( binChar || binString )
+						{
+							continue;
+						}
+						
+						if( (bnow == '*') && (bprev == '/') )
+							return true;
+						else if( (bnow == '/') && (bprev == '*') )
+							return false;
+					}
+					return true;
+				}
+			}
+			return false;
+		}
+		
 		public static ImageDescriptor getImageDescriptor( String file )
 		{
 			Bundle bundle = FrameworkUtil.getBundle( OutlineLabelProvider.class );

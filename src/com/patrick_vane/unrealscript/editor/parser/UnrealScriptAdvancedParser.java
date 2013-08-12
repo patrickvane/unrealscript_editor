@@ -401,6 +401,7 @@ public class UnrealScriptAdvancedParser
 				return TypeHierarchyView.getClasses();
 			return new HashMap<String,UnrealScriptClass>();
 		}
+		
 		private static final MySynchronizer<String> attributeSynchronizer = new MySynchronizer<String>();
 		public static UnrealScriptAttributes getAttributes( String className )
 		{
@@ -520,6 +521,331 @@ public class UnrealScriptAdvancedParser
 			return attribute;
 		}
 	// get class or attribute <<
+	
+	
+	// get documentation from code attribute >>
+		public static String getDocumentation( ClassOrAttribute attribute )
+		{
+			if( attribute.isClass() )
+				return getDocumentation( attribute.unrealscriptClass );
+			else if( attribute.isAttribute() )
+				return getDocumentation( attribute.attribute );
+			else
+				return null;
+		}
+		public static String getDocumentation( CodeAttribute attribute )
+		{
+			if( attribute instanceof CodeAttributeFunction )
+				return getDocumentation( (CodeAttributeFunction) attribute );
+			else if( attribute instanceof CodeAttributeVariable )
+				return getDocumentation( (CodeAttributeVariable) attribute );
+			return null;
+		}
+		
+		public static String getDocumentation( UnrealScriptClass attribute )
+		{
+			try
+			{
+				String content = UnrealScriptEditor.getOpenedFileOrFileContent( attribute.getFile() );
+				if( content == null )
+					return null;
+				String contentLow = content.toLowerCase();
+				
+				int classStartIndex = -1;
+				StringBuilder codeBuffer = new StringBuilder();
+				int commentBlockDepth = 0;
+				boolean commentLine = false;
+				char prev = ' ';
+				char now = ' ';
+				int skip = 0;
+				for( int i=0; i<contentLow.length(); i++ )
+				{
+					prev = now;
+					now = contentLow.charAt( i );
+					
+					if( skip > 0 )
+					{
+						skip--;
+						continue;
+					}
+					
+					if( commentLine )
+					{
+						if( now == '\n' )
+							commentLine = false;
+						continue;
+					}
+					
+					if( commentBlockDepth == 0 )
+					{
+						if( (prev == '/') && (now == '/') )
+						{
+							commentLine = true;
+							codeBuffer = new StringBuilder();
+							continue;
+						}
+					}
+					
+					if( (prev == '/') && (now == '*') )
+					{
+						commentBlockDepth++;
+						skip = 1;
+						codeBuffer = new StringBuilder();
+						continue;
+					}
+					if( commentBlockDepth > 0 )
+					{
+						if( (prev == '*') && (now == '/') )
+						{
+							commentBlockDepth--;
+							skip = 1;
+							continue;
+						}
+					}
+					
+					if( commentBlockDepth == 0 )
+					{
+						codeBuffer.append( now );
+						
+						if( codeBuffer.length() >= 5 )
+						{
+							if( codeBuffer.substring(codeBuffer.length()-5).equals("class") )
+							{
+								classStartIndex = i-4;
+								break;
+							}
+						}
+					}
+				}
+				
+				if( classStartIndex > 0 )
+				{
+					String documentation = content.substring( 0, classStartIndex ).trim();
+					if( documentation.isEmpty() )
+						return null;
+					return documentation;
+				}
+			}
+			catch( Exception e )
+			{
+			}
+			return null;
+		}
+		
+		public static String getDocumentation( CodeAttributeFunction attribute )
+		{
+			try
+			{
+				String content = UnrealScriptEditor.getOpenedFileOrFileContent( getClass(attribute.getClassName()).getFile() );
+				int offset = attribute.getFirstCharacterPosition();
+				
+				return getDocumentationAbove( content, offset );
+			}
+			catch( Exception e )
+			{
+			}
+			return null;
+		}
+		
+		public static String getDocumentation( CodeAttributeVariable attribute )
+		{
+			if( attribute instanceof CodeAttributeLocalVariable )
+				return getDocumentation( (CodeAttributeLocalVariable) attribute );
+			try
+			{
+				String content = UnrealScriptEditor.getOpenedFileOrFileContent( getClass(attribute.getClassName()).getFile() );
+				int offset = attribute.getFirstCharacterPosition();
+				
+				String documentBehind = getDocumentationBehind( content, offset );
+				if( documentBehind != null )
+					return documentBehind;
+				return getDocumentationAbove( content, offset );
+			}
+			catch( Exception e )
+			{
+			}
+			return null;
+		}
+		
+		public static String getDocumentation( CodeAttributeLocalVariable attribute )
+		{
+			if( attribute instanceof CodeAttributeParameterLocalVariable )
+				return getDocumentation( (CodeAttributeParameterLocalVariable) attribute );
+			try
+			{
+				String content = UnrealScriptEditor.getOpenedFileOrFileContent( getClass(attribute.getClassName()).getFile() );
+				int offset = attribute.getFirstCharacterPosition();
+				
+				String documentBehind = getDocumentationBehind( content, offset );
+				if( documentBehind != null )
+					return documentBehind;
+				return getDocumentationAbove( content, offset );
+			}
+			catch( Exception e )
+			{
+			}
+			return null;
+		}
+		
+		public static String getDocumentation( CodeAttributeParameterLocalVariable attribute )
+		{
+			return null;
+		}
+		
+		
+		// helper functions >>
+			public static String getDocumentationAbove( String content, int offset )
+			{
+				if( content == null )
+					return null;
+				
+				int startPos = offset;
+				int endPos = -1;
+				
+				boolean foundNewline = false;
+				boolean foundStartOfDocSlash = false;
+				boolean foundStartOfDoc = false;
+				char prev = ' ';
+				char now = ' ';
+				int commentBlockDepth = 0;
+				for( int i=startPos-1; i>=0; i-- )
+				{
+					prev = now;
+					now = content.charAt( i );
+					
+					if( !foundNewline )
+					{
+						if( now == '\n' )
+							foundNewline = true;
+						continue;
+					}
+					
+					if( !foundStartOfDocSlash )
+					{
+						if( (now == ' ') || (now == '\t') || (now == '\r') )
+						{
+							continue;
+						}
+						
+						if( now == '/' )
+						{
+							foundStartOfDocSlash = true;
+							continue;
+						}
+						else
+						{
+							return null;
+						}
+					}
+					else
+					{
+						if( !foundStartOfDoc )
+						{
+							if( now == '*' )
+							{
+								foundStartOfDoc = true;
+								startPos = i + 2;
+								commentBlockDepth = 1;
+								continue;
+							}
+							else
+							{
+								return null;
+							}
+						}
+						else
+						{
+							if( (now == '*') && (prev == '/') )
+							{
+								commentBlockDepth++;
+								continue;
+							}
+							
+							if( (now == '/') && (prev == '*') )
+							{
+								commentBlockDepth--;
+								if( commentBlockDepth == 0 )
+								{
+									endPos = i;
+									break;
+								}
+							}
+						}
+					}
+				}
+				
+				if( endPos >= 0 )
+				{
+					return content.substring( endPos, startPos );
+				}
+				return null;
+			}
+			
+			public static String getDocumentationBehind( String content, int offset )
+			{
+				if( content == null )
+					return null;
+				
+				int startPos = offset;
+				int endPos = -1;
+				
+				boolean foundStartOfDocSlash = false;
+				boolean foundStartOfDoc = false;
+				char now = ' ';
+				for( int i=startPos; i<content.length(); i++ )
+				{
+					now = content.charAt( i );
+					
+					if( !foundStartOfDocSlash )
+					{
+						if( now == '/' )	
+						{
+							foundStartOfDocSlash = true;
+							continue;
+						}
+						
+						if( now == '\n' )
+						{
+							return null;
+						}
+					}
+					else
+					{
+						if( !foundStartOfDoc )
+						{
+							if( now == '/' )
+							{
+								foundStartOfDoc = true;
+								startPos = i + 1;
+								continue;
+							}
+							else
+							{
+								return null;
+							}
+						}
+						else
+						{
+							endPos = i-1;
+							if( now == '\n' )
+							{
+								break;
+							}
+						}
+					}
+				}
+				
+				if( endPos >= 0 )
+				{
+					String documentation = content.substring( startPos, endPos ).trim();
+					if( documentation.isEmpty() )
+						return null;
+					return "/** " + documentation + " */";
+				}
+				return null;
+			}
+		// helper functions <<
+	// get documentation from code attribute <<
 	
 	
 	// other >>

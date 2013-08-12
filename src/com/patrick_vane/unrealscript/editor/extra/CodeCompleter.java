@@ -2,16 +2,18 @@ package com.patrick_vane.unrealscript.editor.extra;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ITextViewer;
-import org.eclipse.jface.text.contentassist.CompletionProposal;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
 import org.eclipse.jface.text.contentassist.IContentAssistProcessor;
 import org.eclipse.jface.text.contentassist.IContextInformation;
 import org.eclipse.jface.text.contentassist.IContextInformationValidator;
 import org.eclipse.swt.graphics.Image;
+import org.eclipse.swt.graphics.Point;
 import com.patrick_vane.unrealscript.editor.UnrealScriptEditor;
 import com.patrick_vane.unrealscript.editor.class_hierarchy.parser.UnrealScriptClass;
 import com.patrick_vane.unrealscript.editor.default_classes.CompletionProposalMessage;
+import com.patrick_vane.unrealscript.editor.parser.CodeAttribute;
 import com.patrick_vane.unrealscript.editor.parser.CodeAttributeFunction;
 import com.patrick_vane.unrealscript.editor.parser.CodeAttributeLocalVariable;
 import com.patrick_vane.unrealscript.editor.parser.CodeAttributeVariable;
@@ -21,12 +23,13 @@ import com.patrick_vane.unrealscript.editor.parser.UnrealScriptAdvancedParser.Cl
 import com.patrick_vane.unrealscript.editor.parser.UnrealScriptAttributes;
 
 
-public class CodeCompleter implements  IContentAssistProcessor
+public class CodeCompleter implements IContentAssistProcessor
 {
-	private static final Image	localVariableImage	= UnrealScriptEditor.getImage( "icons/outline/var_public.gif" );
-	private static final Image	variableImage		= UnrealScriptEditor.getImage( "icons/outline/var_private.gif" );
-	private static final Image	functionImage		= UnrealScriptEditor.getImage( "icons/outline/function.gif" );
-	private static final Image	classImage			= UnrealScriptEditor.getImage( "icons/outline/class.gif" );
+	private static final Image	localVariableImage		= UnrealScriptEditor.getImage( "icons/outline/var_public.gif" );
+	private static final Image	variableImage			= UnrealScriptEditor.getImage( "icons/outline/var_private.gif" );
+	private static final Image	functionImage			= UnrealScriptEditor.getImage( "icons/outline/function.gif" );
+	private static final Image	functionOverriddenImage	= UnrealScriptEditor.getImage( "icons/outline/function_overridden.gif" );
+	private static final Image	classImage				= UnrealScriptEditor.getImage( "icons/outline/class.gif" );
 	
 	
 	@Override
@@ -129,7 +132,7 @@ public class CodeCompleter implements  IContentAssistProcessor
 							String addString = addedString + name.substring( cwordLength );
 							String showString = cwordWordStart + name.substring( cwordStartLength ) + " : " + attribute.getType();
 							
-							completions.add( new CompletionProposal(addString, wordOffset+cwordLength, wordLength-cwordLength, addString.length(), localVariableImage, showString, null, null) );
+							completions.add( getCompletionProposal(attribute, addString, wordOffset+cwordLength, wordLength-cwordLength, addString.length(), localVariableImage, showString) );
 						}
 					}
 				}
@@ -145,7 +148,7 @@ public class CodeCompleter implements  IContentAssistProcessor
 						String addString = addedString + name.substring( cwordLength );
 						String showString = cwordWordStart + name.substring( cwordStartLength ) + " : " + attribute.getType();
 						
-						completions.add( new CompletionProposal(addString, wordOffset+cwordLength, wordLength-cwordLength, addString.length(), variableImage, showString, null, null) );
+						completions.add( getCompletionProposal(attribute, addString, wordOffset+cwordLength, wordLength-cwordLength, addString.length(), variableImage, showString) );
 					}
 				}
 			}
@@ -164,7 +167,13 @@ public class CodeCompleter implements  IContentAssistProcessor
 						if( !hasParentheses )
 							addString += parameters;
 						
-						completions.add( new CompletionProposal(addString, wordOffset+cwordLength, wordLength-cwordLength, addString.length(), functionImage, showString, null, null) );
+						boolean overridden = true;
+						if( attributes.getAttributeFunction(name, 1) != null )
+						{
+							overridden = false;
+						}
+						
+						completions.add( getCompletionProposal(attribute, addString, wordOffset+cwordLength, wordLength-cwordLength, addString.length(), (overridden ? functionOverriddenImage : functionImage), showString) );
 					}
 				}
 			}
@@ -178,7 +187,7 @@ public class CodeCompleter implements  IContentAssistProcessor
 					{
 						if( name.toLowerCase().startsWith(cwordWordLow) )
 						{
-							completions.add( new CompletionProposal(name, wordOffset, wordLength, name.length(), classImage, name, null, null) );
+							completions.add( getCompletionProposal(ucClass, name, wordOffset, wordLength, name.length(), classImage, name) );
 						}
 					}
 				}
@@ -192,6 +201,107 @@ public class CodeCompleter implements  IContentAssistProcessor
 		}
 		
 		return completions.toArray( new ICompletionProposal[0] );
+	}
+	
+	
+	private static ICompletionProposal getCompletionProposal( final UnrealScriptClass attribute, final String replacementString, final int replacementOffset, final int replacementLength, final int cursorPosition, final Image image, final String displayString )
+	{
+		return new ICompletionProposal()
+		{
+			@Override
+			public Point getSelection( IDocument document )
+			{
+				return new Point( replacementOffset + cursorPosition, 0 );
+			}
+			
+			@Override
+			public Image getImage()
+			{
+				return image;
+			}
+			
+			@Override
+			public String getDisplayString()
+			{
+				if( displayString != null )
+					return displayString;
+				return replacementString;
+			}
+			
+			@Override
+			public IContextInformation getContextInformation()
+			{
+				return null;
+			}
+			
+			@Override
+			public String getAdditionalProposalInfo()
+			{
+				return TextHover.getTextOfAttribute( attribute );
+			}
+			
+			@Override
+			public void apply( IDocument document )
+			{
+				try
+				{
+					document.replace( replacementOffset, replacementLength, replacementString );
+				}
+				catch( Exception x )
+				{
+				}
+			}
+		};
+	}
+	
+	private static ICompletionProposal getCompletionProposal( final CodeAttribute attribute, final String replacementString, final int replacementOffset, final int replacementLength, final int cursorPosition, final Image image, final String displayString )
+	{
+		return new ICompletionProposal()
+		{
+			@Override
+			public Point getSelection( IDocument document )
+			{
+				return new Point( replacementOffset + cursorPosition, 0 );
+			}
+			
+			@Override
+			public Image getImage()
+			{
+				return image;
+			}
+			
+			@Override
+			public String getDisplayString()
+			{
+				if( displayString != null )
+					return displayString;
+				return replacementString;
+			}
+			
+			@Override
+			public IContextInformation getContextInformation()
+			{
+				return null;
+			}
+			
+			@Override
+			public String getAdditionalProposalInfo()
+			{
+				return TextHover.getTextOfAttribute( attribute );
+			}
+			
+			@Override
+			public void apply( IDocument document )
+			{
+				try
+				{
+					document.replace( replacementOffset, replacementLength, replacementString );
+				}
+				catch( Exception x )
+				{
+				}
+			}
+		};
 	}
 	
 	

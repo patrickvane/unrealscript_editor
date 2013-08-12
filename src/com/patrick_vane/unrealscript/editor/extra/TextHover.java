@@ -63,12 +63,22 @@ public class TextHover implements ITextHover
     		else if( classOrAttribute.attribute instanceof CodeAttributeLocalVariable )
     		{
     			CodeAttributeLocalVariable local = (CodeAttributeLocalVariable) classOrAttribute.attribute;
-				return "local " + local.getModifiersAsString( true ) + local.getType() + " " + local.getName();
+				
+    			String modifiers = local.getModifiersAsString( true );
+				if( !modifiers.startsWith("()") )
+					modifiers = " " + modifiers;
+				
+    			return "local" + modifiers + local.getType() + " " + local.getName();
 			}
     		else if( classOrAttribute.attribute instanceof CodeAttributeVariable )
     		{
     			CodeAttributeVariable var = (CodeAttributeVariable) classOrAttribute.attribute;
-				return "var " + var.getModifiersAsString( true ) + var.getType() + " " + var.getName();
+				
+    			String modifiers = var.getModifiersAsString( true );
+				if( !modifiers.startsWith("()") )
+					modifiers = " " + modifiers;
+				
+    			return "var" + modifiers + var.getType() + " " + var.getName();
 			}
     	}
     	

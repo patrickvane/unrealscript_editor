@@ -82,10 +82,12 @@ public class UDKEditor
 	}
 	
 	
-	private static void run( final IProject project, String map, final ArrayList<String> params )
+	private static void run( final IProject project, String map, ArrayList<String> parameters )
 	{
 		if( project == null )
 			return;
+		
+		final ArrayList<String> params = (ArrayList<String>) parameters.clone();
 		
 		// add params >>
 			if( map == null )

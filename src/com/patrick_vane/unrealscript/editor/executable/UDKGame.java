@@ -99,10 +99,12 @@ public class UDKGame
 			run( project, params );
 	}
 	
-	private static void run( final IProject project, String map, String mode, String extraArgs, boolean disableSound, boolean disableStartupVideos, final ArrayList<String> params )
+	private static void run( final IProject project, String map, String mode, String extraArgs, boolean disableSound, boolean disableStartupVideos, ArrayList<String> parameters )
 	{
 		if( project == null )
 			return;
+		
+		final ArrayList<String> params = (ArrayList<String>) parameters.clone();
 		
 		// add params >>
 			if( map == null )

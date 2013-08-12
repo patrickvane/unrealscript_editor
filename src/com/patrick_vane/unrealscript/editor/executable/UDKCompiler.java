@@ -9,6 +9,7 @@ import com.patrick_vane.unrealscript.editor.UnrealScriptEditor;
 import com.patrick_vane.unrealscript.editor.console.UnrealScriptCompilerConsole;
 import com.patrick_vane.unrealscript.editor.constants.ColorConstant;
 import com.patrick_vane.unrealscript.editor.constants.UnrealScriptID;
+import com.patrick_vane.unrealscript.editor.default_classes.MySynchronizer;
 
 
 public class UDKCompiler
@@ -21,17 +22,19 @@ public class UDKCompiler
 		params.add( "-debug" );
 	}
 	
-	public static final HashMap<IProject,Long>					compilingProjects		= new HashMap<IProject,Long>();
-	public static final HashMap<IProject,ArrayList<String>>		waitForCompileProjects	= new HashMap<IProject,ArrayList<String>>();
+	protected static final HashMap<Object,Long>					compilingProjects		= new HashMap<Object,Long>();
+	protected static final HashMap<Object,ArrayList<String>>	waitForCompileProjects	= new HashMap<Object,ArrayList<String>>();
+	
+	protected final static MySynchronizer<String>				projectsToSync			= new MySynchronizer<String>();
 	
 	
 	public static void compile( final IProject project )
 	{
-		compile( project, false, (ArrayList<String>) params.clone() );
+		compile( project, false, false, (ArrayList<String>) params.clone() );
 	}
 	public static void compileForced( final IProject project )
 	{
-		compile( project, true, (ArrayList<String>) params.clone() );
+		compile( project, false, true, (ArrayList<String>) params.clone() );
 	}
 	public static void compile( final IProject project, final String... extraParams )
 	{
@@ -40,7 +43,7 @@ public class UDKCompiler
 		{
 			newParams.add( param );
 		}
-		compile( project, false, newParams );
+		compile( project, false, false, newParams );
 	}
 	public static void compileForced( final IProject project, final String... extraParams )
 	{
@@ -49,7 +52,7 @@ public class UDKCompiler
 		{
 			newParams.add( param );
 		}
-		compile( project, true, newParams );
+		compile( project, false, true, newParams );
 	}
 	
 	
@@ -57,16 +60,18 @@ public class UDKCompiler
 	{
 		if( project == null )
 			return;
+		final Object sync = projectsToSync.get( project.getName() );
 		while( true )
 		{
-			synchronized( compilingProjects )
+			synchronized( sync )
 			{
-				Long time = compilingProjects.get( project );
+				Long time = compilingProjects.get( sync );
 				if( time == null )
 				{
 					return;
 				}
 			}
+			
 			try
 			{
 				Thread.sleep( 100 );
@@ -96,7 +101,14 @@ public class UDKCompiler
 					}
 				}
 			);
-			Thread.sleep( 1000 );
+			
+			try
+			{
+				Thread.sleep( 100 );
+			}
+			catch( Exception e )
+			{
+			}
 		}
 		catch( Exception e )
 		{
@@ -105,49 +117,63 @@ public class UDKCompiler
 	}
 	
 	
-	private static void compile( final IProject project, final boolean forced, final ArrayList<String> params )
+	private static void compile( final IProject project, final boolean ignoreCompilingProjects, final boolean forced, ArrayList<String> parameters )
 	{
 		if( project == null )
 			return;
+		
+		final ArrayList<String> params = (ArrayList<String>) parameters.clone();
+		
 		if( !UnrealScriptEditor.isProjectUDK(project) )
 			return;
+		
 		new Thread()
 		{
 			@Override
 			public void run()
 			{
-				while( true )
+				final Object sync = projectsToSync.get( project.getName() );
+				
+				if( ignoreCompilingProjects )
 				{
-					synchronized( compilingProjects )
+					synchronized( sync )
 					{
-						Long time = compilingProjects.get( project );
-						if( time == null )
+						compilingProjects.put( sync, System.currentTimeMillis() );
+					}
+				}
+				else
+				{
+					while( true )
+					{
+						synchronized( sync )
 						{
-							compilingProjects.put( project, System.currentTimeMillis() );
-							waitForCompileProjects.remove( project );
-							break;
+							Long time = compilingProjects.get( sync );
+							if( time == null )
+							{
+								compilingProjects.put( sync, System.currentTimeMillis() );
+								waitForCompileProjects.remove( sync );
+								break;
+							}
+							else if( !forced )
+							{
+								if( System.currentTimeMillis()-time >= 2000 )
+								{
+									waitForCompileProjects.put( sync, params );
+									return;
+								}
+								else
+								{
+									return;
+								}
+							}
 						}
-						else if( !forced )
+						
+						try
 						{
-							if( System.currentTimeMillis()-time >= 500 )
-							{
-								waitForCompileProjects.put( project, params );
-								return;
-							}
-							else
-							{
-								return;
-							}
+							Thread.sleep( 100 );
 						}
-						else
+						catch( Exception e )
 						{
-							try
-							{
-								Thread.sleep( 100 );
-							}
-							catch( Exception e )
-							{
-							}
 						}
 					}
 				}
@@ -169,16 +195,17 @@ public class UDKCompiler
 				UnrealScriptEditor.runUDK( project, false, UnrealScriptCompilerConsole.getPrintStream(ColorConstant.INFO_COLOR), UnrealScriptCompilerConsole.getPrintStream(ColorConstant.ERROR_COLOR), params );
 				
 				ArrayList<String> newParams;
-				synchronized( compilingProjects )
+				synchronized( sync )
 				{
-					compilingProjects.remove( project );
-					newParams = waitForCompileProjects.get( project );
+					newParams = waitForCompileProjects.get( sync );
+					waitForCompileProjects.remove( sync );
 					if( newParams == null )
 					{
+						compilingProjects.remove( sync );
 						return;
 					}
 				}
-				compile( project, false, newParams );
+				compile( project, true, false, newParams );
 			}
 		}.start();
 	}

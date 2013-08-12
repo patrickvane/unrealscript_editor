@@ -7,6 +7,7 @@ import com.patrick_vane.unrealscript.editor.UnrealScriptEditor;
 import com.patrick_vane.unrealscript.editor.class_hierarchy.TypeHierarchyView;
 import com.patrick_vane.unrealscript.editor.class_hierarchy.parser.UnrealScriptClass;
 import com.patrick_vane.unrealscript.editor.constants.WordConstant;
+import com.patrick_vane.unrealscript.editor.default_classes.MySynchronizer;
 import com.patrick_vane.unrealscript.editor.parser.CodeWord.CodeWordData;
 
 
@@ -400,13 +401,14 @@ public class UnrealScriptAdvancedParser
 				return TypeHierarchyView.getClasses();
 			return new HashMap<String,UnrealScriptClass>();
 		}
+		private static final MySynchronizer<String> attributeSynchronizer = new MySynchronizer<String>();
 		public static UnrealScriptAttributes getAttributes( String className )
 		{
 			if( className == null )
 				return new UnrealScriptAttributes();
 			className = className.toLowerCase();
 			
-			synchronized( lastAttributes )
+			synchronized( attributeSynchronizer.get(className) )
 			{
 				Long newLastTime = lastTime.get( className );
 				if( (newLastTime == null) || (System.currentTimeMillis()-newLastTime >= 5000) )

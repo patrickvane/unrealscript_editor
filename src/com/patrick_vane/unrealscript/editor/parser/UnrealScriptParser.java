@@ -11,6 +11,7 @@ import com.patrick_vane.unrealscript.editor.UnrealScriptEditor;
 import com.patrick_vane.unrealscript.editor.class_hierarchy.parser.UnrealScriptClass;
 import com.patrick_vane.unrealscript.editor.constants.WordConstant;
 import com.patrick_vane.unrealscript.editor.default_classes.KeywordDetector;
+import com.patrick_vane.unrealscript.editor.default_classes.MySynchronizer;
 import com.patrick_vane.unrealscript.editor.default_classes.WhitespaceDetector;
 
 
@@ -112,20 +113,23 @@ public class UnrealScriptParser
 		}
 	}
 	
+	private static final MySynchronizer<String> attributeSynchronizer = new MySynchronizer<String>();
 	public static ArrayList<CodeAttribute> getAttributesOfClass( UnrealScriptClass unrealscriptClass ) throws CodeException, IOException
 	{
 		CodeBlock code = UnrealScriptParser.parse( unrealscriptClass.getFile() );
 		if( code == null )
 			return null;
 		
-		synchronized( attributesCache )
+		String className = unrealscriptClass.getName().toLowerCase();
+		
+		synchronized( attributeSynchronizer.get(className) )
 		{
-			AttributesCache cache = attributesCache.get( unrealscriptClass.getName() );
+			AttributesCache cache = attributesCache.get( className );
 			if( (cache != null) && code.equals(cache.code) )
 				return cache.attributes;
 			
-			ArrayList<CodeAttribute> attributes = getAttributes( unrealscriptClass.getName(), code );
-			attributesCache.put( unrealscriptClass.getName(), new AttributesCache(code, attributes) );
+			ArrayList<CodeAttribute> attributes = getAttributes( className, code );
+			attributesCache.put( className, new AttributesCache(code, attributes) );
 			return attributes;
 		}
 	}
@@ -661,6 +665,7 @@ public class UnrealScriptParser
 		}
 	}
 	
+	private static final MySynchronizer<String> parseSynchronizer = new MySynchronizer<String>();
 	public static CodeBlock parse( File file ) throws CodeException, IOException
 	{
 		String data = UnrealScriptEditor.getOpenedFileOrFileContent( file );
@@ -668,14 +673,16 @@ public class UnrealScriptParser
 		if( data == null )
 			return parse( "" );
 		
-		synchronized( parseCache )
+		String path = file.getAbsolutePath();
+		
+		synchronized( parseSynchronizer.get(path) )
 		{
-			ParseCache cache = parseCache.get( file.getAbsolutePath() );
+			ParseCache cache = parseCache.get( path );
 			if( (cache != null) && data.equals(cache.data) )
 				return cache.code;
 			
 			CodeBlock code = parse( data );
-			parseCache.put( file.getAbsolutePath(), new ParseCache(data, code) );
+			parseCache.put( path, new ParseCache(data, code) );
 			return code;
 		}
 	}

@@ -138,6 +138,9 @@ public class CodeWord
 		CodeWord mainWord = line[inLineArrayPos];
 		hadDot = ".".equals( mainWord.getWord() );
 		
+		if( "(".equals(mainWord.getWord()) )
+			return null;
+		
 		for( int i=inLineArrayPos-1; i>=0; i-- )
 		{
 			CodeWord word = line[i];

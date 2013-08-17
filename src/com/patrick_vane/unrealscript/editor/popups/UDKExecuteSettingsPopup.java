@@ -1,5 +1,9 @@
 package com.patrick_vane.unrealscript.editor.popups;
 
+import java.awt.Font;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.util.HashMap;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -7,10 +11,6 @@ import javax.swing.JComboBox;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
 import javax.swing.JTextField;
-import java.awt.Font;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.util.HashMap;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import com.patrick_vane.unrealscript.editor.UnrealScriptEditor;
@@ -26,9 +26,9 @@ public class UDKExecuteSettingsPopup extends ExtendablePopup
 	
 	private IProject				project;
 	
-	private JComboBox				dropdownProfile;
-	private JComboBox				dropdownMap;
-	private JComboBox				dropdownMode;
+	private JComboBox<String>		dropdownProfile;
+	private JComboBox<String>		dropdownMap;
+	private JComboBox<String>		dropdownMode;
 	private JTextField				inputArgs;
 	private JCheckBox				checkboxDisableSound;
 	private JCheckBox				checkboxDisableStartupVideos;
@@ -41,6 +41,7 @@ public class UDKExecuteSettingsPopup extends ExtendablePopup
 	private String 					selectedProfile = "Default";
 	
 	
+	@SuppressWarnings("unchecked")
 	public UDKExecuteSettingsPopup( IProject project )
 	{
 		super( "UDK Execute Settings", 305, 335 );
@@ -112,8 +113,8 @@ public class UDKExecuteSettingsPopup extends ExtendablePopup
 		labelProfile.setBounds( 23, 27, 48, 14 );
 		getContentPane().add( labelProfile );
 		
-		dropdownProfile = new JComboBox();
-		dropdownProfile.setModel( new DefaultComboBoxModel(MyArraySorter.sort(profiles.keySet().toArray(new String[0]))) );
+		dropdownProfile = new JComboBox<String>();
+		dropdownProfile.setModel( new DefaultComboBoxModel<String>(MyArraySorter.sort(profiles.keySet().toArray(new String[0]))) );
 		dropdownProfile.setEditable( true );
 		dropdownProfile.setToolTipText( "Settings profile" );
 		dropdownProfile.setBounds( 86, 25, 198, 20 );
@@ -126,8 +127,8 @@ public class UDKExecuteSettingsPopup extends ExtendablePopup
 		labelMap.setBounds( 23, 72, 38, 14 );
 		getContentPane().add( labelMap );
 		
-		dropdownMap = new JComboBox();
-		dropdownMap.setModel( new DefaultComboBoxModel(UnrealScriptEditor.getMapNames(project)) );
+		dropdownMap = new JComboBox<String>();
+		dropdownMap.setModel( new DefaultComboBoxModel<String>(UnrealScriptEditor.getMapNames(project)) );
 		dropdownMap.setEditable( true );
 		dropdownMap.setToolTipText( "A map from the UDKGame/Content/Maps/ folder" );
 		dropdownMap.setBounds( 67, 70, 217, 20 );
@@ -140,8 +141,8 @@ public class UDKExecuteSettingsPopup extends ExtendablePopup
 		labelMode.setBounds( 23, 102, 36, 14 );
 		getContentPane().add( labelMode );
 		
-		dropdownMode = new JComboBox();
-		dropdownMode.setModel( new DefaultComboBoxModel(UnrealScriptEditor.getClassesAndPackageNames(UnrealScriptEditor.getSubClasses("GameInfo"))) );
+		dropdownMode = new JComboBox<String>();
+		dropdownMode.setModel( new DefaultComboBoxModel<String>(UnrealScriptEditor.getClassesAndPackageNames(UnrealScriptEditor.getSubClasses("GameInfo"))) );
 		dropdownMode.setToolTipText( "A game mode" );
 		dropdownMode.setEditable( true );
 		dropdownMode.setBounds( 67, 100, 217, 20 );

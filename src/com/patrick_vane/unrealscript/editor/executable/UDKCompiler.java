@@ -38,14 +38,17 @@ public class UDKCompiler
 	protected final static MySynchronizer<String>				projectsToSync			= new MySynchronizer<String>();
 	
 	
+	@SuppressWarnings("unchecked")
 	public static void compile( final IProject project )
 	{
 		compile( project, false, false, (ArrayList<String>) params.clone() );
 	}
+	@SuppressWarnings("unchecked")
 	public static void compileForced( final IProject project )
 	{
 		compile( project, false, true, (ArrayList<String>) params.clone() );
 	}
+	@SuppressWarnings("unchecked")
 	public static void compile( final IProject project, final String... extraParams )
 	{
 		ArrayList<String> newParams = (ArrayList<String>) params.clone();
@@ -55,6 +58,7 @@ public class UDKCompiler
 		}
 		compile( project, false, false, newParams );
 	}
+	@SuppressWarnings("unchecked")
 	public static void compileForced( final IProject project, final String... extraParams )
 	{
 		ArrayList<String> newParams = (ArrayList<String>) params.clone();
@@ -132,6 +136,7 @@ public class UDKCompiler
 		if( project == null )
 			return;
 		
+		@SuppressWarnings("unchecked")
 		final ArrayList<String> params = (ArrayList<String>) parameters.clone();
 		
 		if( !UnrealScriptEditor.isProjectUDK(project) )

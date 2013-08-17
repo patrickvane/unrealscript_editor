@@ -21,10 +21,12 @@ public class UDKGame
 	}
 	
 	
+	@SuppressWarnings("unchecked")
 	public static void run( final IProject project )
 	{
 		run( project, (ArrayList<String>) params.clone() );
 	}
+	@SuppressWarnings("unchecked")
 	public static void run( final IProject project, final String... extraParams )
 	{
 		ArrayList<String> newParams = (ArrayList<String>) params.clone();
@@ -35,10 +37,12 @@ public class UDKGame
 		run( project, newParams );
 	}
 	
+	@SuppressWarnings("unchecked")
 	public static void run( final IProject project, final Profile profile )
 	{
 		run( project, profile, (ArrayList<String>) params.clone() );
 	}
+	@SuppressWarnings("unchecked")
 	public static void run( final IProject project, final Profile profile, final String... extraParams )
 	{
 		ArrayList<String> newParams = (ArrayList<String>) params.clone();
@@ -49,10 +53,12 @@ public class UDKGame
 		run( project, profile, newParams );
 	}
 	
+	@SuppressWarnings("unchecked")
 	public static void run( final IProject project, String map, String mode, String extraArgs, boolean disableSound, boolean disableStartupVideos )
 	{
 		run( project, map, mode, extraArgs, disableSound, disableStartupVideos, (ArrayList<String>) params.clone() );
 	}
+	@SuppressWarnings("unchecked")
 	public static void run( final IProject project, String map, String mode, String extraArgs, boolean disableSound, boolean disableStartupVideos, final String... extraParams )
 	{
 		ArrayList<String> newParams = (ArrayList<String>) params.clone();
@@ -104,6 +110,7 @@ public class UDKGame
 		if( project == null )
 			return;
 		
+		@SuppressWarnings("unchecked")
 		final ArrayList<String> params = (ArrayList<String>) parameters.clone();
 		
 		// add params >>

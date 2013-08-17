@@ -47,10 +47,6 @@ public class UnrealScriptAdvancedParser
 	}
 	
 	
-	private final static HashMap<String,UnrealScriptAttributes>		lastAttributes 	= new HashMap<String,UnrealScriptAttributes>();
-	private final static HashMap<String,Long>						lastTime 		= new HashMap<String,Long>();
-	
-	
 	// parse line >>
 		/** Returns null if it can't find anything */
 		public static CodeWordData getWordAt( IDocument document, int offset )
@@ -276,27 +272,45 @@ public class UnrealScriptAdvancedParser
 					}
 				}
 				
-				boolean startWithClass = canBeClass;
-				if( canBeClass )
+				if( parent != null )
 				{
-					if( parent.word.getWord().length() > 0 )
+					boolean startWithClass = canBeClass;
+					if( canBeClass )
 					{
-						char firstChar = parent.word.getWord().charAt( 0 );
-						if( firstChar == Character.toLowerCase(firstChar) ) // firstChar is lower case
+						if( parent.word.getWord().length() > 0 )
 						{
-							startWithClass = false;
+							char firstChar = parent.word.getWord().charAt( 0 );
+							if( firstChar == Character.toLowerCase(firstChar) ) // firstChar is lower case
+							{
+								startWithClass = false;
+							}
 						}
 					}
-				}
-				
-				if( startWithClass )
-				{
-					UnrealScriptClass newClass = getClass( parent.word.getWord() );
-					if( newClass != null )
+					
+					if( startWithClass )
 					{
-						usingClass = newClass;
-						canBeClass = false;
-						continue;
+						UnrealScriptClass newClass = getClass( parent.word.getWord() );
+						if( newClass != null )
+						{
+							usingClass = newClass;
+							canBeClass = false;
+							continue;
+						}
+						else
+						{
+							CodeAttribute newAttribute = getAttribute( usingClass.getName(), parent.word.getWord(), parent.inLineArrayPos, parent.line, parent.function );
+							UnrealScriptClass newAttributeClass = ((newAttribute == null) ? null : getClass(newAttribute.getType()));
+							if( newAttributeClass != null )
+							{
+								usingClass = newAttributeClass;
+								canBeClass = false;
+								continue;
+							}
+							else
+							{
+								break;
+							}
+						}
 					}
 					else
 					{
@@ -308,39 +322,24 @@ public class UnrealScriptAdvancedParser
 							canBeClass = false;
 							continue;
 						}
-						else
+						else if( canBeClass )
 						{
-							break;
-						}
-					}
-				}
-				else
-				{
-					CodeAttribute newAttribute = getAttribute( usingClass.getName(), parent.word.getWord(), parent.inLineArrayPos, parent.line, parent.function );
-					UnrealScriptClass newAttributeClass = ((newAttribute == null) ? null : getClass(newAttribute.getType()));
-					if( newAttributeClass != null )
-					{
-						usingClass = newAttributeClass;
-						canBeClass = false;
-						continue;
-					}
-					else if( canBeClass )
-					{
-						UnrealScriptClass newClass = getClass( parent.word.getWord() );
-						if( newClass != null )
-						{
-							usingClass = newClass;
-							canBeClass = false;
-							continue;
+							UnrealScriptClass newClass = getClass( parent.word.getWord() );
+							if( newClass != null )
+							{
+								usingClass = newClass;
+								canBeClass = false;
+								continue;
+							}
+							else
+							{
+								break;
+							}
 						}
 						else
 						{
 							break;
 						}
-					}
-					else
-					{
-						break;
 					}
 				}
 			}
@@ -402,7 +401,9 @@ public class UnrealScriptAdvancedParser
 			return new HashMap<String,UnrealScriptClass>();
 		}
 		
-		private static final MySynchronizer<String> attributeSynchronizer = new MySynchronizer<String>();
+		private static final MySynchronizer<String>					attributeSynchronizer	= new MySynchronizer<String>();
+		private final static HashMap<String,UnrealScriptAttributes>	attributeCache			= new HashMap<String,UnrealScriptAttributes>();
+		private final static HashMap<String,Long>					attributeLastTime		= new HashMap<String,Long>();
 		public static UnrealScriptAttributes getAttributes( String className )
 		{
 			if( className == null )
@@ -414,7 +415,7 @@ public class UnrealScriptAdvancedParser
 			Long newLastTime = null;
 			synchronized( sync )
 			{
-				newLastTime = lastTime.get( className );
+				newLastTime = attributeLastTime.get( className );
 			}
 			
 			if( (newLastTime == null) || (System.currentTimeMillis()-newLastTime >= 5000) )
@@ -424,22 +425,65 @@ public class UnrealScriptAdvancedParser
 					UnrealScriptAttributes newAttirbutes = UnrealScriptAttributeParser.parseAttributesOfClassAndParents( className );
 					synchronized( sync )
 					{
-						lastAttributes.put( className, newAttirbutes );
-						lastTime.put( className, newLastTime );
+						attributeCache.put( className, newAttirbutes );
+						attributeLastTime.put( className, newLastTime );
 					}
 				}
 				catch( Exception e )
 				{
 					synchronized( sync )
 					{
-						lastTime.put( className, newLastTime );
+						attributeLastTime.put( className, newLastTime );
 					}
 				}
 			}
 			
 			synchronized( sync )
 			{
-				return lastAttributes.get( className );
+				return attributeCache.get( className );
+			}
+		}
+		
+		private static final MySynchronizer<String>					attributeClassOnlySynchronizer	= new MySynchronizer<String>();
+		private final static HashMap<String,UnrealScriptAttributes>	attributeClassOnlyCache			= new HashMap<String,UnrealScriptAttributes>();
+		private final static HashMap<String,Long>					attributeClassOnlyLastTime		= new HashMap<String,Long>();
+		public static UnrealScriptAttributes getAttributesOfThisClassOnly( String className )
+		{
+			if( className == null )
+				return new UnrealScriptAttributes();
+			className = className.toLowerCase();
+			
+			Object sync = attributeClassOnlySynchronizer.get( className );
+			
+			Long newLastTime = null;
+			synchronized( sync )
+			{
+				newLastTime = attributeClassOnlyLastTime.get( className );
+			}
+			
+			if( (newLastTime == null) || (System.currentTimeMillis()-newLastTime >= 5000) )
+			{
+				try
+				{
+					UnrealScriptAttributes newAttirbutes = UnrealScriptAttributeParser.parseAttributesOfClass( className );
+					synchronized( sync )
+					{
+						attributeClassOnlyCache.put( className, newAttirbutes );
+						attributeClassOnlyLastTime.put( className, newLastTime );
+					}
+				}
+				catch( Exception e )
+				{
+					synchronized( sync )
+					{
+						attributeClassOnlyLastTime.put( className, newLastTime );
+					}
+				}
+			}
+			
+			synchronized( sync )
+			{
+				return attributeClassOnlyCache.get( className );
 			}
 		}
 		

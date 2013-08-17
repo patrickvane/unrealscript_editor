@@ -406,6 +406,7 @@ public class UnrealScriptEditor extends TextEditor
 			);
 		}
 		
+		@SuppressWarnings("rawtypes")
 		@Override
 		public Object getAdapter( Class required ) // redirected to the Configuration class
 		{
@@ -484,7 +485,7 @@ public class UnrealScriptEditor extends TextEditor
 																	{
 																		page.activate( openedFile );
 																		
-																		HashMap map = new HashMap();
+																		HashMap<String, Integer> map = new HashMap<String, Integer>();
 																		map.put( IMarker.CHAR_START, startChar );
 																		map.put( IMarker.CHAR_END, endChar );
 																		IMarker marker = file.createMarker( IMarker.TEXT );

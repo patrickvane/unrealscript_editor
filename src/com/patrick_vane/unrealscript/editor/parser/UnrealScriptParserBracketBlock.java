@@ -8,7 +8,6 @@ class UnrealScriptParserBracketBlock
 	private UnrealScriptParserBracketBlock parent;
 	private CodeWord keyword;
 	private char closeBracketCharacter;
-	@SuppressWarnings( "unused" )
 	private char openBracketCharacter;
 	
 	

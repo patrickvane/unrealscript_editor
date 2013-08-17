@@ -87,7 +87,7 @@ public class OutlineContentPage extends ContentOutlinePage
 		
 		try
 		{
-			final UnrealScriptAttributes attributes = UnrealScriptAdvancedParser.getAttributes( UnrealScriptEditor.getClassName(file) );
+			final UnrealScriptAttributes attributes = UnrealScriptAdvancedParser.getAttributesOfThisClassOnly( UnrealScriptEditor.getClassName(file) );
 			if( forced || !lastWasThis || (lastAttributes == null) || !lastAttributes.equals(attributes) )
 			{
 				lastAttributes = attributes;

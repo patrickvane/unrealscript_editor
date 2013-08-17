@@ -19,7 +19,7 @@ public class OutlineDoubleClickListener implements IDoubleClickListener
 			if( event.getSelection() instanceof IStructuredSelection )
 			{
 				IStructuredSelection eventSelection = (IStructuredSelection) event.getSelection();
-				List selections = eventSelection.toList();
+				List<?> selections = eventSelection.toList();
 				for( Object selection : selections )
 				{
 					if( selection instanceof CodeAttribute )

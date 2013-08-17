@@ -83,7 +83,7 @@ public class Configuration extends SourceViewerConfiguration
 	}
 	
 	
-	public Object getAdapter( UnrealScriptEditor editor, Class required )
+	public Object getAdapter( UnrealScriptEditor editor, Class<?> required )
 	{
 		if( IContentOutlinePage.class.equals(required) )
 		{

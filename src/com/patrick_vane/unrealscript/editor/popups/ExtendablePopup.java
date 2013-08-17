@@ -1,9 +1,9 @@
 package com.patrick_vane.unrealscript.editor.popups;
 
-import javax.swing.JDialog;
 import java.awt.Dimension;
 import java.awt.event.WindowAdapter;
 import java.awt.event.WindowEvent;
+import javax.swing.JDialog;
 import org.eclipse.core.resources.IWorkspaceRunnable;
 import org.eclipse.core.resources.ResourcesPlugin;
 import org.eclipse.core.runtime.CoreException;

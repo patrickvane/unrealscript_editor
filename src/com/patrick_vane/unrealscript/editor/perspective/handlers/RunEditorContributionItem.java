@@ -75,6 +75,7 @@ public class RunEditorContributionItem extends ContributionItem
 	}
 	
 	
+	@SuppressWarnings("unchecked")
 	private static HashMap<String,Profile> getProfiles( IProject project )
 	{
 		String profilesString;

@@ -1,6 +1,7 @@
 package com.patrick_vane.unrealscript.editor.parser;
 
 
+@SuppressWarnings("serial")
 public class CodeException extends Exception
 {
 	private int firstCharacterPosition;

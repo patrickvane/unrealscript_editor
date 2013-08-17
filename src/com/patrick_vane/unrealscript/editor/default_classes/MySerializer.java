@@ -1,12 +1,12 @@
 package com.patrick_vane.unrealscript.editor.default_classes;
 
-import javax.xml.bind.DatatypeConverter;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.io.Serializable;
+import javax.xml.bind.DatatypeConverter;
 
 
 public class MySerializer

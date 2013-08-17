@@ -194,7 +194,6 @@ public class AutoEditStrategy implements IAutoEditStrategy
 		return indent;
 	}
 	
-	@SuppressWarnings( "unused" )
 	private static String decreaseIndend( String indent )
 	{
 		if( indent.contains("\t") )

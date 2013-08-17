@@ -11,9 +11,7 @@
 package com.patrick_vane.unrealscript.editor.default_classes;
 
 import org.eclipse.core.runtime.Assert;
-import org.eclipse.jdt.ui.JavaUI;
 import org.eclipse.jdt.ui.PreferenceConstants;
-import org.eclipse.jdt.ui.text.IJavaColorConstants;
 import org.eclipse.jface.resource.JFaceResources;
 import org.eclipse.jface.text.Document;
 import org.eclipse.jface.text.IDocument;

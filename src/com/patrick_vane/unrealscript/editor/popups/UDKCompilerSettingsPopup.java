@@ -1,10 +1,10 @@
 package com.patrick_vane.unrealscript.editor.popups;
 
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
 import javax.swing.JOptionPane;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
 import com.patrick_vane.unrealscript.editor.constants.UnrealScriptID;

@@ -2,6 +2,7 @@ package com.patrick_vane.unrealscript.editor.extra;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import org.eclipse.jface.text.IDocument;
 import org.eclipse.jface.text.ITextViewer;
 import org.eclipse.jface.text.contentassist.ICompletionProposal;
@@ -88,13 +89,20 @@ public class CodeCompleter implements IContentAssistProcessor
 		if( (word != null) && (wordCutoff != null) && (parentClass != null) )
 		{
 			HashMap<String,CodeAttributeLocalVariable> localVariables = new HashMap<String,CodeAttributeLocalVariable>();
-			UnrealScriptAttributes attributes = UnrealScriptAdvancedParser.getAttributes( parentClass.getName() );
+			UnrealScriptAttributes attributesOfClass = UnrealScriptAdvancedParser.getAttributesOfThisClassOnly( parentClass.getName() );
+			UnrealScriptAttributes attributes = new UnrealScriptAttributes();
 			HashMap<String,UnrealScriptClass> classes = new HashMap<String,UnrealScriptClass>();
+			if( parentClass.getParent() != null )
+			{
+				attributes = UnrealScriptAdvancedParser.getAttributes( parentClass.getParent().getName() );
+			}
 			if( canBeClass )
 			{
 				localVariables = UnrealScriptAdvancedParser.getLocalVariables( parentClass.getName(), offset );
 				classes = UnrealScriptAdvancedParser.getClasses();
 			}
+			HashSet<String> attributesAdded = new HashSet<String>();
+			HashSet<String> functionsAdded = new HashSet<String>();
 			
 			
 			int wordOffset = word.word.getFirstCharacterPosition();
@@ -138,17 +146,63 @@ public class CodeCompleter implements IContentAssistProcessor
 				}
 			}
 			
+			for( CodeAttributeVariable attribute : Sorter.sortAttributeVariables(attributesOfClass.getAttributeVariables()) )
+			{
+				String name = attribute.getName();
+				if( name != null )
+				{
+					String nameLow = name.toLowerCase();
+					if( isDot || nameLow.startsWith(cwordWordLow) )
+					{
+						attributesAdded.add( nameLow );
+						
+						String addString = addedString + name.substring( cwordLength );
+						String showString = cwordWordStart + name.substring( cwordStartLength ) + " : " + attribute.getType();
+						
+						completions.add( getCompletionProposal(attribute, addString, wordOffset+cwordLength, wordLength-cwordLength, addString.length(), variableImage, "> "+showString) );
+					}
+				}
+			}
+			
 			for( CodeAttributeVariable attribute : Sorter.sortAttributeVariables(attributes.getAttributeVariablesChildOverrides().values()) )
 			{
 				String name = attribute.getName();
 				if( name != null )
 				{
-					if( isDot || name.toLowerCase().startsWith(cwordWordLow) )
+					String nameLow = name.toLowerCase();
+					if( isDot || nameLow.startsWith(cwordWordLow) )
 					{
-						String addString = addedString + name.substring( cwordLength );
-						String showString = cwordWordStart + name.substring( cwordStartLength ) + " : " + attribute.getType();
+						if( !attributesAdded.contains(nameLow) )
+						{
+							String addString = addedString + name.substring( cwordLength );
+							String showString = cwordWordStart + name.substring( cwordStartLength ) + " : " + attribute.getType();
+							
+							completions.add( getCompletionProposal(attribute, addString, wordOffset+cwordLength, wordLength-cwordLength, addString.length(), variableImage, showString) );
+						}
+					}
+				}
+			}
+			
+			for( CodeAttributeFunction attribute : Sorter.sortAttributeFunctions(attributesOfClass.getAttributeFunctions()) )
+			{
+				String name = attribute.getName();
+				if( name != null )
+				{
+					String nameLow = name.toLowerCase();
+					if( isDot || nameLow.startsWith(cwordWordLow) )
+					{
+						functionsAdded.add( nameLow );
 						
-						completions.add( getCompletionProposal(attribute, addString, wordOffset+cwordLength, wordLength-cwordLength, addString.length(), variableImage, showString) );
+						String parameters = attribute.getParametersAsString( true );
+						
+						String addString = addedString + name.substring( cwordLength );
+						String showString = cwordWordStart + name.substring( cwordStartLength ) + parameters + " : " + attribute.getType();
+						if( !hasParentheses )
+							addString += parameters;
+						
+						boolean overridden = (attributes.getAttributeFunction(name) != null);
+						
+						completions.add( getCompletionProposal(attribute, addString, wordOffset+cwordLength, wordLength-cwordLength, addString.length(), (overridden ? functionOverriddenImage : functionImage), "> "+showString) );
 					}
 				}
 			}
@@ -158,22 +212,20 @@ public class CodeCompleter implements IContentAssistProcessor
 				String name = attribute.getName();
 				if( name != null )
 				{
-					if( isDot || name.toLowerCase().startsWith(cwordWordLow) )
+					String nameLow = name.toLowerCase();
+					if( isDot || nameLow.startsWith(cwordWordLow) )
 					{
-						String parameters = attribute.getParametersAsString( true );
-						
-						String addString = addedString + name.substring( cwordLength );
-						String showString = cwordWordStart + name.substring( cwordStartLength ) + parameters + " : " + attribute.getType();
-						if( !hasParentheses )
-							addString += parameters;
-						
-						boolean overridden = true;
-						if( attributes.getAttributeFunction(name, 1) != null )
+						if( !functionsAdded.contains(nameLow) )
 						{
-							overridden = false;
+							String parameters = attribute.getParametersAsString( true );
+							
+							String addString = addedString + name.substring( cwordLength );
+							String showString = cwordWordStart + name.substring( cwordStartLength ) + parameters + " : " + attribute.getType();
+							if( !hasParentheses )
+								addString += parameters;
+							
+							completions.add( getCompletionProposal(attribute, addString, wordOffset+cwordLength, wordLength-cwordLength, addString.length(), functionImage, showString) );
 						}
-						
-						completions.add( getCompletionProposal(attribute, addString, wordOffset+cwordLength, wordLength-cwordLength, addString.length(), (overridden ? functionOverriddenImage : functionImage), showString) );
 					}
 				}
 			}

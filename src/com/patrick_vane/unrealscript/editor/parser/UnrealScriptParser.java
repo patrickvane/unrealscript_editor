@@ -384,10 +384,11 @@ public class UnrealScriptParser
 				
 				if( function )
 				{
-					ArrayList<CodeAttributeVariable> parameters = new ArrayList<CodeAttributeVariable>();
+					ArrayList<CodeAttributeParameterLocalVariable> parameters = new ArrayList<CodeAttributeParameterLocalVariable>();
 					CodeWord name = null;
 					String type = "";
 					ArrayList<String> modifiers = new ArrayList<String>();
+					String defaultValue = "";
 					int i;
 					
 					// parse parameters >>
@@ -431,10 +432,15 @@ public class UnrealScriptParser
 									if( variableName != null )
 									{
 										// add parameter >>
-											parameters.add( new CodeAttributeVariable(variableModifiers, variableType, variableName.getWord(), className, variableName.getFirstCharacterPosition(), variableName.getLastCharacterPosition()) );
+											if( defaultValue.isEmpty() )
+												defaultValue = null;
+											
+											parameters.add( new CodeAttributeParameterLocalVariable(variableModifiers, variableType, variableName.getWord(), className, defaultValue, variableName.getFirstCharacterPosition(), variableName.getLastCharacterPosition()) );
+											
 											variableModifiers = new ArrayList<String>();
 											variableName = null;
 											variableType = "";
+											defaultValue = "";
 											gotType = false;
 										// add parameter <<
 									}
@@ -442,6 +448,18 @@ public class UnrealScriptParser
 									if( parentheses >= 1 )
 										break;
 									continue;
+								}
+							}
+							
+							if( firstChar == '=' )
+							{
+								for( int j=i+1; j<=line.size(); j++ )
+								{
+									String text = line.get( j ).getWord();
+									if( text.startsWith(",") || text.startsWith(")") )
+										break;
+									else
+										defaultValue += text;
 								}
 							}
 							
@@ -668,6 +686,10 @@ public class UnrealScriptParser
 	private static final MySynchronizer<String> parseSynchronizer = new MySynchronizer<String>();
 	public static CodeBlock parse( File file ) throws CodeException, IOException
 	{
+		return parse( file, false );
+	}
+	public static CodeBlock parse( File file, boolean returnCachedOnFail ) throws CodeException, IOException
+	{
 		String data = UnrealScriptEditor.getOpenedFileOrFileContent( file );
 		
 		if( data == null )
@@ -678,12 +700,26 @@ public class UnrealScriptParser
 		synchronized( parseSynchronizer.get(path) )
 		{
 			ParseCache cache = parseCache.get( path );
-			if( (cache != null) && data.equals(cache.data) )
-				return cache.code;
+			CodeBlock cachedCode = null;
+			if( cache != null )
+			{
+				cachedCode = cache.code;
+				if( data.equals(cache.data) )
+					return cachedCode;
+			}
 			
-			CodeBlock code = parse( data );
-			parseCache.put( path, new ParseCache(data, code) );
-			return code;
+			try
+			{
+				CodeBlock code = parse( data );
+				parseCache.put( path, new ParseCache(data, code) );
+				return code;
+			}
+			catch( CodeException e )
+			{
+				if( returnCachedOnFail && (cachedCode != null) )
+					return cachedCode;
+				throw e;
+			}
 		}
 	}
 	
@@ -860,14 +896,14 @@ public class UnrealScriptParser
 						commentBlocksOpen++;
 						continue;
 					}
-				}
-				if( (character == '*') && (nextChar == '/') )
-				{
-					if( commentBlocksOpen <= 0 )
-						throw new CodeException( characterPosition, characterPosition+2, true, "Unexpected: */" );
-					commentBlocksOpen--;
-					skip = 1;
-					continue;
+					if( (character == '*') && (nextChar == '/') )
+					{
+						if( commentBlocksOpen <= 0 )
+							throw new CodeException( characterPosition, characterPosition+2, true, "Unexpected: */" );
+						commentBlocksOpen--;
+						skip = 1;
+						continue;
+					}
 				}
 			}
 			if( !inCommentLine && (commentBlocksOpen == 0) )
@@ -1055,98 +1091,112 @@ public class UnrealScriptParser
 	
 	public static HashMap<String,CodeAttributeLocalVariable> parseFunctionParametersAndLocalVariables( String className, int positionInsideFunction )
 	{
+		HashMap<String,CodeAttributeLocalVariable> variables = new HashMap<String,CodeAttributeLocalVariable>();
+		
 		try
 		{
 			UnrealScriptClass unrealscriptClass = UnrealScriptEditor.getUnrealScriptClass( className );
 			if( unrealscriptClass == null )
 				throw new Exception( "class \""+className+"\" couldn't be found" );
 			
-			CodeBlock code = UnrealScriptParser.parse( unrealscriptClass.getFile() );
-			if( code == null )
-				throw new Exception( "class \""+className+"\" couldn't be parsed" );
+			String code = UnrealScriptEditor.getOpenedFileOrFileContent( unrealscriptClass.getFile() );
+			ArrayList<CodeWord> words = UnrealScriptEditor.getCodeWords( code.substring(0, positionInsideFunction), 0 );
 			
-			for( Code child : code.getChilds() )
+			for( int i=words.size()-1; i>=0; i-- )
 			{
-				if( (child.getFirstCharacterPosition() <= positionInsideFunction) && (child.getLastCharacterPosition() >= positionInsideFunction) )
+				if( WordConstant.FUNCTION_KEYWORDS_HASHSET.contains(words.get(i).getWord().toLowerCase()) )
 				{
-					
-					HashMap<String,CodeAttributeLocalVariable> variables = new HashMap<String,CodeAttributeLocalVariable>();
-					if( child instanceof CodeBlock )
-					{
-						CodeBlock childBlock = (CodeBlock) child;
-						if( childBlock.isFunction() )
+					// find beginning of function declaration >>
+						while( i>=0 )
 						{
-							
-							for( CodeAttributeParameterLocalVariable variable : getFunctionParameters(className, childBlock.getLineBeforeBlock()) )
+							i--;
+							if( words.get(i).getWord().equals(";") || words.get(i).getWord().equals("}") )
 							{
-								variables.put( variable.getName().toLowerCase(), variable );
-							}
-							
-							CodeBlockCode childChildCode = null;
-							CodeBlock currentBlock = childBlock;
-							while( true )
-							{
-								if( childBlock.getChilds().size() > 0 )
-								{
-									Code currentBlockChild = currentBlock.getChilds().get( 0 );
-									if( currentBlockChild != null )
-									{
-										if( currentBlockChild instanceof CodeBlockCode )
-										{
-											childChildCode = (CodeBlockCode) currentBlockChild;
-											break;
-										}
-										else if( currentBlockChild instanceof CodeBlock )
-										{
-											currentBlock = (CodeBlock) currentBlockChild;
-											continue;
-										}
-									}
-								}
+								i++;
 								break;
 							}
-							if( childChildCode != null )
-							{
-								ArrayList<CodeAttributeLocalVariable> functionVariables = getFunctionLocalVariables( className, childChildCode );
-								for( CodeAttributeLocalVariable variable : functionVariables )
-								{
-									String key = variable.getName().toLowerCase();
-									if( !variables.containsKey(key) )
-									{
-										variables.put( key, variable );
-									}
-								}
-							}
-							
 						}
-					}
-					return variables;
+						if( i < 0 )
+						{
+							i = 0;
+						}
+					// find beginning of function declaration <<
 					
+					// go through function words >>
+						// get and parse function line (parameters) >>
+							ArrayList<CodeWord> functionLine = new ArrayList<CodeWord>();
+							while( i < words.size() )
+							{
+								CodeWord word = words.get( i );
+								
+								if( !word.getWord().equals("{") )
+								{
+									functionLine.add( word );
+									i++;
+									continue;
+								}
+								i--;
+								
+								for( CodeAttributeParameterLocalVariable variable : getFunctionParameters(className, functionLine) )
+								{
+									variables.put( variable.getName().toLowerCase(), variable );
+								}
+								
+								break;
+							}
+						// get and parse function line (parameters) <<
+						
+						// get and parse local variable lines >>
+							ArrayList<CodeWord> localLine = new ArrayList<CodeWord>();
+							boolean localFound = false;
+							while( i < words.size() )
+							{
+								CodeWord word = words.get( i );
+								i++;
+								
+								if( !localFound )
+								{
+									if( !word.getWord().equalsIgnoreCase("local") )
+									{
+										continue;
+									}
+									localFound = true;
+								}
+								
+								if( word.getWord().equals(";") )
+								{
+									for( CodeAttributeLocalVariable variable : getFunctionLocalVariables(className, localLine) )
+									{
+										String key = variable.getName().toLowerCase();
+										if( !variables.containsKey(key) )
+										{
+											variables.put( key, variable );
+										}
+									}
+									
+									localLine.clear();
+									localFound = false;
+									
+									continue;
+								}
+								
+								localLine.add( word );
+							}
+						// get and parse local variable lines <<
+					// go through function words <<
+					
+					break;
 				}
 			}
 		}
 		catch( Exception e )
 		{
 		}
-		return new HashMap<String,CodeAttributeLocalVariable>();
+		return variables;
 	}
 	
 	public static ArrayList<CodeAttributeParameterLocalVariable> getFunctionParameters( String className, ArrayList<CodeWord> line )
 	{
-		boolean function = false;
-		for( int i=0; i<line.size(); i++ )
-		{
-			if( WordConstant.FUNCTION_KEYWORDS_HASHSET.contains(line.get(i).getWord().toLowerCase()) )
-			{
-				function = true;
-				break;
-			}
-		}
-		if( !function )
-		{
-			return new ArrayList<CodeAttributeParameterLocalVariable>();
-		}
-		
 		ArrayList<CodeAttributeParameterLocalVariable> parameters = new ArrayList<CodeAttributeParameterLocalVariable>();
 		
 		// parse parameters >>
@@ -1155,6 +1205,7 @@ public class UnrealScriptParser
 			String variableType = "";
 			boolean gotType = false;
 			String modifierWord = "";
+			String defaultValue = "";
 			
 			int brackets 		= 0;
 			int squareBrackets 	= 0;
@@ -1189,10 +1240,15 @@ public class UnrealScriptParser
 						if( variableName != null )
 						{
 							// add parameter >>
-								parameters.add( new CodeAttributeParameterLocalVariable(variableModifiers, variableType, variableName.getWord(), className, variableName.getFirstCharacterPosition(), variableName.getLastCharacterPosition()) );
+								if( defaultValue.isEmpty() )
+									defaultValue = null;
+								
+								parameters.add( new CodeAttributeParameterLocalVariable(variableModifiers, variableType, variableName.getWord(), className, defaultValue, variableName.getFirstCharacterPosition(), variableName.getLastCharacterPosition()) );
+								
 								variableModifiers = new ArrayList<String>();
 								variableName = null;
 								variableType = "";
+								defaultValue = "";
 								gotType = false;
 							// add parameter <<
 						}
@@ -1200,6 +1256,18 @@ public class UnrealScriptParser
 						if( parentheses >= 1 )
 							break;
 						continue;
+					}
+				}
+				
+				if( firstChar == '=' )
+				{
+					for( int j=i+1; j<=line.size(); j++ )
+					{
+						String text = line.get( j ).getWord();
+						if( text.startsWith(",") || text.startsWith(")") )
+							break;
+						else
+							defaultValue += text;
 					}
 				}
 				
@@ -1258,15 +1326,12 @@ public class UnrealScriptParser
 		return parameters;
 	}
 	
-	public static ArrayList<CodeAttributeLocalVariable> getFunctionLocalVariables( String className, CodeBlockCode code )
+	public static ArrayList<CodeAttributeLocalVariable> getFunctionLocalVariables( String className, ArrayList<CodeWord> line )
 	{
 		ArrayList<CodeAttributeLocalVariable> attributes = new ArrayList<CodeAttributeLocalVariable>();
 		
-		for( ArrayList<CodeWord> line : code.getLines() )
+		if( line.size() >= 3 )
 		{
-			if( line.size() <= 0 )
-				continue;
-			
 			if( line.get(0).getWord().equalsIgnoreCase("local") )
 			{
 				ArrayList<CodeWord> names = new ArrayList<CodeWord>();
@@ -1466,10 +1531,6 @@ public class UnrealScriptParser
 					CodeWord word = names.get( n );
 					attributes.add( new CodeAttributeLocalVariable(modifiers, type, word.getWord(), className, word.getFirstCharacterPosition(), word.getLastCharacterPosition()) );
 				}
-			}
-			else
-			{
-				break;
 			}
 		}
 		

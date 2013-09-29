@@ -92,7 +92,11 @@ public class TextHover implements ITextHover
 		public static String getTextOfAttribute( CodeAttributeFunction attribute )
 		{
 			String documentation = UnrealScriptAdvancedParser.getDocumentation( attribute );
-    		String text = attribute.getModifiersAsString( true ) + "function " + attribute.getType() + " " + attribute.getName() + attribute.getParametersAsString( true );
+			String text = "";
+			if( "void".equalsIgnoreCase(attribute.getType()) )
+    			text = attribute.getModifiersAsString( true ) + "function " + attribute.getName() + attribute.getParametersAsString( true );
+			else
+				text = attribute.getModifiersAsString( true ) + "function " + attribute.getType() + " " + attribute.getName() + attribute.getParametersAsString( true );
     		return toText( documentation, text );
 		}
 		
@@ -129,7 +133,11 @@ public class TextHover implements ITextHover
 		public static String getTextOfAttribute( CodeAttributeParameterLocalVariable attribute )
 		{
 			String documentation = UnrealScriptAdvancedParser.getDocumentation( attribute );
-			String text = attribute.getModifiersAsString( true ) + attribute.getType() + " " + attribute.getName();
+			String text = "";
+			if( attribute.getDefaultValue() == null )
+				text = attribute.getModifiersAsString( true ) + attribute.getType() + " " + attribute.getName();
+			else
+				text = attribute.getModifiersAsString( true ) + attribute.getType() + " " + attribute.getName() + "=" + attribute.getDefaultValue();
 			return toText( documentation, text );
 		}
     // static functions <<

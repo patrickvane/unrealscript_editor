@@ -7,6 +7,7 @@ import javax.swing.JCheckBox;
 import javax.swing.JOptionPane;
 import org.eclipse.core.resources.IProject;
 import org.eclipse.core.runtime.CoreException;
+import com.patrick_vane.unrealscript.editor.UnrealScriptEditor;
 import com.patrick_vane.unrealscript.editor.constants.UnrealScriptID;
 import com.patrick_vane.unrealscript.editor.executable.UDKCompiler;
 
@@ -19,6 +20,7 @@ public class UDKCompilerSettingsPopup extends ExtendablePopup
 	
 	private JCheckBox 			checkbox64Bit;
 	private JCheckBox 			checkboxStripSource;
+	private JCheckBox 			checkboxDebug;
 	private JButton 			buttonFullRebuild;
 	private JButton 			buttonSave;
 	private JButton 			buttonCancel;
@@ -26,26 +28,29 @@ public class UDKCompilerSettingsPopup extends ExtendablePopup
 	
 	public UDKCompilerSettingsPopup( IProject project )
 	{
-		super( "UDK Compiler Settings", 135, 200 );
+		super( "UDK Compiler Settings", 135, 227 );
 		
 		this.project = project;
 		
 		boolean bit64;
 		boolean stripsource;
+		boolean debug;
 		try
 		{
-			bit64 = Boolean.parseBoolean( project.getPersistentProperty(UnrealScriptID.PROPERTY_64BIT) );
-			stripsource = Boolean.parseBoolean( project.getPersistentProperty(UnrealScriptID.PROPERTY_STRIP_SOUCE) );
+			bit64 = UnrealScriptEditor.parseBoolean( project, UnrealScriptID.PROPERTY_64BIT, false );
+			stripsource = UnrealScriptEditor.parseBoolean( project, UnrealScriptID.PROPERTY_STRIP_SOUCE, false );
+			debug = UnrealScriptEditor.parseBoolean( project, UnrealScriptID.PROPERTY_DEBUG, true );
 		}
 		catch( CoreException e )
 		{
 			bit64 = false;
 			stripsource = false;
+			debug = true;
 			
 			JOptionPane.showMessageDialog
 			( 
 				this, 
-				"Failed to load settings: "+e.getMessage()+"\nDefault settings have been load.", 
+				"Failed to load compiler settings: "+e.getMessage()+"\nDefault compiler settings have been load.", 
 				"Warning",
 				JOptionPane.WARNING_MESSAGE
 			);
@@ -63,21 +68,27 @@ public class UDKCompilerSettingsPopup extends ExtendablePopup
 		checkboxStripSource.setSelected( stripsource );
 		getContentPane().add( checkboxStripSource );
 		
+		checkboxDebug = new JCheckBox( "debug" );
+		checkboxDebug.setToolTipText( "Compiles using the -debug command" );
+		checkboxDebug.setBounds( 21, 77, 102, 21 );
+		checkboxDebug.setSelected( debug );
+		getContentPane().add( checkboxDebug );
+		
 		buttonFullRebuild = new JButton( "Full Rebuild" );
 		buttonFullRebuild.setToolTipText( "Save, Close and Full Rebuild" );
-		buttonFullRebuild.setBounds( 18, 92, 99, 23 );
+		buttonFullRebuild.setBounds( 18, 119, 99, 23 );
 		buttonFullRebuild.addActionListener( listenerFullRebuild );
 		getContentPane().add( buttonFullRebuild );
 		
 		buttonSave = new JButton( "Save" );
 		buttonSave.setToolTipText( "Save and close" );
-		buttonSave.setBounds( 18, 131, 99, 23 );
+		buttonSave.setBounds( 18, 158, 99, 23 );
 		buttonSave.addActionListener( listenerSave );
 		getContentPane().add( buttonSave );
 		
 		buttonCancel = new JButton( "Cancel" );
 		buttonCancel.setToolTipText( "Close without saving" );
-		buttonCancel.setBounds( 18, 161, 99, 23 );
+		buttonCancel.setBounds( 18, 188, 99, 23 );
 		buttonCancel.addActionListener( listenerCancel );
 		getContentPane().add( buttonCancel );
 	}
@@ -89,6 +100,7 @@ public class UDKCompilerSettingsPopup extends ExtendablePopup
 		{
 			project.setPersistentProperty( UnrealScriptID.PROPERTY_64BIT, Boolean.toString(checkbox64Bit.isSelected()) );
 			project.setPersistentProperty( UnrealScriptID.PROPERTY_STRIP_SOUCE, Boolean.toString(checkboxStripSource.isSelected()) );
+			project.setPersistentProperty( UnrealScriptID.PROPERTY_DEBUG, Boolean.toString(checkboxDebug.isSelected()) );
 			return true;
 		}
 		catch( CoreException e )
@@ -96,7 +108,7 @@ public class UDKCompilerSettingsPopup extends ExtendablePopup
 			JOptionPane.showMessageDialog
 			( 
 				this, 
-				"Failed to save settings: "+e.getMessage(), 
+				"Failed to save compiled settings: "+e.getMessage(), 
 				"Error",
 				JOptionPane.ERROR_MESSAGE
 			);

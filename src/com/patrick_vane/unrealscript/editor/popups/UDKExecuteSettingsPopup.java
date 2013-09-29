@@ -78,7 +78,7 @@ public class UDKExecuteSettingsPopup extends ExtendablePopup
 			JOptionPane.showMessageDialog
 			( 
 				this, 
-				"Failed to load settings: "+e.getMessage()+"\nDefault settings have been load.", 
+				"Failed to load profiles: "+e.getMessage()+"\nYour profiles have been reset.", 
 				"Warning",
 				JOptionPane.WARNING_MESSAGE
 			);
@@ -267,7 +267,7 @@ public class UDKExecuteSettingsPopup extends ExtendablePopup
 			JOptionPane.showMessageDialog
 			( 
 				this, 
-				"Failed to save settings: "+e.getMessage(), 
+				"Failed to save profiles: "+e.getMessage(), 
 				"Error",
 				JOptionPane.ERROR_MESSAGE
 			);
@@ -301,8 +301,8 @@ public class UDKExecuteSettingsPopup extends ExtendablePopup
 					dropdownProfile.removeItemAt( index );
 					
 					dropdownProfile.setSelectedIndex( Math.max(0, Math.min(profiles.size()-1, index)) );
-					
 					selectedProfile = (String) dropdownProfile.getSelectedItem();
+					loadProfile( selectedProfile );
 				dropdownProfile.addActionListener( listenerChangeProfile );
 			}
 			catch( Exception ex )

@@ -5,9 +5,13 @@ import java.util.ArrayList;
 
 public class CodeAttributeFunction extends CodeAttribute
 {
-	public CodeAttributeFunction( ArrayList<String> modifiers, String type, String name, ArrayList<CodeAttributeVariable> parameters, String className, int firstCharacterPosition, int lastCharacterPosition )
+	public CodeAttributeFunction( ArrayList<String> modifiers, String type, String name, ArrayList<CodeAttributeParameterLocalVariable> parameters, String className, int firstCharacterPosition, int lastCharacterPosition )
 	{
-		super( className, firstCharacterPosition, lastCharacterPosition, true, modifiers, type, name, parameters );
+		super( className, true, modifiers, type, name, null, parameters, firstCharacterPosition, lastCharacterPosition );
+	}
+	public CodeAttributeFunction( ArrayList<String> modifiers, String type, String name, String defaultValue, ArrayList<CodeAttributeParameterLocalVariable> parameters, String className, int firstCharacterPosition, int lastCharacterPosition )
+	{
+		super( className, true, modifiers, type, name, defaultValue, parameters, firstCharacterPosition, lastCharacterPosition );
 	}
 	
 	
@@ -29,7 +33,10 @@ public class CodeAttributeFunction extends CodeAttribute
 				modifiersBuffer.append( " " );
 			}
 			
-			parametersBuffer.append( modifiersBuffer.toString()+parameter.getType()+" "+parameter.getName() );
+			if( parameter.getDefaultValue() == null )
+				parametersBuffer.append( modifiersBuffer.toString()+parameter.getType()+" "+parameter.getName() );
+			else
+				parametersBuffer.append( modifiersBuffer.toString()+parameter.getType()+" "+parameter.getName()+"="+parameter.getDefaultValue() );
 		}
 		String parameters = parametersBuffer.toString();
 		

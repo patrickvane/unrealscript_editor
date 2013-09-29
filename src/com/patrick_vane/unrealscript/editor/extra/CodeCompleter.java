@@ -14,6 +14,7 @@ import org.eclipse.swt.graphics.Point;
 import com.patrick_vane.unrealscript.editor.UnrealScriptEditor;
 import com.patrick_vane.unrealscript.editor.class_hierarchy.parser.UnrealScriptClass;
 import com.patrick_vane.unrealscript.editor.default_classes.CompletionProposalMessage;
+import com.patrick_vane.unrealscript.editor.default_classes.KeywordDetector;
 import com.patrick_vane.unrealscript.editor.parser.CodeAttribute;
 import com.patrick_vane.unrealscript.editor.parser.CodeAttributeFunction;
 import com.patrick_vane.unrealscript.editor.parser.CodeAttributeLocalVariable;
@@ -117,6 +118,10 @@ public class CodeCompleter implements IContentAssistProcessor
 			if( !isDot )
 			{
 				cwordWord = wordCutoff.word.getWord();
+				
+				if( (cwordWord.length() > 0) && !KeywordDetector.getSharedInstance().isWordStart(cwordWord.charAt(0)) )
+					cwordWord = "";
+				
 				cwordWordLow = cwordWord.toLowerCase();
 			}
 			else

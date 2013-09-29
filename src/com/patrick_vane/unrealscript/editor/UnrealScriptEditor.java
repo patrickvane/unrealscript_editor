@@ -31,6 +31,7 @@ import org.eclipse.core.runtime.IPath;
 import org.eclipse.core.runtime.IProgressMonitor;
 import org.eclipse.core.runtime.NullProgressMonitor;
 import org.eclipse.core.runtime.Path;
+import org.eclipse.core.runtime.QualifiedName;
 import org.eclipse.jface.preference.IPreferenceStore;
 import org.eclipse.jface.resource.ImageDescriptor;
 import org.eclipse.jface.text.IDocument;
@@ -48,7 +49,10 @@ import org.eclipse.ui.IEditorPart;
 import org.eclipse.ui.IEditorReference;
 import org.eclipse.ui.IWorkbenchPage;
 import org.eclipse.ui.IWorkbenchWindow;
+import org.eclipse.ui.PartInitException;
 import org.eclipse.ui.PlatformUI;
+import org.eclipse.ui.contexts.IContextActivation;
+import org.eclipse.ui.contexts.IContextService;
 import org.eclipse.ui.editors.text.TextEditor;
 import org.eclipse.ui.ide.IDE;
 import org.eclipse.ui.texteditor.IDocumentProvider;
@@ -61,11 +65,13 @@ import com.patrick_vane.unrealscript.editor.constants.ProjectConstant;
 import com.patrick_vane.unrealscript.editor.constants.UnrealScriptID;
 import com.patrick_vane.unrealscript.editor.default_classes.DocumentProvider;
 import com.patrick_vane.unrealscript.editor.default_classes.DoneNotifier;
+import com.patrick_vane.unrealscript.editor.default_classes.KeywordDetector;
 import com.patrick_vane.unrealscript.editor.default_classes.MyRunnable;
 import com.patrick_vane.unrealscript.editor.default_classes.MyStream;
 import com.patrick_vane.unrealscript.editor.default_classes.WhitespaceDetector;
 import com.patrick_vane.unrealscript.editor.outline.OutlineLabelProvider;
 import com.patrick_vane.unrealscript.editor.parser.CodeException;
+import com.patrick_vane.unrealscript.editor.parser.CodeWord;
 import com.patrick_vane.unrealscript.editor.parser.UnrealScriptParser;
 
 
@@ -91,6 +97,16 @@ public class UnrealScriptEditor extends TextEditor
 		try
 		{
 			PlatformUI.getWorkbench().showPerspective( UnrealScriptID.PERSPECTIVE, getActiveWorkbenchWindow() );
+		}
+		catch( Exception e )
+		{
+		}
+		
+		try
+		{
+			IContextService contextService = (IContextService) PlatformUI.getWorkbench().getService( IContextService.class );
+			@SuppressWarnings( "unused" )
+			IContextActivation activation = contextService.activateContext( "patrick_vane_unrealscript_editor.editors.context" );
 		}
 		catch( Exception e )
 		{
@@ -532,6 +548,25 @@ public class UnrealScriptEditor extends TextEditor
 				e.printStackTrace();
 				return null;
 			}
+		}
+		
+		public static void showView( final String viewId )
+		{
+			Runnable runnable = new Runnable()
+			{
+				@Override
+				public void run()
+				{
+					try
+					{
+						PlatformUI.getWorkbench().getActiveWorkbenchWindow().getActivePage().showView( viewId );
+					}
+					catch( PartInitException e )
+					{
+					}
+				}
+			};
+			Display.getDefault().syncExec( runnable );
 		}
 		
 		public static IWorkbenchWindow getActiveWorkbenchWindow()
@@ -1074,7 +1109,7 @@ public class UnrealScriptEditor extends TextEditor
 			String root;
 			try
 			{
-				bit64 = Boolean.parseBoolean( project.getPersistentProperty(UnrealScriptID.PROPERTY_64BIT) );
+				bit64 = parseBoolean( project, UnrealScriptID.PROPERTY_64BIT, false );
 				root = getProjectFile(project).getAbsolutePath() + "/";
 			}
 			catch( Exception e )
@@ -1482,15 +1517,25 @@ public class UnrealScriptEditor extends TextEditor
 		
 		public static String getCode( String text )
 		{
-			StringBuilder builder = new StringBuilder();
-			boolean stringOpen = false;
-			boolean charOpen   = false;
-			int docsOpen = 0;
-			boolean previousWasSlash = false;
-			boolean previousWasStar  = false;
-			boolean skipTillNewline  = false;
+			StringBuilder builder 		= new StringBuilder();
+			boolean stringOpen 			= false;
+			boolean charOpen   			= false;
+			boolean currentIsStar 		= false;
+			boolean currentIsSlash 		= false;
+			boolean nextIsStar 			= false;
+			boolean nextIsSlash 		= false;
+			boolean skipTillNewline  	= false;
+			int docsOpen 				= 0;
+			int skip 					= 0;
+			
 			for( int i=0; i<text.length(); i++ )
 			{
+				if( skip > 0 )
+				{
+					skip--;
+					continue;
+				}
+				
 				char c = text.charAt( i );
 				
 				if( skipTillNewline )
@@ -1498,20 +1543,58 @@ public class UnrealScriptEditor extends TextEditor
 					if( (c != '\n') && (c != '\r') )
 						continue;
 					skipTillNewline = false;
+					charOpen = false;
 				}
+				
 				
 				if( stringOpen )
 				{
 					if( c == '"' )
 						stringOpen = false;
+					builder.append( c );
 				}
 				else if( charOpen )
 				{
 					if( c == '\'' )
 						charOpen = false;
+					builder.append( c );
 				}
 				else
 				{
+					char c2 = '\0';
+					if( i+1 < text.length() )
+						c2 = text.charAt( i+1 );
+					
+					currentIsStar 	= (c == '*');
+					currentIsSlash 	= (c == '/');
+					nextIsStar 		= (c2 == '*');
+					nextIsSlash 	= (c2 == '/');
+					
+					if( currentIsStar )
+					{
+						if( nextIsSlash )
+						{
+							docsOpen--;
+							skip = 1;
+							continue;
+						}
+					}
+					if( currentIsSlash )
+					{
+						if( nextIsStar )
+						{
+							docsOpen++;
+							skip = 1;
+							continue;
+						}
+						if( nextIsSlash )
+						{
+							skipTillNewline = true;
+							builder.append( '\n' );
+							continue;
+						}
+					}
+					
 					if( docsOpen <= 0 )
 					{
 						if( c == '"' )
@@ -1520,38 +1603,6 @@ public class UnrealScriptEditor extends TextEditor
 							charOpen = true;
 						builder.append( c );
 					}
-					
-					if( c == '/' )
-					{
-						if( previousWasStar )
-						{
-							docsOpen--;
-							previousWasSlash = false;
-							previousWasStar  = false;
-							continue;
-						}
-						if( previousWasSlash )
-						{
-							skipTillNewline  = true;
-							builder.append( '\n' );
-							previousWasSlash = false;
-							previousWasStar  = false;
-							continue;
-						}
-					}
-					else if( c == '*' )
-					{
-						if( previousWasSlash )
-						{
-							docsOpen++;
-							previousWasSlash = false;
-							previousWasStar  = false;
-							continue;
-						}
-					}
-					
-					previousWasSlash = (c == '/');
-					previousWasStar  = (c == '*');
 				}
 			}
 			return builder.toString();
@@ -1560,27 +1611,282 @@ public class UnrealScriptEditor extends TextEditor
 		{
 			ArrayList<String> words = new ArrayList<String>();
 			StringBuffer buffer = new StringBuffer();
+			boolean stringOpen = false;
+			boolean charOpen = false;
 			for( int i=0; i<code.length(); i++ )
 			{
 				char c = code.charAt( i );
-				if( WhitespaceDetector.getSharedInstance().isWhitespace(c) )
+				
+				if( stringOpen )
 				{
-					if( buffer.length() > 0 )
+					buffer.append( c );
+					if( c == '"' )
+					{
+						stringOpen = false;
+						words.add( buffer.toString() );
+						buffer = new StringBuffer();
+					}
+					continue;
+				}
+				if( charOpen )
+				{
+					buffer.append( c );
+					if( c == '\'' )
+					{
+						charOpen = false;
+						words.add( buffer.toString() );
+						buffer = new StringBuffer();
+					}
+					continue;
+				}
+				if( c == '"' )
+				{
+					buffer.append( c );
+					stringOpen = true;
+					continue;
+				}
+				if( c == '\'' )
+				{
+					buffer.append( c );
+					charOpen = true;
+					continue;
+				}
+				
+				if( buffer.length() > 0 )
+				{
+					if( KeywordDetector.getSharedInstance().isWordPart(c) )
+					{
+						buffer.append( c );
+					}
+					else
 					{
 						words.add( buffer.toString() );
 						buffer = new StringBuffer();
 					}
 				}
-				else
+				
+				if( buffer.length() == 0 )
 				{
-					buffer.append( c );
+					if( !WhitespaceDetector.getSharedInstance().isWhitespace(c) )
+					{
+						buffer.append( c );
+						
+						if( !KeywordDetector.getSharedInstance().isWordStart(c) )
+						{
+							words.add( buffer.toString() );
+							buffer = new StringBuffer();
+						}
+					}
 				}
 			}
 			if( buffer.length() > 0 )
 			{
+				if( stringOpen )
+					buffer.append( '"' );
+				else if( charOpen )
+					buffer.append( '\'' );
 				words.add( buffer.toString() );
 			}
 			return words.toArray( new String[0] );
+		}
+		
+		public static ArrayList<CodeWord> getCodeWords( String text, int startPos )
+		{
+			boolean stringOpen 			= false;
+			boolean charOpen   			= false;
+			boolean currentIsStar 		= false;
+			boolean currentIsSlash 		= false;
+			boolean nextIsStar 			= false;
+			boolean nextIsSlash 		= false;
+			boolean skipTillNewline  	= false;
+			int docsOpen 				= 0;
+			int skip 					= 0;
+			
+			int characterPosition 		= startPos-1;
+			CodeWord word 				= null;
+			ArrayList<CodeWord> words 	= new ArrayList<CodeWord>();
+			
+			for( int i=0; i<text.length(); i++ )
+			{
+				characterPosition++;
+				
+				if( skip > 0 )
+				{
+					skip--;
+					continue;
+				}
+				
+				char c = text.charAt( i );
+				
+				if( skipTillNewline )
+				{
+					if( (c != '\n') && (c != '\r') )
+						continue;
+					skipTillNewline = false;
+					charOpen = false;
+				}
+				
+				
+				if( stringOpen )
+				{
+					if( word == null )
+					{
+						word = new CodeWord( characterPosition-1 );
+						word.addCharacter( '"' );
+					}
+					word.addCharacter( c );
+					if( c == '"' )
+					{
+						stringOpen = false;
+						word.close( characterPosition );
+						words.add( word );
+						word = null;
+					}
+					continue;
+				}
+				else if( charOpen )
+				{
+					if( word == null )
+					{
+						word = new CodeWord( characterPosition-1 );
+						word.addCharacter( '\'' );
+					}
+					word.addCharacter( c );
+					if( c == '\'' )
+					{
+						charOpen = false;
+						word.close( characterPosition );
+						words.add( word );
+						word = null;
+					}
+					continue;
+				}
+				else
+				{
+					char c2 = '\0';
+					if( i+1 < text.length() )
+						c2 = text.charAt( i+1 );
+					
+					currentIsStar 	= (c == '*');
+					currentIsSlash 	= (c == '/');
+					nextIsStar 		= (c2 == '*');
+					nextIsSlash 	= (c2 == '/');
+					
+					if( currentIsStar )
+					{
+						if( nextIsSlash )
+						{
+							docsOpen--;
+							skip = 1;
+							if( word != null )
+							{
+								word.close( characterPosition );
+								words.add( word );
+								word = null;
+							}
+							continue;
+						}
+					}
+					if( currentIsSlash )
+					{
+						if( nextIsStar )
+						{
+							docsOpen++;
+							skip = 1;
+							if( word != null )
+							{
+								word.close( characterPosition );
+								words.add( word );
+								word = null;
+							}
+							continue;
+						}
+						if( nextIsSlash )
+						{
+							skipTillNewline = true;
+							if( word != null )
+							{
+								word.close( characterPosition );
+								words.add( word );
+								word = null;
+							}
+							continue;
+						}
+					}
+					
+					if( docsOpen <= 0 )
+					{
+						if( c == '"' )
+						{
+							stringOpen = true;
+							if( word != null )
+							{
+								word.close( characterPosition-1 );
+								words.add( word );
+								word = null;
+							}
+							word = new CodeWord( characterPosition );
+							word.addCharacter( c );
+							continue;
+						}
+						else if( c == '\'' )
+						{
+							charOpen = true;
+							if( word != null )
+							{
+								word.close( characterPosition-1 );
+								words.add( word );
+								word = null;
+							}
+							word = new CodeWord( characterPosition );
+							word.addCharacter( c );
+							continue;
+						}
+						
+						if( word != null )
+						{
+							if( KeywordDetector.getSharedInstance().isWordPart(c) )
+							{
+								word.addCharacter( c );
+							}
+							else
+							{
+								word.close( characterPosition );
+								words.add( word );
+								word = null;
+							}
+						}
+						
+						if( word == null )
+						{
+							if( !WhitespaceDetector.getSharedInstance().isWhitespace(c) )
+							{
+								word = new CodeWord( characterPosition );
+								word.addCharacter( c );
+								
+								if( !KeywordDetector.getSharedInstance().isWordStart(c) )
+								{
+									word.close( characterPosition );
+									words.add( word );
+									word = null;
+								}
+							}
+						}
+					}
+				}
+			}
+			if( word != null )
+			{
+				if( stringOpen )
+					word.addCharacter( '"' );
+				else if( charOpen )
+					word.addCharacter( '\'' );
+				
+				word.close( characterPosition );
+				words.add( word );
+				word = null;
+			}
+			return words;
 		}
 		
 		public static int trimStartPosition( String content, int offset )
@@ -1879,6 +2185,19 @@ public class UnrealScriptEditor extends TextEditor
 					}
 				}
 			}
+		}
+		
+		
+		public static boolean parseBoolean( IProject project, QualifiedName property, boolean defaultValue ) throws CoreException
+		{
+			if( project == null )
+				return defaultValue;
+			
+			String string = project.getPersistentProperty( property );
+			if( string == null )
+				return defaultValue;
+			else
+				return Boolean.parseBoolean( string );
 		}
 	// static methods <<
 	

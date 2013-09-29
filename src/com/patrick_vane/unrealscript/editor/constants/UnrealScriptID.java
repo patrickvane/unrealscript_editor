@@ -35,4 +35,5 @@ public class UnrealScriptID
 	public static final QualifiedName	PROPERTY_DISABLE_SOUND						= new QualifiedName( PROPERTIES, "disable_sound" );
 	public static final QualifiedName	PROPERTY_DISABLE_STARTUP_VIDEOS				= new QualifiedName( PROPERTIES, "disable_startup_videos" );
 	public static final QualifiedName	PROPERTY_STRIP_SOUCE						= new QualifiedName( PROPERTIES, "stip_code" );
+	public static final QualifiedName	PROPERTY_DEBUG								= new QualifiedName( PROPERTIES, "debug" );
 }

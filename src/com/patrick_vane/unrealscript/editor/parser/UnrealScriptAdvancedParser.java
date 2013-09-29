@@ -617,6 +617,7 @@ public class UnrealScriptAdvancedParser
 				char prev = ' ';
 				char now = ' ';
 				int skip = 0;
+				boolean firstLineChar = true;
 				for( int i=0; i<contentLow.length(); i++ )
 				{
 					prev = now;
@@ -626,6 +627,18 @@ public class UnrealScriptAdvancedParser
 					{
 						skip--;
 						continue;
+					}
+					
+					if( firstLineChar )
+					{
+						if( now == '\t' )
+							continue;
+						else
+							firstLineChar = false;
+					}
+					if( now == '\n' )
+					{
+						firstLineChar = true;
 					}
 					
 					if( commentLine )
@@ -835,7 +848,26 @@ public class UnrealScriptAdvancedParser
 				
 				if( endPos >= 0 )
 				{
-					return content.substring( endPos, startPos );
+					String doc = content.substring( endPos, startPos );
+					
+					String[] lines = doc.split( "\n" );
+					for( int i=0; i<lines.length; i++ )
+					{
+						while( lines[i].startsWith("\t") )
+						{
+							lines[i] = lines[i].substring( 1 );
+						}
+					}
+					
+					StringBuilder buffer = new StringBuilder();
+					for( int i=0; i<lines.length; i++ )
+					{
+						buffer.append( lines[i] );
+						if( i < lines.length-1 )
+							buffer.append( "\n" );
+					}
+					
+					return buffer.toString();
 				}
 				return null;
 			}

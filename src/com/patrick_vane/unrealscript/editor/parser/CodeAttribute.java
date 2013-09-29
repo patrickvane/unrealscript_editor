@@ -14,10 +14,11 @@ public abstract class CodeAttribute
 	private final ArrayList<String> modifiers;
 	private final String type;
 	private final String name;
-	private final ArrayList<CodeAttributeVariable> parameters;
+	private final ArrayList<CodeAttributeParameterLocalVariable> parameters;
+	private final String defaultValue;
 	
 	
-	public CodeAttribute( String className, int firstCharacterPosition, int lastCharacterPosition, boolean isFunction, ArrayList<String> modifiers, String type, String name, ArrayList<CodeAttributeVariable> parameters )
+	public CodeAttribute( String className, boolean isFunction, ArrayList<String> modifiers, String type, String name, String defaultValue, ArrayList<CodeAttributeParameterLocalVariable> parameters, int firstCharacterPosition, int lastCharacterPosition )
 	{
 		this.className = className;
 		this.firstCharacterPosition = firstCharacterPosition;
@@ -29,6 +30,7 @@ public abstract class CodeAttribute
 		this.type = type;
 		this.name = name;
 		this.parameters = parameters;
+		this.defaultValue = defaultValue;
 	}
 	
 	
@@ -65,7 +67,11 @@ public abstract class CodeAttribute
 	{
 		return name;
 	}
-	public ArrayList<CodeAttributeVariable> getParameters()
+	public String getDefaultValue()
+	{
+		return defaultValue;
+	}
+	public ArrayList<CodeAttributeParameterLocalVariable> getParameters()
 	{
 		return parameters;
 	}

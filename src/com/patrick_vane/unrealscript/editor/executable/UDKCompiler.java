@@ -29,7 +29,6 @@ public class UDKCompiler
 	{
 		params.add( 0, "make" );
 		params.add( "-unattended" );
-		params.add( "-debug" );
 	}
 	
 	protected static final HashMap<Object,Long>					compilingProjects		= new HashMap<Object,Long>();
@@ -194,17 +193,23 @@ public class UDKCompiler
 				}
 				
 				boolean stripSources;
+				boolean debug;
 				try
 				{
-					stripSources = Boolean.parseBoolean( UnrealScriptEditor.getActiveProject().getPersistentProperty(UnrealScriptID.PROPERTY_STRIP_SOUCE) );
+					stripSources = UnrealScriptEditor.parseBoolean( UnrealScriptEditor.getActiveProject(), UnrealScriptID.PROPERTY_STRIP_SOUCE, false );
+					debug = UnrealScriptEditor.parseBoolean( UnrealScriptEditor.getActiveProject(), UnrealScriptID.PROPERTY_DEBUG, true );
 				}
 				catch( Exception e )
 				{
 					stripSources = false;
+					debug = true;
 					e.printStackTrace();
 				}
+				
 				if( stripSources )
 					params.add( "-stripsource" );
+				if( debug )
+					params.add( "-debug" );
 				
 				UnrealScriptCompilerConsole.clear();
 				UnrealScriptEditor.runUDK( project, false, UnrealScriptCompilerConsole.getPrintStream(ColorConstant.INFO_COLOR), UnrealScriptCompilerConsole.getPrintStream(ColorConstant.ERROR_COLOR), params );

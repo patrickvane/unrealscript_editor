@@ -105,6 +105,13 @@
             id="patrick_vane_unrealscript_editor.editors.command.run_game"
             name="Run Game">
       </command>
+      <command
+            categoryId="patrick_vane_unrealscript_editor.editors.commandcategory.udk"
+            defaultHandler="com.patrick_vane.unrealscript.editor.perspective.handlers.OpenInTypeHierarchy"
+            description="Open In Type Hierarchy"
+            id="patrick_vane_unrealscript_editor.editors.command.open_in_type_hierachy"
+            name="Open In Type Hierarchy">
+      </command>
    </extension>
    
    
@@ -312,6 +319,23 @@
             id="com.patrick_vane.unrealscript.editor.wizard_category"
             name="UDK">
       </category>
+   </extension>
+   <extension
+         point="org.eclipse.ui.bindings">
+      <key
+            commandId="patrick_vane_unrealscript_editor.editors.command.open_in_type_hierachy"
+            contextId="patrick_vane_unrealscript_editor.editors.context"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="F4">
+      </key>
+   </extension>
+   <extension
+         point="org.eclipse.ui.contexts">
+      <context
+            id="patrick_vane_unrealscript_editor.editors.context"
+            name="patrick_vane_unrealscript_editor.editors.context"
+            parentId="org.eclipse.ui.contexts.window">
+      </context>
    </extension>
    
    

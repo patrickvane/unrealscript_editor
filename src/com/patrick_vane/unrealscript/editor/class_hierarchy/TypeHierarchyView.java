@@ -2,8 +2,8 @@ package com.patrick_vane.unrealscript.editor.class_hierarchy;
 
 import java.io.File;
 import java.util.HashMap;
+import java.util.HashSet;
 import org.eclipse.jface.viewers.ISelection;
-import org.eclipse.jface.viewers.TreeViewer;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.widgets.Composite;
 import org.eclipse.swt.widgets.Display;
@@ -14,17 +14,20 @@ import com.patrick_vane.unrealscript.editor.class_hierarchy.parser.UnrealScriptC
 import com.patrick_vane.unrealscript.editor.class_hierarchy.parser.UnrealScriptClassHierarchyParser;
 import com.patrick_vane.unrealscript.editor.class_hierarchy.parser.UnrealScriptRootClass;
 import com.patrick_vane.unrealscript.editor.constants.ProjectConstant;
+import com.patrick_vane.unrealscript.editor.constants.UnrealScriptID;
 
 
 public class TypeHierarchyView extends ViewPart
 {
-	private static TreeViewer							classHierarchyViewer;
+	private static TypeHierarchyViewTree				classHierarchyViewer;
 	
 	private static UnrealScriptRootClass				lastRoot;
-	private static HashMap<String,UnrealScriptClass>	lastClasses = new HashMap<String,UnrealScriptClass>();
+	private static HashMap<String,UnrealScriptClass>	lastClasses 		= new HashMap<String,UnrealScriptClass>();
 	private static File									lastSourceFolder;
-	private static boolean								firstRunAfterStart = false;
-	private static boolean								fileChanged	= false;
+	private static boolean								firstRunAfterStart 	= false;
+	private static boolean								fileChanged			= false;
+	
+	private static boolean 								initialized 		= false;
 	
 	
 	private static Thread updateThread = new Thread()
@@ -100,6 +103,8 @@ public class TypeHierarchyView extends ViewPart
 												if( control.getVerticalBar() != null )
 													control.getVerticalBar().setSelection( vertical );
 											}
+											
+											initialized = true;
 										}
 									}
 								}
@@ -148,7 +153,7 @@ public class TypeHierarchyView extends ViewPart
 	@Override
 	public void createPartControl( Composite parent )
 	{
-		classHierarchyViewer = new TreeViewer( parent, SWT.MULTI|SWT.H_SCROLL|SWT.V_SCROLL );
+		classHierarchyViewer = new TypeHierarchyViewTree( parent, SWT.MULTI|SWT.H_SCROLL|SWT.V_SCROLL );
 		classHierarchyViewer.setContentProvider( new TypeHierarchyContentProvider() );
 		classHierarchyViewer.setLabelProvider( new TypeHierarchyLabelProvider() );
 		classHierarchyViewer.setSorter( new TypeHierarchySorter() );
@@ -191,6 +196,92 @@ public class TypeHierarchyView extends ViewPart
 		catch( Exception e )
 		{
 			return false;
+		}
+	}
+	
+	public static void show()
+	{
+		UnrealScriptEditor.showView( UnrealScriptID.VIEW_TYPE_HIERARCHY );
+	}
+	public static void waitForInitialize()
+	{
+		while( !initialized )
+		{
+			try
+			{
+				Thread.sleep( 100 );
+			}
+			catch( Exception e )
+			{
+			}
+		}
+	}
+	
+	
+	public static void expandToClass( final UnrealScriptClass unrealscriptClass )
+	{
+		new Thread()
+		{
+			@Override
+			public void run()
+			{
+				if( unrealscriptClass != null )
+				{
+					show();
+					waitForInitialize();
+					
+					String className = unrealscriptClass.getName().toLowerCase();
+					
+					HashSet<String> parents = new HashSet<String>();
+					UnrealScriptClass parent = unrealscriptClass.getParent();
+					while( parent != null )
+					{
+						parents.add( parent.getName().toLowerCase() );
+						parent = parent.getParent();
+					}
+					
+					expand( parents, className.toLowerCase() );
+				}
+				
+			}
+		}.start();
+	}
+	private static void expand( final HashSet<String> parents, final String className )
+	{
+		Display.getDefault().syncExec
+		(
+			new Runnable()
+			{
+				@Override
+				public void run()
+				{
+					if( classHierarchyViewer != null )
+					{
+						expand( lastRoot, parents, className );
+					}
+				}
+			}
+		);
+	}
+	private static void expand( UnrealScriptClass rootClass, HashSet<String> parents, String className )
+	{
+		if( rootClass != null )
+		{
+			for( UnrealScriptClass child : rootClass.getChilds() )
+			{
+				String name = child.getName().toLowerCase();
+				if( name.equals(className) )
+				{
+					classHierarchyViewer.setSelection( child );
+					return;
+				}
+				else if( parents.contains(name) )
+				{
+					parents.remove( name );
+					expand( child, parents, className );
+					return;
+				}
+			}
 		}
 	}
 }

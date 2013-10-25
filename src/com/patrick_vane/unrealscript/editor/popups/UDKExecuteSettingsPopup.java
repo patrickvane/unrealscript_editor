@@ -4,6 +4,7 @@ import java.awt.Font;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.util.HashMap;
+import java.util.Map.Entry;
 import javax.swing.DefaultComboBoxModel;
 import javax.swing.JButton;
 import javax.swing.JCheckBox;
@@ -213,6 +214,7 @@ public class UDKExecuteSettingsPopup extends ExtendablePopup
 	private Profile saveProfile( Profile profile, String profileName )
 	{
 		profiles.put( profileName, profile );
+		clearNullProfiles();
 		
 		String selectedProfile = (String) dropdownProfile.getSelectedItem();
 		
@@ -264,6 +266,7 @@ public class UDKExecuteSettingsPopup extends ExtendablePopup
 		}
 		catch( Exception e )
 		{
+			e.printStackTrace();
 			JOptionPane.showMessageDialog
 			( 
 				this, 
@@ -302,8 +305,9 @@ public class UDKExecuteSettingsPopup extends ExtendablePopup
 					
 					dropdownProfile.setSelectedIndex( Math.max(0, Math.min(profiles.size()-1, index)) );
 					selectedProfile = (String) dropdownProfile.getSelectedItem();
-					loadProfile( selectedProfile );
 				dropdownProfile.addActionListener( listenerChangeProfile );
+				
+				loadProfile( selectedProfile );
 			}
 			catch( Exception ex )
 			{
@@ -343,4 +347,18 @@ public class UDKExecuteSettingsPopup extends ExtendablePopup
 			}
 		}
 	};
+	
+	
+	private void clearNullProfiles()
+	{
+		HashMap<String,Profile> newArray = new HashMap<String,Profile>();
+		for( Entry<String,Profile> entry : profiles.entrySet() )
+		{
+			if( entry.getValue() != null )
+			{
+				newArray.put( entry.getKey(), entry.getValue() );
+			}
+		}
+		profiles = newArray;
+	}
 }

@@ -107,6 +107,13 @@
       </command>
       <command
             categoryId="patrick_vane_unrealscript_editor.editors.commandcategory.udk"
+            defaultHandler="com.patrick_vane.unrealscript.editor.perspective.handlers.Compile"
+            description="Compile"
+            id="patrick_vane_unrealscript_editor.editors.command.compile"
+            name="Compile">
+      </command>
+      <command
+            categoryId="patrick_vane_unrealscript_editor.editors.commandcategory.udk"
             defaultHandler="com.patrick_vane.unrealscript.editor.perspective.handlers.OpenInTypeHierarchy"
             description="Open In Type Hierarchy"
             id="patrick_vane_unrealscript_editor.editors.command.open_in_type_hierachy"
@@ -178,6 +185,18 @@
                   id="patrick_vane_unrealscript_editor.editors.command.run_game.button"
                   style="pulldown"
                   tooltip="Run Game">
+               <visibleWhen
+                     checkEnabled="true">
+                  <reference
+                        definitionId="patrick_vane_unrealscript_editor.editors.definition.isUDKPerspectiveActiveAndIsUDKProjectSelected">
+                  </reference>
+               </visibleWhen>
+            </command>
+            <command
+                  commandId="patrick_vane_unrealscript_editor.editors.command.compile"
+                  icon="icons/buttons/compile.png"
+                  style="push"
+                  tooltip="Compile">
                <visibleWhen
                      checkEnabled="true">
                   <reference
@@ -328,6 +347,12 @@
             schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
             sequence="F4">
       </key>
+      <key
+            commandId="patrick_vane_unrealscript_editor.editors.command.compile"
+            contextId="patrick_vane_unrealscript_editor.editors.context"
+            schemeId="org.eclipse.ui.defaultAcceleratorConfiguration"
+            sequence="Ctrl+Shift+Space">
+      </key>
    </extension>
    <extension
          point="org.eclipse.ui.contexts">
@@ -336,6 +361,14 @@
             name="patrick_vane_unrealscript_editor.editors.context"
             parentId="org.eclipse.ui.contexts.window">
       </context>
+   </extension>
+   <extension
+         point="org.eclipse.ui.preferencePages">
+      <page
+            class="com.patrick_vane.unrealscript.editor.preferences.UDKPreferencesPage"
+            id="patrick_vane_unrealscript_editor.editors.preferences.udk"
+            name="UDK">
+      </page>
    </extension>
    
    

@@ -13,6 +13,7 @@ import org.eclipse.swt.graphics.Image;
 import org.eclipse.swt.graphics.Point;
 import com.patrick_vane.unrealscript.editor.UnrealScriptEditor;
 import com.patrick_vane.unrealscript.editor.class_hierarchy.parser.UnrealScriptClass;
+import com.patrick_vane.unrealscript.editor.constants.UnrealScriptID;
 import com.patrick_vane.unrealscript.editor.default_classes.CompletionProposalMessage;
 import com.patrick_vane.unrealscript.editor.default_classes.KeywordDetector;
 import com.patrick_vane.unrealscript.editor.parser.CodeAttribute;
@@ -371,7 +372,15 @@ public class CodeCompleter implements IContentAssistProcessor
 	@Override
 	public char[] getCompletionProposalAutoActivationCharacters()
 	{
-		return null;
+		if( UnrealScriptEditor.getActiveEditorPreferenceStore() != null )
+		{
+			String triggers = UnrealScriptEditor.getActiveEditorPreferenceStore().getString( UnrealScriptID.PROPERTY_CONTENT_ASSISTANT_TRIGGERS.toString() );
+			if( triggers != null )
+			{
+				return triggers.toCharArray();
+			}
+		}
+		return new char[0];
 	}
 	@Override
 	public char[] getContextInformationAutoActivationCharacters()

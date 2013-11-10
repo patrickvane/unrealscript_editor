@@ -21,11 +21,15 @@ import org.eclipse.jface.text.source.DefaultAnnotationHover;
 import org.eclipse.jface.text.source.IAnnotationHover;
 import org.eclipse.jface.text.source.ISourceViewer;
 import org.eclipse.jface.text.source.SourceViewerConfiguration;
+import org.eclipse.jface.util.IPropertyChangeListener;
+import org.eclipse.jface.util.PropertyChangeEvent;
 import org.eclipse.swt.SWT;
+import org.eclipse.swt.widgets.Display;
 import org.eclipse.swt.widgets.Shell;
 import org.eclipse.ui.views.contentoutline.IContentOutlinePage;
 import com.patrick_vane.unrealscript.editor.class_hierarchy.TypeHierarchyView;
 import com.patrick_vane.unrealscript.editor.constants.TagConstant;
+import com.patrick_vane.unrealscript.editor.constants.UnrealScriptID;
 import com.patrick_vane.unrealscript.editor.default_classes.DoubleClickStrategy;
 import com.patrick_vane.unrealscript.editor.default_classes.HoverInformationControl;
 import com.patrick_vane.unrealscript.editor.extra.AutoEditStrategy;
@@ -43,10 +47,11 @@ public class Configuration extends SourceViewerConfiguration
 	
 	private final UnrealScriptEditor					editor;
 	
+	private ContentAssistant							contentAssistant				= new ContentAssistant();
 	private OutlineContentPage							outlineContentPage;
 	
 	
-	public Configuration( UnrealScriptEditor editor )
+	public Configuration( final UnrealScriptEditor editor )
 	{
 		this.editor = editor;
 		
@@ -56,6 +61,72 @@ public class Configuration extends SourceViewerConfiguration
 			@Override
 			public void run()
 			{
+				editor.waitForInitialization();
+				
+				
+				Display.getDefault().syncExec
+				(
+					new Runnable()
+					{
+						@Override
+						public void run()
+						{
+							// content assistant >>
+								CodeCompleter codeCompleter = new CodeCompleter();
+								for( String tag : TagConstant.TAGS )
+								{
+									contentAssistant.setContentAssistProcessor( codeCompleter, tag );
+								}
+								
+								if( UnrealScriptEditor.getActiveEditorPreferenceStore() != null )
+								{
+									contentAssistant.enableAutoActivation( UnrealScriptEditor.getActiveEditorPreferenceStore().getBoolean(UnrealScriptID.PROPERTY_CONTENT_ASSISTANT_ENABLED.toString()) );
+									contentAssistant.setAutoActivationDelay( UnrealScriptEditor.getActiveEditorPreferenceStore().getInt(UnrealScriptID.PROPERTY_CONTENT_ASSISTANT_DELAY.toString()) );
+									
+									UnrealScriptEditor.getActiveEditorPreferenceStore().addPropertyChangeListener
+									(
+										new IPropertyChangeListener()
+										{
+											@Override
+											public void propertyChange( PropertyChangeEvent event )
+											{
+												if( contentAssistant != null )
+												{
+													String key = event.getProperty();
+													if( key != null )
+													{
+														if( key.equals(UnrealScriptID.PROPERTY_CONTENT_ASSISTANT_ENABLED.toString()) || key.equals(UnrealScriptID.PROPERTY_CONTENT_ASSISTANT_DELAY.toString()) )
+														{
+															
+															Display.getDefault().syncExec
+															(
+																new Runnable()
+																{
+																	@Override
+																	public void run()
+																	{
+																		contentAssistant.enableAutoActivation( UnrealScriptEditor.getActiveEditorPreferenceStore().getBoolean(UnrealScriptID.PROPERTY_CONTENT_ASSISTANT_ENABLED.toString()) );
+																		contentAssistant.setAutoActivationDelay( UnrealScriptEditor.getActiveEditorPreferenceStore().getInt(UnrealScriptID.PROPERTY_CONTENT_ASSISTANT_DELAY.toString()) );
+																	}
+																}
+															);
+															
+														}
+													}
+												}
+											}
+										}
+									);
+								}
+								
+								contentAssistant.setProposalPopupOrientation( IContentAssistant.PROPOSAL_OVERLAY );
+								contentAssistant.setContextInformationPopupOrientation( IContentAssistant.CONTEXT_INFO_ABOVE );
+							// content assistant <<
+						}
+					}
+				);
+				
+				
 				try
 				{
 					IProject project 		= UnrealScriptEditor.getActiveProject();
@@ -158,19 +229,8 @@ public class Configuration extends SourceViewerConfiguration
 	@Override
 	public IContentAssistant getContentAssistant( ISourceViewer sourceViewer )
 	{
-		ContentAssistant assistant = new ContentAssistant();
-		
-		CodeCompleter codeCompleter = new CodeCompleter();
-		for( String tag : TagConstant.TAGS )
-		{
-			assistant.setContentAssistProcessor( codeCompleter, tag );
-		}
-		
-		assistant.setInformationControlCreator( getInformationControlCreator(sourceViewer) );
-		assistant.setProposalPopupOrientation( IContentAssistant.PROPOSAL_OVERLAY );
-		assistant.setContextInformationPopupOrientation( IContentAssistant.CONTEXT_INFO_ABOVE );
-		
-		return assistant;
+		contentAssistant.setInformationControlCreator( getInformationControlCreator(sourceViewer) );
+		return contentAssistant;
 	}
 	
 	@Override

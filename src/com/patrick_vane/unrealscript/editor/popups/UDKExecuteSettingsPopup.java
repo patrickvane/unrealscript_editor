@@ -45,7 +45,7 @@ public class UDKExecuteSettingsPopup extends ExtendablePopup
 	@SuppressWarnings("unchecked")
 	public UDKExecuteSettingsPopup( IProject project )
 	{
-		super( "UDK Execute Settings", 305, 335 );
+		super( "UDK Execute Settings", 405, 335 );
 		
 		this.project = project;
 		
@@ -118,7 +118,7 @@ public class UDKExecuteSettingsPopup extends ExtendablePopup
 		dropdownProfile.setModel( new DefaultComboBoxModel<String>(MyArraySorter.sort(profiles.keySet().toArray(new String[0]))) );
 		dropdownProfile.setEditable( true );
 		dropdownProfile.setToolTipText( "Settings profile" );
-		dropdownProfile.setBounds( 86, 25, 198, 20 );
+		dropdownProfile.setBounds( 86, 25, 298, 20 );
 		dropdownProfile.setSelectedItem( selectedProfile );
 		dropdownProfile.addActionListener( listenerChangeProfile );
 		getContentPane().add( dropdownProfile );
@@ -132,7 +132,7 @@ public class UDKExecuteSettingsPopup extends ExtendablePopup
 		dropdownMap.setModel( new DefaultComboBoxModel<String>(UnrealScriptEditor.getMapNames(project)) );
 		dropdownMap.setEditable( true );
 		dropdownMap.setToolTipText( "A map from the UDKGame/Content/Maps/ folder" );
-		dropdownMap.setBounds( 67, 70, 217, 20 );
+		dropdownMap.setBounds( 67, 70, 317, 20 );
 		dropdownMap.setSelectedItem( map );
 		dropdownMap.setFont( new Font(dropdownMap.getFont().getFontName(), dropdownMap.getFont().getStyle(), (int) Math.round(dropdownMap.getFont().getSize()*0.75)) );
 		getContentPane().add( dropdownMap );
@@ -146,7 +146,7 @@ public class UDKExecuteSettingsPopup extends ExtendablePopup
 		dropdownMode.setModel( new DefaultComboBoxModel<String>(UnrealScriptEditor.getClassesAndPackageNames(UnrealScriptEditor.getSubClasses("GameInfo"))) );
 		dropdownMode.setToolTipText( "A game mode" );
 		dropdownMode.setEditable( true );
-		dropdownMode.setBounds( 67, 100, 217, 20 );
+		dropdownMode.setBounds( 67, 100, 317, 20 );
 		dropdownMode.setSelectedItem( mode );
 		dropdownMode.setFont( new Font(dropdownMode.getFont().getFontName(), dropdownMode.getFont().getStyle(), (int) Math.round(dropdownMode.getFont().getSize()*0.75)) );
 		getContentPane().add( dropdownMode );
@@ -159,39 +159,39 @@ public class UDKExecuteSettingsPopup extends ExtendablePopup
 		inputArgs = new JTextField();
 		inputArgs.setToolTipText( "Extra arguments" );
 		inputArgs.setEditable( true );
-		inputArgs.setBounds( 67, 131, 217, 20 );
+		inputArgs.setBounds( 67, 131, 317, 20 );
 		inputArgs.setText( extraArgs );
 		getContentPane().add( inputArgs );
 		
 		
 		checkboxDisableSound = new JCheckBox( "disable sound" );
 		checkboxDisableSound.setToolTipText( "Disables the ingame sound" );
-		checkboxDisableSound.setBounds( 86, 166, 114, 21 );
+		checkboxDisableSound.setBounds( 136, 166, 114, 21 );
 		checkboxDisableSound.setSelected( disableSound );
 		getContentPane().add( checkboxDisableSound );
 		
 		checkboxDisableStartupVideos = new JCheckBox( "disable startup videos" );
 		checkboxDisableStartupVideos.setToolTipText( "Disables the startup videos" );
-		checkboxDisableStartupVideos.setBounds( 86, 191, 156, 21 );
+		checkboxDisableStartupVideos.setBounds( 136, 191, 156, 21 );
 		checkboxDisableStartupVideos.setSelected( disableStartupVideos );
 		getContentPane().add( checkboxDisableStartupVideos );
 		
 		
 		buttonSave = new JButton( "Save" );
 		buttonSave.setToolTipText( "Save and close" );
-		buttonSave.setBounds( 112, 233, 89, 23 );
+		buttonSave.setBounds( 162, 233, 89, 23 );
 		buttonSave.addActionListener( listenerSave );
 		getContentPane().add( buttonSave );
 		
 		buttonDelete = new JButton( "Delete" );
 		buttonDelete.setToolTipText( "Delete selected profile" );
-		buttonDelete.setBounds( 112, 262, 89, 23 );
+		buttonDelete.setBounds( 162, 262, 89, 23 );
 		buttonDelete.addActionListener( listenerDelete );
 		getContentPane().add( buttonDelete );
 		
 		buttonCancel = new JButton( "Cancel" );
 		buttonCancel.setToolTipText( "Close without saving" );
-		buttonCancel.setBounds( 112, 291, 89, 23 );
+		buttonCancel.setBounds( 162, 291, 89, 23 );
 		buttonCancel.addActionListener( listenerCancel );
 		getContentPane().add( buttonCancel );
 	}

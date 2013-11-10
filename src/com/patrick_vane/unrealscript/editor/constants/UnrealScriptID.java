@@ -36,4 +36,8 @@ public class UnrealScriptID
 	public static final QualifiedName	PROPERTY_DISABLE_STARTUP_VIDEOS				= new QualifiedName( PROPERTIES, "disable_startup_videos" );
 	public static final QualifiedName	PROPERTY_STRIP_SOUCE						= new QualifiedName( PROPERTIES, "stip_code" );
 	public static final QualifiedName	PROPERTY_DEBUG								= new QualifiedName( PROPERTIES, "debug" );
+	public static final QualifiedName	PROPERTY_COMPILE_ON_SAVE					= new QualifiedName( PROPERTIES, "compile_on_save" );
+	public static final QualifiedName	PROPERTY_CONTENT_ASSISTANT_ENABLED			= new QualifiedName( PROPERTIES, "content_assistant_enabled" );
+	public static final QualifiedName	PROPERTY_CONTENT_ASSISTANT_DELAY			= new QualifiedName( PROPERTIES, "content_assistant_delay" );
+	public static final QualifiedName	PROPERTY_CONTENT_ASSISTANT_TRIGGERS			= new QualifiedName( PROPERTIES, "content_assistant_triggers" );
 }

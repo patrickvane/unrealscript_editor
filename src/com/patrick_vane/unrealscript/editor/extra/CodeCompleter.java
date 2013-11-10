@@ -372,9 +372,9 @@ public class CodeCompleter implements IContentAssistProcessor
 	@Override
 	public char[] getCompletionProposalAutoActivationCharacters()
 	{
-		if( UnrealScriptEditor.getActiveEditorPreferenceStore() != null )
+		if( UnrealScriptEditor.getActivatorPreferenceStore() != null )
 		{
-			String triggers = UnrealScriptEditor.getActiveEditorPreferenceStore().getString( UnrealScriptID.PROPERTY_CONTENT_ASSISTANT_TRIGGERS.toString() );
+			String triggers = UnrealScriptEditor.getActivatorPreferenceStore().getString( UnrealScriptID.PROPERTY_CONTENT_ASSISTANT_TRIGGERS.toString() );
 			if( triggers != null )
 			{
 				return triggers.toCharArray();

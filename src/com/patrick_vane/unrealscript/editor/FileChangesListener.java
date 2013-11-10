@@ -29,9 +29,9 @@ public class FileChangesListener extends AbstractResourcesChangedListener
 		{
 			configuration.fileChanged();
 			
-			if( UnrealScriptEditor.getActiveEditorPreferenceStore() != null )
+			if( UnrealScriptEditor.getActivatorPreferenceStore() != null )
 			{
-				if( UnrealScriptEditor.getActiveEditorPreferenceStore().getBoolean(UnrealScriptID.PROPERTY_COMPILE_ON_SAVE.toString()) )
+				if( UnrealScriptEditor.getActivatorPreferenceStore().getBoolean(UnrealScriptID.PROPERTY_COMPILE_ON_SAVE.toString()) )
 				{
 					UDKCompiler.compile( project );
 				}

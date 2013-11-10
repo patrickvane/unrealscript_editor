@@ -78,12 +78,12 @@ public class Configuration extends SourceViewerConfiguration
 									contentAssistant.setContentAssistProcessor( codeCompleter, tag );
 								}
 								
-								if( UnrealScriptEditor.getActiveEditorPreferenceStore() != null )
+								if( UnrealScriptEditor.getActivatorPreferenceStore() != null )
 								{
-									contentAssistant.enableAutoActivation( UnrealScriptEditor.getActiveEditorPreferenceStore().getBoolean(UnrealScriptID.PROPERTY_CONTENT_ASSISTANT_ENABLED.toString()) );
-									contentAssistant.setAutoActivationDelay( UnrealScriptEditor.getActiveEditorPreferenceStore().getInt(UnrealScriptID.PROPERTY_CONTENT_ASSISTANT_DELAY.toString()) );
+									contentAssistant.enableAutoActivation( UnrealScriptEditor.getActivatorPreferenceStore().getBoolean(UnrealScriptID.PROPERTY_CONTENT_ASSISTANT_ENABLED.toString()) );
+									contentAssistant.setAutoActivationDelay( UnrealScriptEditor.getActivatorPreferenceStore().getInt(UnrealScriptID.PROPERTY_CONTENT_ASSISTANT_DELAY.toString()) );
 									
-									UnrealScriptEditor.getActiveEditorPreferenceStore().addPropertyChangeListener
+									UnrealScriptEditor.getActivatorPreferenceStore().addPropertyChangeListener
 									(
 										new IPropertyChangeListener()
 										{
@@ -105,8 +105,8 @@ public class Configuration extends SourceViewerConfiguration
 																	@Override
 																	public void run()
 																	{
-																		contentAssistant.enableAutoActivation( UnrealScriptEditor.getActiveEditorPreferenceStore().getBoolean(UnrealScriptID.PROPERTY_CONTENT_ASSISTANT_ENABLED.toString()) );
-																		contentAssistant.setAutoActivationDelay( UnrealScriptEditor.getActiveEditorPreferenceStore().getInt(UnrealScriptID.PROPERTY_CONTENT_ASSISTANT_DELAY.toString()) );
+																		contentAssistant.enableAutoActivation( UnrealScriptEditor.getActivatorPreferenceStore().getBoolean(UnrealScriptID.PROPERTY_CONTENT_ASSISTANT_ENABLED.toString()) );
+																		contentAssistant.setAutoActivationDelay( UnrealScriptEditor.getActivatorPreferenceStore().getInt(UnrealScriptID.PROPERTY_CONTENT_ASSISTANT_DELAY.toString()) );
 																	}
 																}
 															);

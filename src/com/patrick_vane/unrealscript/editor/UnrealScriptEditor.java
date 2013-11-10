@@ -96,14 +96,6 @@ public class UnrealScriptEditor extends TextEditor
 		updateMarkersThread.start();
 		initStaticClasses();
 		
-		if( getPreferenceStore() != null )
-		{
-			getPreferenceStore().setDefault( UnrealScriptID.PROPERTY_COMPILE_ON_SAVE.toString(), true );
-			getPreferenceStore().setDefault( UnrealScriptID.PROPERTY_CONTENT_ASSISTANT_ENABLED.toString(), false );
-			getPreferenceStore().setDefault( UnrealScriptID.PROPERTY_CONTENT_ASSISTANT_DELAY.toString(), 500 );
-			getPreferenceStore().setDefault( UnrealScriptID.PROPERTY_CONTENT_ASSISTANT_TRIGGERS.toString(), "." );
-		}
-		
 		try
 		{
 			PlatformUI.getWorkbench().showPerspective( UnrealScriptID.PERSPECTIVE, getActiveWorkbenchWindow() );
@@ -623,12 +615,9 @@ public class UnrealScriptEditor extends TextEditor
 				return (UnrealScriptEditor) activeEditor;
 			return null;
 		}
-		public static IPreferenceStore getActiveEditorPreferenceStore()
+		public static IPreferenceStore getActivatorPreferenceStore()
 		{
-			UnrealScriptEditor editor = getActiveEditor();
-			if( editor == null )
-				return null;
-			return editor.getPreferenceStore();
+			return UnrealScriptActivator.getDefault().getPreferenceStore();
 		}
 		public static IFile getActiveIFile()
 		{

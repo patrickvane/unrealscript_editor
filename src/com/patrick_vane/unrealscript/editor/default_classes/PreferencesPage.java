@@ -17,7 +17,7 @@ public abstract class PreferencesPage extends FieldEditorPreferencePage implemen
 	@Override
 	public void init( IWorkbench workbench )
 	{
-		setPreferenceStore( UnrealScriptEditor.getActiveEditorPreferenceStore() );
+		setPreferenceStore( UnrealScriptEditor.getActivatorPreferenceStore() );
 	}
 	
 	

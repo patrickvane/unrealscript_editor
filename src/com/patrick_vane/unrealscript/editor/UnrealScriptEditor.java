@@ -67,8 +67,10 @@ import com.patrick_vane.unrealscript.editor.default_classes.DocumentProvider;
 import com.patrick_vane.unrealscript.editor.default_classes.DoneNotifier;
 import com.patrick_vane.unrealscript.editor.default_classes.KeywordDetector;
 import com.patrick_vane.unrealscript.editor.default_classes.MyRunnable;
+import com.patrick_vane.unrealscript.editor.default_classes.MySerializer;
 import com.patrick_vane.unrealscript.editor.default_classes.MyStream;
 import com.patrick_vane.unrealscript.editor.default_classes.WhitespaceDetector;
+import com.patrick_vane.unrealscript.editor.executable.Profile;
 import com.patrick_vane.unrealscript.editor.outline.OutlineLabelProvider;
 import com.patrick_vane.unrealscript.editor.parser.CodeException;
 import com.patrick_vane.unrealscript.editor.parser.CodeWord;
@@ -2205,6 +2207,55 @@ public class UnrealScriptEditor extends TextEditor
 						{
 						}
 					}
+				}
+			}
+		}
+		
+		
+		public static HashMap<String,Profile> getProfiles( IProject project )
+		{
+			HashMap<String,Profile> profiles = null;
+			if( project != null )
+			{
+				String profilesString;
+				try
+				{
+					profilesString = project.getPersistentProperty( UnrealScriptID.PROPERTY_EXECUTE_SETTINGS_PROFILES );
+				}
+				catch( CoreException e )
+				{
+					profilesString = null;
+				}
+				
+				try
+				{
+					profiles = (HashMap<String,Profile>) MySerializer.fromString( profilesString );
+				}
+				catch( Exception e )
+				{
+					profiles = null;
+				}
+			}
+			
+			if( (profiles == null) || profiles.isEmpty() )
+			{
+				profiles = new HashMap<String,Profile>();
+				profiles.put( "Default", new Profile() );
+			}
+			
+			return profiles;
+		}
+		
+		public static void saveProfileName( QualifiedName key, IProject project, String profile )
+		{
+			if( project != null )
+			{
+				try
+				{
+					project.setPersistentProperty( key, profile );
+				}
+				catch( CoreException e )
+				{
 				}
 			}
 		}

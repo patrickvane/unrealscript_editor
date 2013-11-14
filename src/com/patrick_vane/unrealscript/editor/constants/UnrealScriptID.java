@@ -28,6 +28,8 @@ public class UnrealScriptID
 	public static final QualifiedName	PROPERTY_IS_UDK_IMPORT						= new QualifiedName( PROPERTIES, "is_udk_import" );
 	public static final QualifiedName	PROPERTY_EXECUTE_SETTINGS_PROFILES			= new QualifiedName( PROPERTIES, "execute_settings_profiles" );
 	public static final QualifiedName	PROPERTY_SELECTED_EXECUTE_SETTINGS_PROFILE	= new QualifiedName( PROPERTIES, "selected_execute_settings_profile" );
+	public static final QualifiedName	PROPERTY_LAST_USED_RUN_GAME_PROFILE			= new QualifiedName( PROPERTIES, "last_used_run_game_profile" );
+	public static final QualifiedName	PROPERTY_LAST_USED_RUN_EDITOR_PROFILE		= new QualifiedName( PROPERTIES, "last_used_run_editor_profile" );
 	public static final QualifiedName	PROPERTY_GAME_MAP							= new QualifiedName( PROPERTIES, "game_map" );
 	public static final QualifiedName	PROPERTY_GAME_MODE							= new QualifiedName( PROPERTIES, "game_mode" );
 	public static final QualifiedName	PROPERTY_EXTRA_EXECUTE_ARGUMENTS			= new QualifiedName( PROPERTIES, "extra_execute_arguments" );

@@ -1,108 +1,28 @@
 package com.patrick_vane.unrealscript.editor.perspective.handlers;
 
-import java.util.HashMap;
-import java.util.Map.Entry;
 import org.eclipse.core.resources.IProject;
-import org.eclipse.core.runtime.CoreException;
-import org.eclipse.jface.action.Action;
-import org.eclipse.jface.action.ActionContributionItem;
-import org.eclipse.jface.action.ContributionItem;
-import org.eclipse.jface.action.IAction;
-import org.eclipse.swt.widgets.Menu;
-import com.patrick_vane.unrealscript.editor.UnrealScriptEditor;
+import org.eclipse.core.runtime.QualifiedName;
 import com.patrick_vane.unrealscript.editor.constants.UnrealScriptID;
-import com.patrick_vane.unrealscript.editor.default_classes.MyArraySorter;
-import com.patrick_vane.unrealscript.editor.default_classes.MySerializer;
 import com.patrick_vane.unrealscript.editor.executable.Profile;
 import com.patrick_vane.unrealscript.editor.executable.UDKGame;
 
 
-public class RunGameContributionItem extends ContributionItem
+public class RunGameContributionItem extends RunAbstractContributionItem
 {
-	public void fill( Menu menu )
+	@Override
+	public QualifiedName getLastUsedProfileKey()
 	{
-		IProject projectTmp = null;
-		HashMap<String,Profile> profilesTmp = null;
-		try
-		{
-			projectTmp = UnrealScriptEditor.getSelectedOrActiveProject();
-			profilesTmp = getProfiles( projectTmp );
-		}
-		catch( Exception e )
-		{
-		}
-		if( profilesTmp == null )
-			return;
-		final IProject project = projectTmp;
-		final HashMap<String,Profile> profiles = profilesTmp;
-		
-		for( final Entry<String,Profile> entry : MyArraySorter.sort(profiles).entrySet() )
-		{
-			addActionToMenu
-			(
-				menu, 
-				new Action( entry.getKey(), IAction.AS_PUSH_BUTTON )
-				{
-					@Override
-					public void run()
-					{
-						UDKGame.run( project, entry.getValue() );
-					}
-				}
-			);
-		}
+		return UnrealScriptID.PROPERTY_LAST_USED_RUN_GAME_PROFILE;
 	}
-	
 	
 	@Override
-	public void fill( Menu menu, int index )
+	public void run( IProject project )
 	{
-		super.fill( menu, index );
-		fill( menu );
+		UDKGame.run( project );
 	}
-	
-	public void addActionToMenu( Menu menu, Action action )
-	{
-		ActionContributionItem item = new ActionContributionItem( action );
-		item.fill( menu, -1 );
-	}
-	
-	
 	@Override
-	public boolean isDynamic()
+	public void run( IProject project, Profile profile )
 	{
-		return true;
-	}
-	
-	
-	@SuppressWarnings("unchecked")
-	private static HashMap<String,Profile> getProfiles( IProject project )
-	{
-		String profilesString;
-		try
-		{
-			profilesString = project.getPersistentProperty( UnrealScriptID.PROPERTY_EXECUTE_SETTINGS_PROFILES );
-		}
-		catch( CoreException e )
-		{
-			profilesString = null;
-		}
-		
-		HashMap<String,Profile> profiles;
-		try
-		{
-			profiles = (HashMap<String,Profile>) MySerializer.fromString( profilesString );
-		}
-		catch( Exception e )
-		{
-			profiles = null;
-		}
-		if( (profiles == null) || profiles.isEmpty() )
-		{
-			profiles = new HashMap<String,Profile>();
-			profiles.put( "Default", new Profile() );
-		}
-		
-		return profiles;
+		UDKGame.run( project, profile );
 	}
 }

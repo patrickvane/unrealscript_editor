@@ -216,6 +216,9 @@ public class UDKExecuteSettingsPopup extends ExtendablePopup
 		profiles.put( profileName, profile );
 		clearNullProfiles();
 		
+		if( profiles.size() <= 0 )
+			throw new RuntimeException( "You need to have at least one profile." );
+		
 		String selectedProfile = (String) dropdownProfile.getSelectedItem();
 		
 		dropdownProfile.removeActionListener( listenerChangeProfile );
@@ -354,7 +357,7 @@ public class UDKExecuteSettingsPopup extends ExtendablePopup
 		HashMap<String,Profile> newArray = new HashMap<String,Profile>();
 		for( Entry<String,Profile> entry : profiles.entrySet() )
 		{
-			if( entry.getValue() != null )
+			if( (entry.getKey() != null) && (entry.getValue() != null) )
 			{
 				newArray.put( entry.getKey(), entry.getValue() );
 			}

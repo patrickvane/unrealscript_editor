@@ -32,7 +32,8 @@ public class ImportProject extends AbstractHandler
 		String rootPath = null;
 		String projectName = null;
 		IProject project = null;
-		UDKImportProject dialog = new UDKImportProject( null, null );
+		String path = UnrealScriptEditor.getActivatorPreferenceStore().getString(UnrealScriptID.PROPERTY_CONTENT_ASSISTANT_UDK_DIR.toString());
+		UDKImportProject dialog = new UDKImportProject( null, path);
 		boolean ok = false;
 		while( !ok )
 		{

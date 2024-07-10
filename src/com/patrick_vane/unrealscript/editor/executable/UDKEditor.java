@@ -17,11 +17,12 @@ public class UDKEditor
 	
 	public static void run( final IProject project )
 	{
-		run( project, (ArrayList<String>) params.clone() );
+		
+		run( project, new ArrayList<String>(params) );
 	}
 	public static void run( final IProject project, final String... extraParams )
 	{
-		ArrayList<String> newParams = (ArrayList<String>) params.clone();
+		ArrayList<String> newParams = new ArrayList<String>(params);
 		for( String param : extraParams )
 		{
 			newParams.add( param );
@@ -31,11 +32,11 @@ public class UDKEditor
 	
 	public static void run( final IProject project, final Profile profile )
 	{
-		run( project, profile, (ArrayList<String>) params.clone() );
+		run( project, profile, new ArrayList<String>(params));
 	}
 	public static void run( final IProject project, final Profile profile, final String... extraParams )
 	{
-		ArrayList<String> newParams = (ArrayList<String>) params.clone();
+		ArrayList<String> newParams = new ArrayList<String>(params);
 		for( String param : extraParams )
 		{
 			newParams.add( param );
@@ -45,11 +46,11 @@ public class UDKEditor
 	
 	public static void run( final IProject project, String map )
 	{
-		run( project, map, (ArrayList<String>) params.clone() );
+		run( project, map, new ArrayList<String>(params));
 	}
 	public static void run( final IProject project, String map, final String... extraParams )
 	{
-		ArrayList<String> newParams = (ArrayList<String>) params.clone();
+		ArrayList<String> newParams = new ArrayList<String>(params);
 		for( String param : extraParams )
 		{
 			newParams.add( param );
@@ -87,7 +88,7 @@ public class UDKEditor
 		if( project == null )
 			return;
 		
-		final ArrayList<String> params = (ArrayList<String>) parameters.clone();
+		final ArrayList<String> params = new ArrayList<String>(parameters);
 		
 		// add params >>
 			if( map == null )

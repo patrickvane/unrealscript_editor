@@ -30,7 +30,11 @@ public abstract class AbstractResourcesChangedListener implements MyFileListener
 	
 	public void start()
 	{
-		listener.start();
+		try {
+			listener.start();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 	public void stop()
 	{

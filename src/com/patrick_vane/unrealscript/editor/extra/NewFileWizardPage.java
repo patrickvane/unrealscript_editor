@@ -3,7 +3,8 @@ package com.patrick_vane.unrealscript.editor.extra;
 import java.io.ByteArrayInputStream;
 import java.io.InputStream;
 import org.eclipse.core.resources.ResourcesPlugin;
-import org.eclipse.core.runtime.Preferences;
+import org.eclipse.core.runtime.preferences.IEclipsePreferences;
+import org.eclipse.core.runtime.preferences.InstanceScope;
 import org.eclipse.jface.viewers.IStructuredSelection;
 import org.eclipse.swt.SWT;
 import org.eclipse.swt.graphics.Font;
@@ -14,6 +15,7 @@ import org.eclipse.swt.widgets.Label;
 import org.eclipse.swt.widgets.Text;
 import org.eclipse.ui.dialogs.WizardNewFileCreationPage;
 
+import com.patrick_vane.unrealscript.editor.UnrealScriptActivator;
 
 public class NewFileWizardPage extends WizardNewFileCreationPage
 {
@@ -32,12 +34,10 @@ public class NewFileWizardPage extends WizardNewFileCreationPage
 	@Override
 	protected void createAdvancedControls( Composite parent )
 	{
-		Preferences preferences = ResourcesPlugin.getPlugin().getPluginPreferences();
-		preferences.setValue( ResourcesPlugin.PREF_DISABLE_LINKING, true );
-		
-		
+		IEclipsePreferences prefs = InstanceScope.INSTANCE.getNode(UnrealScriptActivator.getSymbolicName());
+		prefs.putBoolean(ResourcesPlugin.PREF_DISABLE_LINKING, true);
+
 		super.createAdvancedControls(  parent  );
-		
 		
 		Font font = parent.getFont();
 		

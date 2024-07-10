@@ -42,4 +42,5 @@ public class UnrealScriptID
 	public static final QualifiedName	PROPERTY_CONTENT_ASSISTANT_ENABLED			= new QualifiedName( PROPERTIES, "content_assistant_enabled" );
 	public static final QualifiedName	PROPERTY_CONTENT_ASSISTANT_DELAY			= new QualifiedName( PROPERTIES, "content_assistant_delay" );
 	public static final QualifiedName	PROPERTY_CONTENT_ASSISTANT_TRIGGERS			= new QualifiedName( PROPERTIES, "content_assistant_triggers" );
+	public static final QualifiedName	PROPERTY_CONTENT_ASSISTANT_UDK_DIR 			= new QualifiedName( PROPERTIES, "content_assistant_udk_dir" );
 }

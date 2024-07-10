@@ -2212,6 +2212,7 @@ public class UnrealScriptEditor extends TextEditor
 		}
 		
 		
+		@SuppressWarnings("unchecked")
 		public static HashMap<String,Profile> getProfiles( IProject project )
 		{
 			HashMap<String,Profile> profiles = null;

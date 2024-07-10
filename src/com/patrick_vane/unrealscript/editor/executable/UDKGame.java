@@ -22,11 +22,11 @@ public class UDKGame
 	
 	public static void run( final IProject project )
 	{
-		run( project, (ArrayList<String>) params.clone() );
+		run( project, new ArrayList<String>(params) );
 	}
 	public static void run( final IProject project, final String... extraParams )
 	{
-		ArrayList<String> newParams = (ArrayList<String>) params.clone();
+		ArrayList<String> newParams = new ArrayList<String>(params);
 		for( String param : extraParams )
 		{
 			newParams.add( param );
@@ -36,11 +36,11 @@ public class UDKGame
 	
 	public static void run( final IProject project, final Profile profile )
 	{
-		run( project, profile, (ArrayList<String>) params.clone() );
+		run( project, profile, new ArrayList<String>(params));
 	}
 	public static void run( final IProject project, final Profile profile, final String... extraParams )
 	{
-		ArrayList<String> newParams = (ArrayList<String>) params.clone();
+		ArrayList<String> newParams = new ArrayList<String>(params);
 		for( String param : extraParams )
 		{
 			newParams.add( param );
@@ -50,11 +50,11 @@ public class UDKGame
 	
 	public static void run( final IProject project, String map, String mode, String extraArgs, boolean disableSound, boolean disableStartupVideos )
 	{
-		run( project, map, mode, extraArgs, disableSound, disableStartupVideos, (ArrayList<String>) params.clone() );
+		run( project, map, mode, extraArgs, disableSound, disableStartupVideos, new ArrayList<String>(params));
 	}
 	public static void run( final IProject project, String map, String mode, String extraArgs, boolean disableSound, boolean disableStartupVideos, final String... extraParams )
 	{
-		ArrayList<String> newParams = (ArrayList<String>) params.clone();
+		ArrayList<String> newParams = new ArrayList<String>(params);
 		for( String param : extraParams )
 		{
 			newParams.add( param );
@@ -103,7 +103,7 @@ public class UDKGame
 		if( project == null )
 			return;
 		
-		final ArrayList<String> params = (ArrayList<String>) parameters.clone();
+		final ArrayList<String> params = new ArrayList<String>(parameters);
 		
 		// add params >>
 			if( map == null )
